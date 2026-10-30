@@ -1,0 +1,58 @@
+================================================================================
+                    PAYMENT GATEWAY WEBHOOK ENDPOINTS
+================================================================================
+
+1. STRIPE WEBHOOK ENDPOINT
+--------------------------------------------------------------------------------
+Local Endpoint (via local server / XAMPP):
+http://localhost/ecommerce/website/payment/webhook/stripe
+
+Local Testing with Ngrok / LocalTunnel (Example):
+https://xxxx-xx-xx-xx.ngrok-free.app/ecommerce/website/payment/webhook/stripe
+
+Production / Live Domain Endpoint:
+https://yourdomain.com/payment/webhook/stripe
+(or: https://yourdomain.com/website/payment/webhook/stripe depending on your web root)
+
+Events to Select in Stripe Dashboard (Developers -> Webhooks):
+- checkout.session.completed     (Crucial: Marks orders paid when Stripe Checkout completes)
+- payment_intent.succeeded       (Confirms successful card charge)
+- payment_intent.payment_failed  (Marks payment as failed if charge fails)
+
+Webhook Secret Setup:
+After creating the webhook in your Stripe Dashboard, copy the "Signing secret"
+(e.g., whsec_...) and paste it in:
+Admin Panel -> Settings -> Payment Settings -> Stripe -> "Webhook Secret" field.
+
+
+2. RAZORPAY WEBHOOK ENDPOINT
+--------------------------------------------------------------------------------
+Local Endpoint:
+http://localhost/ecommerce/website/payment/webhook/razorpay
+
+Production / Live Domain Endpoint:
+https://yourdomain.com/payment/webhook/razorpay
+(or: https://yourdomain.com/website/payment/webhook/razorpay)
+
+Events to Select in Razorpay Dashboard (Settings -> Webhooks):
+- order.paid                     (Triggered when an order is completely paid)
+- payment.captured               (Triggered when payment is successfully captured)
+
+Secret Setup:
+Razorpay uses your Key Secret to verify HMAC-SHA256 signature automatically.
+
+
+================================================================================
+                      HOW WEBHOOKS WORK IN THIS SYSTEM
+================================================================================
+1. SYNCHRONOUS REDIRECT (Primary):
+   When a customer finishes payment on Stripe or Razorpay, they are immediately
+   redirected back to the store (e.g., payment/stripe_success), which verifies
+   the transaction and confirms the order instantly in their browser session.
+
+2. ASYNCHRONOUS WEBHOOK (Fallback / Resilience):
+   If the customer closes their browser tab or loses network connectivity right
+   after paying, the payment gateway sends a webhook to this endpoint in the
+   background. The endpoint validates the cryptographic signature, matches the
+   order by order number / reference ID, and updates the payment status to "paid".
+================================================================================

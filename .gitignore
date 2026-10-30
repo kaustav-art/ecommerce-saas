@@ -1,0 +1,139 @@
+# ==========================================
+# Operating System Files
+# ==========================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+
+# ==========================================
+# IDE & Editor Files
+# ==========================================
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+nbproject/
+**/nbproject/
+*.sublime-workspace
+*.sublime-project
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+.project
+.buildpath
+.settings/
+
+
+# ==========================================
+# CodeIgniter 3 Cache & Logs (Multi-App)
+# ==========================================
+# Ignores cache and log files in any CI application (admin, website, admin-template, etc.)
+**/application/cache/*
+!**/application/cache/index.html
+!**/application/cache/.gitkeep
+!**/application/cache/.htaccess
+
+**/application/logs/*
+!**/application/logs/index.html
+!**/application/logs/.gitkeep
+!**/application/logs/.htaccess
+
+!**/application/*/.htaccess
+
+
+# ==========================================
+# Dependencies & Package Managers
+# ==========================================
+# Composer
+composer.phar
+/vendor/
+**/vendor/
+admin/composer.lock
+admin-template/composer.lock
+website/composer.lock
+
+# Node / NPM
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+
+# ==========================================
+# User Uploads / Media
+# ==========================================
+**/uploads/*
+!**/uploads/index.html
+!**/uploads/.gitkeep
+**/assets/uploads/*
+!**/assets/uploads/index.html
+!**/assets/uploads/.gitkeep
+
+
+# ==========================================
+# Environment & Sensitive Config
+# ==========================================
+.env
+.env.*
+!.env.example
+*.local.php
+
+
+# ==========================================
+# Database & Dumps
+# ==========================================
+*.sql
+!database/*.sql
+*.sqlite
+*.db
+tests/mocks/database/ci_test.sqlite
+
+
+# ==========================================
+# Temporary & Log Files
+# ==========================================
+*.log
+error_log
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+
+# ==========================================
+# CI Testing & User Guide Artifacts
+# ==========================================
+/tests/tests/
+/tests/results/
+user_guide_src/build/*
+user_guide_src/cilexer/build/*
+user_guide_src/cilexer/dist/*
+user_guide_src/cilexer/pycilexer.egg-info/*
+
+
+# ==========================================
+# Template & Design Reference Files
+# ==========================================
+admin-template/vertical-menu-template/
+# website/templates/
+

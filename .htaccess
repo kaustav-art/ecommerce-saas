@@ -1,0 +1,10 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /ecommerce/
+
+    # Route /store/<slug> to /website/s/<slug>
+    RewriteRule ^store/([a-zA-Z0-9\-_\.]+)(/.*)?$ website/s/$1$2 [R=302,L,QSA]
+
+    # Route /demo/<tpl> to launch.php?tpl=<tpl>
+    RewriteRule ^demo/([a-zA-Z0-9\-_]+)/?$ launch.php?tpl=$1 [R=302,L,QSA]
+</IfModule>
