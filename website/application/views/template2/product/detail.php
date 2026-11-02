@@ -301,6 +301,14 @@ if (!empty($initial_variant)) {
 /* ==========================================================================
    PRODUCT DETAILS RIGHT COLUMN STYLES (Variants, Accordions, Action Buttons)
    ========================================================================== */
+@media (min-width: 992px) {
+    .aq-product-details-thumbnails-style .product-details-slider-wrap {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 100px;
+        z-index: 10;
+    }
+}
 .tf-product-info-wrap {
     font-family: inherit;
 }
@@ -919,7 +927,7 @@ if (!empty($initial_variant)) {
          <div class="container">
             <div class="row">
                <div class="col-lg-6 order-lg-1 order-2">
-                  <div class="product-details-slider-wrap">
+                  <div class="product-details-slider-wrap sticky-top" style="top: 100px; z-index: 10;">
                      <div class="product-slider-main-wrap p-relative mb-10">
                         <div class="product-slider-main slider-for p-relative">
                            <?php foreach ($elt_gallery_urls as $g_url): ?>
