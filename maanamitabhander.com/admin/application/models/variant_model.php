@@ -22,7 +22,7 @@ class variant_model extends CI_Model {
                              ->result_array();
 
         foreach ($variants as &$v) {
-            $v['values'] = $this->db->select('pvv.*, a.name as attribute_name, a.slug as attribute_slug, av.value as attribute_value, av.color_code')
+            $v['values'] = $this->db->select('pvv.*, a.name as attribute_name, a.slug as attribute_slug, a.type as type, av.value as attribute_value, av.color_code')
                                     ->from('product_variant_values pvv')
                                     ->join('attributes a', 'a.id = pvv.attribute_id')
                                     ->join('attribute_values av', 'av.id = pvv.attribute_value_id')
@@ -37,7 +37,7 @@ class variant_model extends CI_Model {
     {
         $variant = $this->db->where('id', (int) $id)->get('product_variants')->row_array();
         if ($variant) {
-            $variant['values'] = $this->db->select('pvv.*, a.name as attribute_name, a.slug as attribute_slug, av.value as attribute_value, av.color_code')
+            $variant['values'] = $this->db->select('pvv.*, a.name as attribute_name, a.slug as attribute_slug, a.type as type, av.value as attribute_value, av.color_code')
                                           ->from('product_variant_values pvv')
                                           ->join('attributes a', 'a.id = pvv.attribute_id')
                                           ->join('attribute_values av', 'av.id = pvv.attribute_value_id')
@@ -167,8 +167,7 @@ class variant_model extends CI_Model {
 
         foreach ($assigned_attrs as $aa) {
             $is_multi = (in_array(strtolower($aa['type'] ?? ''), ['multiple_select', 'multiselect', 'multiple'])
-                         || strcasecmp($aa['slug'], 'size') === 0 || strcasecmp($aa['name'], 'size') === 0
-                         || strcasecmp($aa['slug'], 'storage') === 0 || strcasecmp($aa['name'], 'storage') === 0);
+                         || strcasecmp($aa['slug'], 'size') === 0 || strcasecmp($aa['name'], 'size') === 0);
             if ($is_multi) {
                 $multi_attr_id   = (int) $aa['id'];
                 $multi_attr_name = $aa['name'];
@@ -182,8 +181,8 @@ class variant_model extends CI_Model {
             foreach ($variants as $v) {
                 if (!empty($v['values'])) {
                     foreach ($v['values'] as $val) {
-                        $is_multi = (strcasecmp($val['attribute_slug'], 'size') === 0 || strcasecmp($val['attribute_name'], 'size') === 0
-                                     || strcasecmp($val['attribute_slug'], 'storage') === 0 || strcasecmp($val['attribute_name'], 'storage') === 0);
+                        $is_multi = (in_array(strtolower($val['type'] ?? ''), ['multiple_select', 'multiselect', 'multiple'])
+                                     || strcasecmp($val['attribute_slug'], 'size') === 0 || strcasecmp($val['attribute_name'], 'size') === 0);
                         if ($is_multi) {
                             $multi_attr_id   = (int) $val['attribute_id'];
                             $multi_attr_name = $val['attribute_name'];
@@ -206,9 +205,8 @@ class variant_model extends CI_Model {
                         if ((int)$val['attribute_id'] === $multi_attr_id) {
                             $is_multi_val = true;
                         }
-                    } elseif (strcasecmp($val['attribute_slug'], 'size') === 0 || strcasecmp($val['attribute_name'], 'size') === 0) {
-                        $is_multi_val = true;
-                    } elseif (strcasecmp($val['attribute_slug'], 'storage') === 0 || strcasecmp($val['attribute_name'], 'storage') === 0) {
+                    } elseif (in_array(strtolower($val['type'] ?? ''), ['multiple_select', 'multiselect', 'multiple'])
+                              || strcasecmp($val['attribute_slug'], 'size') === 0 || strcasecmp($val['attribute_name'], 'size') === 0) {
                         $is_multi_val = true;
                     }
 

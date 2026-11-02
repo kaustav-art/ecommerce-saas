@@ -146,7 +146,8 @@ foreach ([$products ?? [], $featured_products ?? [], $new_products ?? [], $bests
 }
 
 $deals_list     = (!empty($flash_sale) && (!empty($flash_sale_products) || !empty($deal_products))) ? (!empty($flash_sale_products) ? $flash_sale_products : $deal_products) : [];
-$arrivals_list  = !empty($new_products) ? array_slice($new_products, 0, 10) : array_slice($all_products, 0, 10);
+$arrivals_list  = !empty($new_arrival_products) ? array_slice($new_arrival_products, 0, 10) : (!empty($new_products) ? array_slice($new_products, 0, 10) : array_slice($all_products, 0, 10));
+$popular_list   = !empty($popular_products) ? array_slice($popular_products, 0, 10) : (!empty($featured_products) ? array_slice($featured_products, 0, 10) : array_slice($all_products, 0, 10));
 $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empty($all_products[0]) ? $all_products[0] : (empty($is_user_project) && !empty($featured_product) ? $featured_product : null));
 ?>
 
@@ -419,6 +420,120 @@ $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empt
       </div>
       <!-- categories area end -->
 
+      <!-- arrivals area start -->
+      <div class="elt-arrival-area">
+         <div class="container">
+            <?php if (!empty($arrivals_list)): ?>
+            <div class="elt-arrival-top mb-35">
+               <div class="row align-items-center">
+                  <div class="col-md-6">
+                     <div class="elt-arrival-title-box text-center text-md-start">
+                        <h4 class="aq-section-title ff-onest-bold fs-36">New Arrivals</h4>
+                     </div>
+                  </div>
+                  <div class="col-md-6">
+                     <div class="elt-arrival-top-btn text-center text-md-end">
+                        <a class="aq-btn-link aq-btn-underline" href="<?= site_url('shop'); ?>">
+                           See all Products
+                           <span>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                 <path d="M0.75 5.75H10.75M10.75 5.75L5.75 0.75M10.75 5.75L5.75 10.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                           </span>
+                        </a>
+                     </div>
+                  </div>
+               </div>
+            </div>
+            <?php endif; ?>
+            <div class="row gx-15 row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-1">
+               <?php if (empty($arrivals_list)): ?>
+               <div class="col-12 w-100 py-5 text-center text-muted">
+                  <p class="mb-0">No products available at the moment.</p>
+               </div>
+               <?php endif; ?>
+               <?php
+               $ai = 1;
+               foreach ($arrivals_list as $ap):
+                   $a_id    = (int)$ap['id'];
+                   $a_name  = $ap['name'] ?? 'Electronics Item';
+                   $a_slug  = !empty($ap['slug']) ? site_url('product/' . $ap['slug']) : site_url('product/' . $a_id);
+                   $a_img   = elt_product_img($ap, $ai++, 'arrival');
+                   $a_price = isset($ap['display_price']) ? (float)$ap['display_price'] : (float)(!empty($ap['sale_price']) && $ap['sale_price'] < $ap['price'] ? $ap['sale_price'] : $ap['price']);
+                   $a_old   = isset($ap['original_price']) ? (float)$ap['original_price'] : (float)($ap['mrp'] ?? $ap['regular_price'] ?? $ap['price'] ?? 0);
+                   $a_disc  = !empty($ap['total_discount_percent']) ? (int)$ap['total_discount_percent'] : (($a_old > $a_price && $a_old > 0) ? round((($a_old - $a_price) / $a_old) * 100) : 0);
+                   $a_rev_cnt = (isset($ap['reviews']) && is_array($ap['reviews'])) ? count($ap['reviews']) : (int)($ap['reviews_count'] ?? 0);
+                   $a_rating  = (float)($ap['rating'] ?? 0);
+                   $a_stars   = ($a_rev_cnt > 0 || $a_rating > 0) ? max(0, min(5, (int)round($a_rating))) : 0;
+                   $a_swatches  = elt_get_product_swatches($ap, $a_img, !empty($is_user_project));
+                   $a_hover_img = elt_get_hover_img($ap, $a_img, $a_swatches);
+               ?>
+               <div class="col">
+                  <div class="aq-product-item aq-product-main mb-40" data-lazy="true">
+                     <div class="aq-product-thumb aq-img-hover-wrap p-relative mb-10">
+                        <?php if (!empty($ap['is_flash_sale']) || $a_disc > 0): ?>
+                        <div class="aq-product-badge">
+                           <?php if ($a_disc > 0): ?>
+                           <span class="clr-sale">-<?= $a_disc; ?>%</span>
+                           <?php endif; ?>
+                           <?php if (!empty($ap['is_flash_sale'])): ?>
+                           <span class="clr-sale" style="background:#DA3F3F; color:#fff; font-size:15px; font-weight:700; padding:6px 13.5px; text-transform:uppercase; letter-spacing:0.5px;">SALE</span>
+                           <?php endif; ?>
+                        </div>
+                        <?php endif; ?>
+                        <div class="aq-product-action">
+                           <button type="button" class="aq-product-action-btn aq-wishlist-btn aq-tooltip" onclick="bazaroToggleWishlist(<?= $a_id; ?>, this)">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="16" viewBox="0 0 18 16" fill="none">
+                                 <path d="M14.7197 1.52347C12.5744 0.244089 10.7019 0.759666 9.57712 1.58092C9.11591 1.91766 8.88531 2.08602 8.74963 2.08602C8.61396 2.08602 8.38336 1.91766 7.92215 1.58092C6.79733 0.759666 4.9249 0.244089 2.77958 1.52347C-0.0359114 3.20253 -0.67299 8.7418 5.82126 13.4151C7.05821 14.3052 7.67668 14.7502 8.74963 14.7502C9.82258 14.7502 10.4411 14.3052 11.678 13.4151C18.1723 8.7418 17.5352 3.20253 14.7197 1.52347Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"></path>
+                              </svg>
+                              <span class="aq-tooltip-item">Add To Wishlist</span>
+                           </button>
+                        </div>
+                        <a href="<?= $a_slug; ?>">
+                           <img class="aq-product-img current-cached lazyloaded" src="<?= $a_img; ?>" alt="<?= html_escape($a_name); ?>">
+                           <img class="aq-img-hover current-cached lazyloaded" src="<?= $a_hover_img; ?>" alt="<?= html_escape($a_name); ?>">
+                        </a>
+                     </div>
+                     <div class="aq-product-content text-center text-md-start">
+                        <div class="aq-product-ratting">
+                           <span>
+                              <?php for ($si = 1; $si <= 5; $si++): ?>
+                              <svg width="12" height="11" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                 <path d="M5.21608 0.307961C5.38688 -0.102685 5.9686 -0.102684 6.1394 0.307962L7.34463 3.20568C7.41664 3.3788 7.57944 3.49709 7.76634 3.51207L10.8947 3.76287C11.338 3.79841 11.5178 4.35166 11.18 4.641L8.79653 6.68268C8.65414 6.80466 8.59195 6.99605 8.63546 7.17843L9.36364 10.2311C9.46684 10.6638 8.99621 11.0057 8.61666 10.7739L5.93837 9.13797C5.77836 9.04024 5.57712 9.04024 5.41711 9.13797L2.73882 10.7739C2.35927 11.0057 1.88865 10.6638 1.99184 10.2311L2.72003 7.17843C2.76353 6.99605 2.70135 6.80466 2.55895 6.68268L0.175492 4.641C-0.162276 4.35166 0.0174878 3.79841 0.460815 3.76287L3.58915 3.51207C3.77604 3.49709 3.93885 3.3788 4.01085 3.20568L5.21608 0.307961Z" fill="<?= ($si <= $a_stars) ? '#f59e0b' : '#d1d5db'; ?>"></path>
+                              </svg>
+                              <?php endfor; ?>
+                              <span class="aq-rating-count">(<?= $a_rev_cnt; ?>)</span>
+                           </span>
+                        </div>
+                        <h4 class="aq-product-title mb-10"><a href="<?= $a_slug; ?>"><?= html_escape($a_name); ?></a></h4>
+                        <div class="aq-product-price">
+                           <ins><span class="aq-product-new-price"><?= $curr . number_format($a_price, 2); ?></span></ins>
+                           <?php if ($a_old > $a_price): ?>
+                           <del><span class="aq-product-old-price"><?= $curr . number_format($a_old, 2); ?></span></del>
+                           <?php endif; ?>
+                        </div>
+                        <?php if (!empty($a_swatches)): ?>
+                        <div class="aq-product-color">
+                           <ul>
+                              <?php foreach ($a_swatches as $sw_idx => $sw): ?>
+                              <li class="aq-product-color-item aq-tooltip-top aq-color-swatch <?= $sw_idx === 0 ? 'active' : ''; ?>">
+                                 <span class="aq-tooltip-item"><?= html_escape($sw['name']); ?></span>
+                                 <span class="aq-product-color-value" data-bg-color="<?= html_escape($sw['color_code']); ?>" style="background-color: <?= html_escape($sw['color_code']); ?>;"></span>
+                                 <img class=" current-cached lazyloaded" data-src="<?= $sw['image']; ?>" src="<?= $sw['image']; ?>" alt="image-product">
+                              </li>
+                              <?php endforeach; ?>
+                           </ul>
+                        </div>
+                        <?php endif; ?>
+                     </div>
+                  </div>
+               </div>
+               <?php endforeach; ?>
+            </div>
+         </div>
+      </div>
+      <!-- arrivals area end -->
+
       <?php if (!empty($flash_sale) && !empty($deals_list)): ?>
       <!-- deals area start -->
       <div class="aq-product-3-area pt-100 pb-120">
@@ -432,34 +547,26 @@ $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empt
                   </div>
                   <div class="col-xl-8 col-lg-6">
                      <div class="aq-product-3-top-right d-flex justify-content-center justify-content-lg-end align-items-center">
+                        <?php
+                            $fs_end_time = !empty($flash_sale['end_time']) ? $flash_sale['end_time'] : date('Y-m-d H:i:s', strtotime('+2 days'));
+                            $fs_end_iso  = date('Y-m-d\TH:i:s', strtotime($fs_end_time));
+                        ?>
                         <div class="aqf-deals-countbox d-flex align-items-center justify-content-center justify-content-lg-end">
+                           <div class="aq-date-countdown" data-date="<?= html_escape($fs_end_iso); ?>"></div>
                            <div class="aq-countdown-text mr-20"><span>Ends in</span></div>
-                           <?php
-                               $fs_end_time = !empty($flash_sale['end_time']) ? $flash_sale['end_time'] : date('Y-m-d H:i:s', strtotime('+2 days'));
-                           ?>
-                           <div id="eltCountdown" class="aq-countdown-style-2 d-inline-flex align-items-center" data-end-time="<?= html_escape($fs_end_time); ?>">
+                           <div id="countdown" class="aq-countdown-style-2 d-inline-flex align-items-center" data-end-time="<?= html_escape($fs_end_time); ?>">
                               <div class="count-box"><span id="days" class="elt-days">00</span><i>:</i></div>
                               <div class="count-box"><span id="hours" class="elt-hours">00</span><i>:</i></div>
                               <div class="count-box"><span id="minutes" class="elt-minutes">00</span><i>:</i></div>
                               <div class="count-box"><span id="seconds" class="elt-seconds">00</span></div>
                            </div>
                         </div>
-                        <div class="aq-product-3-top-btn">
-                           <a class="aq-btn-link aq-btn-underline" href="<?= site_url('shop'); ?>">
-                              See all Products
-                              <span>
-                                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
-                                    <path d="M0.75 5.75H10.75M10.75 5.75L5.75 0.75M10.75 5.75L5.75 10.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                 </svg>
-                              </span>
-                           </a>
-                        </div>
                      </div>
                   </div>
                </div>
             </div>
             <div class="aq-product-3-wrap">
-               <div class="row gx-15 row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-1">
+               <div class="row gx-5 row-cols-xxl-3 row-cols-xl-2 row-cols-lg-2 row-cols-md-1 row-cols-sm-2 row-cols-1">
                   <?php
                   $di = 1;
                   foreach ($deals_list as $dp):
@@ -468,37 +575,26 @@ $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empt
                       $d_slug  = !empty($dp['slug']) ? site_url('product/' . $dp['slug']) : site_url('product/' . $d_id);
                       $d_img   = elt_product_img($dp, $di++, 'deals');
                       $d_price = isset($dp['display_price']) ? (float)$dp['display_price'] : (float)(!empty($dp['sale_price']) && $dp['sale_price'] < $dp['price'] ? $dp['sale_price'] : $dp['price']);
-                      $d_old   = isset($dp['original_price']) ? (float)$dp['original_price'] : (float)($dp['mrp'] ?? $dp['price'] ?? 0);
+                      $d_old   = isset($dp['original_price']) ? (float)$dp['original_price'] : (float)($dp['mrp'] ?? $dp['regular_price'] ?? $dp['price'] ?? 0);
                       $d_disc  = !empty($dp['total_discount_percent']) ? (int)$dp['total_discount_percent'] : (($d_old > $d_price && $d_old > 0) ? round((($d_old - $d_price) / $d_old) * 100) : 15);
                       $d_rev_cnt = (isset($dp['reviews']) && is_array($dp['reviews'])) ? count($dp['reviews']) : (int)($dp['reviews_count'] ?? 0);
                       $d_rating  = (float)($dp['rating'] ?? 0);
                       $d_stars   = ($d_rev_cnt > 0 || $d_rating > 0) ? max(0, min(5, (int)round($d_rating))) : 0;
-                      $d_swatches  = elt_get_product_swatches($dp, $d_img, !empty($is_user_project));
-                      $d_hover_img = elt_get_hover_img($dp, $d_img, $d_swatches);
                   ?>
                   <div class="col">
-                     <div class="aq-product-item aq-product-main mb-40" data-lazy="true">
-                        <div class="aq-product-thumb aq-img-hover-wrap p-relative mb-10">
+                     <div class="aq-product-3-item d-flex align-items-center mb-5">
+                        <div class="aq-product-3-thumb p-relative">
+                           <a href="<?= $d_slug; ?>">
+                              <img src="<?= $d_img; ?>" alt="<?= html_escape($d_name); ?>">
+                           </a>
                            <?php if ($d_disc > 0): ?>
                            <div class="aq-product-badge">
                               <span class="clr-sale">-<?= $d_disc; ?>%</span>
                            </div>
                            <?php endif; ?>
-                           <div class="aq-product-action">
-                              <button type="button" class="aq-product-action-btn aq-wishlist-btn aq-tooltip" onclick="bazaroToggleWishlist(<?= $d_id; ?>, this)">
-                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="16" viewBox="0 0 18 16" fill="none">
-                                    <path d="M14.7197 1.52347C12.5744 0.244089 10.7019 0.759666 9.57712 1.58092C9.11591 1.91766 8.88531 2.08602 8.74963 2.08602C8.61396 2.08602 8.38336 1.91766 7.92215 1.58092C6.79733 0.759666 4.9249 0.244089 2.77958 1.52347C-0.0359114 3.20253 -0.67299 8.7418 5.82126 13.4151C7.05821 14.3052 7.67668 14.7502 8.74963 14.7502C9.82258 14.7502 10.4411 14.3052 11.678 13.4151C18.1723 8.7418 17.5352 3.20253 14.7197 1.52347Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"></path>
-                                 </svg>
-                                 <span class="aq-tooltip-item">Add To Wishlist</span>
-                              </button>
-                           </div>
-                           <a href="<?= $d_slug; ?>">
-                              <img class="aq-product-img current-cached lazyloaded" src="<?= $d_img; ?>" alt="<?= html_escape($d_name); ?>">
-                              <img class="aq-img-hover current-cached lazyloaded" src="<?= $d_hover_img; ?>" alt="<?= html_escape($d_name); ?>">
-                           </a>
                         </div>
-                        <div class="aq-product-content text-center text-md-start">
-                           <div class="aq-product-ratting">
+                        <div class="aq-product-content aq-product-3-content">
+                           <div class="aq-product-ratting mb-5">
                               <span>
                                  <?php for ($si = 1; $si <= 5; $si++): ?>
                                  <svg width="12" height="11" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -508,26 +604,15 @@ $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empt
                                  <span class="aq-rating-count">(<?= $d_rev_cnt; ?>)</span>
                               </span>
                            </div>
-                           <h4 class="aq-product-title mb-10"><a href="<?= $d_slug; ?>"><?= html_escape($d_name); ?></a></h4>
+                           <h4 class="aq-product-title ff-onest fs-18 mb-10" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; line-height: 1.4;">
+                              <a href="<?= $d_slug; ?>"><?= html_escape($d_name); ?></a>
+                           </h4>
                            <div class="aq-product-price">
                               <ins><span class="aq-product-new-price"><?= $curr . number_format($d_price, 2); ?></span></ins>
                               <?php if ($d_old > $d_price): ?>
                               <del><span class="aq-product-old-price"><?= $curr . number_format($d_old, 2); ?></span></del>
                               <?php endif; ?>
                            </div>
-                           <?php if (!empty($d_swatches)): ?>
-                           <div class="aq-product-color">
-                              <ul>
-                                 <?php foreach ($d_swatches as $sw_idx => $sw): ?>
-                                 <li class="aq-product-color-item aq-tooltip-top aq-color-swatch <?= $sw_idx === 0 ? 'active' : ''; ?>">
-                                    <span class="aq-tooltip-item"><?= html_escape($sw['name']); ?></span>
-                                    <span class="aq-product-color-value" data-bg-color="<?= html_escape($sw['color_code']); ?>" style="background-color: <?= html_escape($sw['color_code']); ?>;"></span>
-                                    <img class=" current-cached lazyloaded" data-src="<?= $sw['image']; ?>" src="<?= $sw['image']; ?>" alt="image-product">
-                                 </li>
-                                 <?php endforeach; ?>
-                              </ul>
-                           </div>
-                           <?php endif; ?>
                         </div>
                      </div>
                   </div>
@@ -542,7 +627,7 @@ $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empt
       <script>
       (function() {
          function initEltCountdown() {
-            var el = document.getElementById('eltCountdown');
+            var el = document.getElementById('countdown') || document.getElementById('eltCountdown');
             if (!el) return;
 
             var daysEl  = el.querySelector('#days') || el.querySelector('.elt-days');
@@ -613,20 +698,20 @@ $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empt
       </script>
       <?php endif; ?>
 
-      <!-- arrivals area start -->
+      <!-- popular products area start -->
       <div class="elt-arrival-area pb-120">
          <div class="container">
-            <?php if (!empty($arrivals_list)): ?>
+            <?php if (!empty($popular_list)): ?>
             <div class="elt-arrival-top mb-35">
                <div class="row align-items-center">
                   <div class="col-md-6">
                      <div class="elt-arrival-title-box text-center text-md-start">
-                        <h4 class="aq-section-title ff-onest-bold fs-36">New Arrivals</h4>
+                        <h4 class="aq-section-title ff-onest-bold fs-36">Popular Products</h4>
                      </div>
                   </div>
                   <div class="col-md-6">
                      <div class="elt-arrival-top-btn text-center text-md-end">
-                        <a class="aq-btn-link aq-btn-underline" href="<?= site_url('shop'); ?>">
+                        <a class="aq-btn-link aq-btn-underline" href="<?= site_url('shop?filter=popular'); ?>">
                            See all Products
                            <span>
                               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -640,46 +725,51 @@ $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empt
             </div>
             <?php endif; ?>
             <div class="row gx-15 row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-1">
-               <?php if (empty($arrivals_list)): ?>
+               <?php if (empty($popular_list)): ?>
                <div class="col-12 w-100 py-5 text-center text-muted">
                   <p class="mb-0">No products available at the moment.</p>
                </div>
                <?php endif; ?>
                <?php
-               $ai = 1;
-               foreach ($arrivals_list as $ap):
-                   $a_id    = (int)$ap['id'];
-                   $a_name  = $ap['name'] ?? 'Electronics Item';
-                   $a_slug  = !empty($ap['slug']) ? site_url('product/' . $ap['slug']) : site_url('product/' . $a_id);
-                   $a_img   = elt_product_img($ap, $ai++, 'arrival');
-                   $a_price = isset($ap['display_price']) ? (float)$ap['display_price'] : (float)(!empty($ap['sale_price']) && $ap['sale_price'] < $ap['price'] ? $ap['sale_price'] : $ap['price']);
-                   $a_old   = isset($ap['original_price']) ? (float)$ap['original_price'] : (float)($ap['mrp'] ?? $ap['price'] ?? 0);
-                   $a_disc  = ($a_old > $a_price && $a_old > 0) ? round((($a_old - $a_price) / $a_old) * 100) : 0;
-                   $a_rev_cnt = (isset($ap['reviews']) && is_array($ap['reviews'])) ? count($ap['reviews']) : (int)($ap['reviews_count'] ?? 0);
-                   $a_rating  = (float)($ap['rating'] ?? 0);
-                   $a_stars   = ($a_rev_cnt > 0 || $a_rating > 0) ? max(0, min(5, (int)round($a_rating))) : 0;
-                   $a_swatches  = elt_get_product_swatches($ap, $a_img, !empty($is_user_project));
-                   $a_hover_img = elt_get_hover_img($ap, $a_img, $a_swatches);
+               $pi = 1;
+               foreach ($popular_list as $pp):
+                   $p_id    = (int)$pp['id'];
+                   $p_name  = $pp['name'] ?? 'Electronics Item';
+                   $p_slug  = !empty($pp['slug']) ? site_url('product/' . $pp['slug']) : site_url('product/' . $p_id);
+                   $p_img   = elt_product_img($pp, $pi++, 'arrival');
+                   $p_price = isset($pp['display_price']) ? (float)$pp['display_price'] : (float)(!empty($pp['sale_price']) && $pp['sale_price'] < $pp['price'] ? $pp['sale_price'] : $pp['price']);
+                   $p_old   = isset($pp['original_price']) ? (float)$pp['original_price'] : (float)($pp['mrp'] ?? $pp['regular_price'] ?? $pp['price'] ?? 0);
+                   $p_disc  = !empty($pp['total_discount_percent']) ? (int)$pp['total_discount_percent'] : (($p_old > $p_price && $p_old > 0) ? round((($p_old - $p_price) / $p_old) * 100) : 0);
+                   $p_rev_cnt = (isset($pp['reviews']) && is_array($pp['reviews'])) ? count($pp['reviews']) : (int)($pp['reviews_count'] ?? 0);
+                   $p_rating  = (float)($pp['rating'] ?? 0);
+                   $p_stars   = ($p_rev_cnt > 0 || $p_rating > 0) ? max(0, min(5, (int)round($p_rating))) : 0;
+                   $p_swatches  = elt_get_product_swatches($pp, $p_img, !empty($is_user_project));
+                   $p_hover_img = elt_get_hover_img($pp, $p_img, $p_swatches);
                ?>
                <div class="col">
                   <div class="aq-product-item aq-product-main mb-40" data-lazy="true">
                      <div class="aq-product-thumb aq-img-hover-wrap p-relative mb-10">
-                        <?php if ($a_disc > 0): ?>
+                        <?php if (!empty($pp['is_flash_sale']) || $p_disc > 0): ?>
                         <div class="aq-product-badge">
-                           <span class="clr-sale">-<?= $a_disc; ?>%</span>
+                           <?php if ($p_disc > 0): ?>
+                           <span class="clr-sale">-<?= $p_disc; ?>%</span>
+                           <?php endif; ?>
+                           <?php if (!empty($pp['is_flash_sale'])): ?>
+                           <span class="clr-sale" style="background:#DA3F3F; color:#fff; font-size:15px; font-weight:700; padding:6px 13.5px; text-transform:uppercase; letter-spacing:0.5px;">SALE</span>
+                           <?php endif; ?>
                         </div>
                         <?php endif; ?>
                         <div class="aq-product-action">
-                           <button type="button" class="aq-product-action-btn aq-wishlist-btn aq-tooltip" onclick="bazaroToggleWishlist(<?= $a_id; ?>, this)">
+                           <button type="button" class="aq-product-action-btn aq-wishlist-btn aq-tooltip" onclick="bazaroToggleWishlist(<?= $p_id; ?>, this)">
                               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="16" viewBox="0 0 18 16" fill="none">
                                  <path d="M14.7197 1.52347C12.5744 0.244089 10.7019 0.759666 9.57712 1.58092C9.11591 1.91766 8.88531 2.08602 8.74963 2.08602C8.61396 2.08602 8.38336 1.91766 7.92215 1.58092C6.79733 0.759666 4.9249 0.244089 2.77958 1.52347C-0.0359114 3.20253 -0.67299 8.7418 5.82126 13.4151C7.05821 14.3052 7.67668 14.7502 8.74963 14.7502C9.82258 14.7502 10.4411 14.3052 11.678 13.4151C18.1723 8.7418 17.5352 3.20253 14.7197 1.52347Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"></path>
                               </svg>
                               <span class="aq-tooltip-item">Add To Wishlist</span>
                            </button>
                         </div>
-                        <a href="<?= $a_slug; ?>">
-                           <img class="aq-product-img current-cached lazyloaded" src="<?= $a_img; ?>" alt="<?= html_escape($a_name); ?>">
-                           <img class="aq-img-hover current-cached lazyloaded" src="<?= $a_hover_img; ?>" alt="<?= html_escape($a_name); ?>">
+                        <a href="<?= $p_slug; ?>">
+                           <img class="aq-product-img current-cached lazyloaded" src="<?= $p_img; ?>" alt="<?= html_escape($p_name); ?>">
+                           <img class="aq-img-hover current-cached lazyloaded" src="<?= $p_hover_img; ?>" alt="<?= html_escape($p_name); ?>">
                         </a>
                      </div>
                      <div class="aq-product-content text-center text-md-start">
@@ -687,23 +777,23 @@ $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empt
                            <span>
                               <?php for ($si = 1; $si <= 5; $si++): ?>
                               <svg width="12" height="11" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                 <path d="M5.21608 0.307961C5.38688 -0.102685 5.9686 -0.102684 6.1394 0.307962L7.34463 3.20568C7.41664 3.3788 7.57944 3.49709 7.76634 3.51207L10.8947 3.76287C11.338 3.79841 11.5178 4.35166 11.18 4.641L8.79653 6.68268C8.65414 6.80466 8.59195 6.99605 8.63546 7.17843L9.36364 10.2311C9.46684 10.6638 8.99621 11.0057 8.61666 10.7739L5.93837 9.13797C5.77836 9.04024 5.57712 9.04024 5.41711 9.13797L2.73882 10.7739C2.35927 11.0057 1.88865 10.6638 1.99184 10.2311L2.72003 7.17843C2.76353 6.99605 2.70135 6.80466 2.55895 6.68268L0.175492 4.641C-0.162276 4.35166 0.0174878 3.79841 0.460815 3.76287L3.58915 3.51207C3.77604 3.49709 3.93885 3.3788 4.01085 3.20568L5.21608 0.307961Z" fill="<?= ($si <= $a_stars) ? '#f59e0b' : '#d1d5db'; ?>"></path>
+                                 <path d="M5.21608 0.307961C5.38688 -0.102685 5.9686 -0.102684 6.1394 0.307962L7.34463 3.20568C7.41664 3.3788 7.57944 3.49709 7.76634 3.51207L10.8947 3.76287C11.338 3.79841 11.5178 4.35166 11.18 4.641L8.79653 6.68268C8.65414 6.80466 8.59195 6.99605 8.63546 7.17843L9.36364 10.2311C9.46684 10.6638 8.99621 11.0057 8.61666 10.7739L5.93837 9.13797C5.77836 9.04024 5.57712 9.04024 5.41711 9.13797L2.73882 10.7739C2.35927 11.0057 1.88865 10.6638 1.99184 10.2311L2.72003 7.17843C2.76353 6.99605 2.70135 6.80466 2.55895 6.68268L0.175492 4.641C-0.162276 4.35166 0.0174878 3.79841 0.460815 3.76287L3.58915 3.51207C3.77604 3.49709 3.93885 3.3788 4.01085 3.20568L5.21608 0.307961Z" fill="<?= ($si <= $p_stars) ? '#f59e0b' : '#d1d5db'; ?>"></path>
                               </svg>
                               <?php endfor; ?>
-                              <span class="aq-rating-count">(<?= $a_rev_cnt; ?>)</span>
+                              <span class="aq-rating-count">(<?= $p_rev_cnt; ?>)</span>
                            </span>
                         </div>
-                        <h4 class="aq-product-title mb-10"><a href="<?= $a_slug; ?>"><?= html_escape($a_name); ?></a></h4>
+                        <h4 class="aq-product-title mb-10"><a href="<?= $p_slug; ?>"><?= html_escape($p_name); ?></a></h4>
                         <div class="aq-product-price">
-                           <ins><span class="aq-product-new-price"><?= $curr . number_format($a_price, 2); ?></span></ins>
-                           <?php if ($a_old > $a_price): ?>
-                           <del><span class="aq-product-old-price"><?= $curr . number_format($a_old, 2); ?></span></del>
+                           <ins><span class="aq-product-new-price"><?= $curr . number_format($p_price, 2); ?></span></ins>
+                           <?php if ($p_old > $p_price): ?>
+                           <del><span class="aq-product-old-price"><?= $curr . number_format($p_old, 2); ?></span></del>
                            <?php endif; ?>
                         </div>
-                        <?php if (!empty($a_swatches)): ?>
+                        <?php if (!empty($p_swatches)): ?>
                         <div class="aq-product-color">
                            <ul>
-                              <?php foreach ($a_swatches as $sw_idx => $sw): ?>
+                              <?php foreach ($p_swatches as $sw_idx => $sw): ?>
                               <li class="aq-product-color-item aq-tooltip-top aq-color-swatch <?= $sw_idx === 0 ? 'active' : ''; ?>">
                                  <span class="aq-tooltip-item"><?= html_escape($sw['name']); ?></span>
                                  <span class="aq-product-color-value" data-bg-color="<?= html_escape($sw['color_code']); ?>" style="background-color: <?= html_escape($sw['color_code']); ?>;"></span>
@@ -720,7 +810,7 @@ $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empt
             </div>
          </div>
       </div>
-      <!-- arrivals area end -->
+      <!-- popular products area end -->
 
       <!-- brand area start -->
       <div class="aq-brand-area mb-120">

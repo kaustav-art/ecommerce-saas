@@ -1776,8 +1776,20 @@ if (!empty($initial_variant)) {
                                 <div class="widget-content-inner active">
                                     <div class="tab-description">
                                         <div class="right">
-                                            <div class="letter-1 text-btn-uppercase mb_12"><?= html_escape($product['title']); ?></div>
-                                            <p class="mb_12 text-secondary"><?= !empty($product['description']) ? $product['description'] : 'Designed with utmost care and attention to detail, this premium item combines timeless style with modern performance.'; ?></p>
+
+                                            <?php
+                                                $raw_full_desc = trim((string)($product['description'] ?? ''));
+                                                $plain_full_desc = trim(strip_tags(str_replace('&nbsp;', ' ', $raw_full_desc)));
+                                                $has_full_desc = ($plain_full_desc !== '');
+                                            ?>
+                                            <?php if ($has_full_desc): ?>
+                                                <div class="product-full-description-content mb_12 text-secondary"><?= $raw_full_desc; ?></div>
+                                            <?php else: ?>
+                                                <div class="letter-1 text-btn-uppercase mb_12"><?= html_escape($product['title'] ?? $product['name'] ?? ''); ?></div>
+                                                <?php if (!empty($product['short_description'])): ?>
+                                                    <p class="mb_12 text-secondary"><?= nl2br(html_escape($product['short_description'])); ?></p>
+                                                <?php endif; ?>
+                                            <?php endif; ?>
                                             
                                              <div id="tab-specs-wrapper" style="<?= empty($merged_specs) ? 'display: none;' : ''; ?>">
                                                  <div class="letter-1 text-btn-uppercase mb_12 mt-4">Specifications & Details</div>

@@ -110,14 +110,6 @@
     }
     if (!$size_attribute && !empty($attributes)) {
       foreach ($attributes as $a) {
-        if (strcasecmp($a['slug'], 'storage') === 0 || strcasecmp($a['name'], 'storage') === 0) {
-          $size_attribute = $a;
-          break;
-        }
-      }
-    }
-    if (!$size_attribute && !empty($attributes)) {
-      foreach ($attributes as $a) {
         if (strcasecmp($a['slug'], 'size') === 0 || strcasecmp($a['name'], 'size') === 0) {
           $size_attribute = $a;
           break;
@@ -127,7 +119,7 @@
 
     $multi_name = !empty($size_attribute) ? $size_attribute['name'] : 'Size';
     $multi_slug = !empty($size_attribute) ? strtolower($size_attribute['slug']) : 'size';
-    $multi_icon = ($multi_slug === 'storage') ? 'fa-hard-drive' : (($multi_slug === 'size') ? 'fa-ruler-combined' : 'fa-tags');
+    $multi_icon = (strpos($multi_slug, 'storage') !== false) ? 'fa-hard-drive' : (($multi_slug === 'size') ? 'fa-ruler-combined' : 'fa-tags');
 
     $other_attributes = [];
     if (!empty($attributes)) {
@@ -137,8 +129,7 @@
         }
         // Exclude other multi-select attributes to enforce single multiple selection rule
         $is_other_multi = in_array(strtolower($attr['type'] ?? ''), ['multiple_select', 'multiselect', 'multiple'])
-                          || strcasecmp($attr['slug'], 'size') === 0 || strcasecmp($attr['name'], 'size') === 0
-                          || strcasecmp($attr['slug'], 'storage') === 0 || strcasecmp($attr['name'], 'storage') === 0;
+                          || strcasecmp($attr['slug'], 'size') === 0 || strcasecmp($attr['name'], 'size') === 0;
         if ($is_other_multi) {
           continue;
         }
@@ -304,7 +295,7 @@
                   Default variant inventory. When <?= strtolower(html_escape($multi_name)); ?> options are selected below, this auto-sums all stocks.
                 </small>
               </div>
-              <div class="col-md-6 mb-3" id="var_sale_price_wrapper" style="<?= (!empty($selected_sizes_map) || (!empty($size_attribute) && !empty($size_attribute['values']))) ? 'display: none;' : ''; ?>">
+              <div class="col-md-6 mb-3" id="var_sale_price_wrapper" style="<?= !empty($selected_sizes_map) ? 'display: none;' : ''; ?>">
                 <label class="form-label fw-semibold" for="var_sale_price">Sale Price (Optional)</label>
                 <div class="input-group">
                   <span class="input-group-text"><?= html_escape($currency_symbol ?? '$'); ?></span>
@@ -933,7 +924,7 @@ function renderVarSizeStockInputs(presetStocks) {
     container.style.display = 'none';
     if (stockWrapper) stockWrapper.style.display = 'block';
     if (salePriceWrapper) {
-      salePriceWrapper.style.display = <?= (!empty($size_attribute) && !empty($size_attribute['values'])) ? "'none'" : "'block'" ?>;
+      salePriceWrapper.style.display = 'block';
     }
     return;
   }
@@ -1067,25 +1058,32 @@ function recalcVarTotalStock() {
 }
 
 function onNonSizeAttrChange(selectEl, slug) {
-  if (slug === 'color') {
-    var opt = selectEl.options[selectEl.selectedIndex];
-    var colorName = opt ? opt.getAttribute('data-name') : '';
-    if (colorName) {
-      var baseTitleInput = document.getElementById('var_title');
-      var baseSkuInput = document.getElementById('var_sku');
-      var prodTitle = <?= json_encode($product["title"]); ?>;
-      var prodSku = <?= json_encode($product["sku"]); ?>;
+  var baseTitleInput = document.getElementById('var_title');
+  var baseSkuInput = document.getElementById('var_sku');
+  var prodTitle = <?= json_encode($product["title"]); ?>;
+  var prodSku = <?= json_encode($product["sku"]); ?>;
 
-      // In Add mode, auto-fill/suggest variant title and SKU
-      if (!document.getElementById('var_id') || !document.getElementById('var_id').value) {
-        if (baseTitleInput && (!baseTitleInput.value || baseTitleInput.value.indexOf(prodTitle) === 0)) {
-          baseTitleInput.value = prodTitle + ' - ' + colorName;
+  // In Add mode, auto-fill/suggest variant title and SKU from selected dropdown attributes
+  if (!document.getElementById('var_id') || !document.getElementById('var_id').value) {
+    var selectedLabels = [];
+    var selectedCodes = [];
+    document.querySelectorAll('select[name^="attr_vals["]').forEach(function(sel) {
+      var opt = sel.options[sel.selectedIndex];
+      var valName = opt ? opt.getAttribute('data-name') : '';
+      if (valName) {
+        selectedLabels.push(valName);
+        var cleanCode = valName.toUpperCase().replace(/[^A-Z0-9]/g, '');
+        if (sel.getAttribute('onchange') && sel.getAttribute('onchange').indexOf("'color'") !== -1) {
+          cleanCode = cleanCode.substr(0, 3);
         }
-        if (baseSkuInput && (!baseSkuInput.value || baseSkuInput.value.indexOf(prodSku) === 0)) {
-          var code = colorName.toUpperCase().replace(/[^A-Z0-9]/g, '').substr(0, 3);
-          baseSkuInput.value = prodSku + '-' + code;
-        }
+        if (cleanCode) selectedCodes.push(cleanCode);
       }
+    });
+    if (baseTitleInput) {
+      baseTitleInput.value = selectedLabels.length > 0 ? (prodTitle + ' - ' + selectedLabels.join(' / ')) : prodTitle;
+    }
+    if (baseSkuInput) {
+      baseSkuInput.value = selectedCodes.length > 0 ? (prodSku + '-' + selectedCodes.join('-')) : prodSku;
     }
   }
   updateSkuPreview();

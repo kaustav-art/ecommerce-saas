@@ -1396,51 +1396,72 @@ if (!empty($initial_variant)) {
                            <button class="nav-links active" id="nav-description-tab" data-bs-toggle="tab" data-bs-target="#nav-description" type="button" role="tab" aria-controls="nav-description" aria-selected="true">Description</button>
                            <button class="nav-links" id="nav-addInfo-tab" data-bs-toggle="tab" data-bs-target="#nav-addInfo" type="button" role="tab" aria-controls="nav-addInfo" aria-selected="false">Additional information</button>
                            <button class="nav-links" id="nav-review-tab" data-bs-toggle="tab" data-bs-target="#nav-review" type="button" role="tab" aria-controls="nav-review" aria-selected="false">Customer Reviews (<?= (int)$display_review_count; ?>)</button>
-                           <button class="nav-links" id="nav-question-tab" data-bs-toggle="tab" data-bs-target="#nav-question" type="button" role="tab" aria-controls="nav-question" aria-selected="false">Ask & Question</button>
-                           <button class="nav-links" id="nav-faq-tab" data-bs-toggle="tab" data-bs-target="#nav-faq" type="button" role="tab" aria-controls="nav-faq" aria-selected="false">Faq</button>
+
+
                         </div>
                      </nav>  
                      <div class="tab-content" id="navPresentationTabContent">
                         <div class="tab-pane fade show active" id="nav-description" role="tabpanel" aria-labelledby="nav-description-tab" tabindex="0">
                            <div class="product-details-tab-item">
                               <div class="product-details-desc-wrap">
-                                 <h3 class="product-details-desc-title"><?= html_escape($product['title'] ?? 'Product Overview'); ?></h3>
-                                 <p class="mb-30">
-                                    <?= nl2br(html_escape(!empty($product['description']) ? $product['description'] : ($product['short_description'] ?? ''))); ?>
-                                 </p>
-                                 <div class="row">
-                                    <div class="col-xl-8">
-                                       <div class="row">
-                                          <?php if (!empty($product_highlights)): ?>
-                                          <div class="col-xl-6">
-                                             <div class="product-details-desc-list">
-                                                <h4 class="product-details-desc-list-title">Key Highlights</h4>
-                                                <ul>
-                                                   <?php foreach ($product_highlights as $hl): ?>
-                                                      <li><strong><?= html_escape($hl['key'] ?? $hl['name'] ?? ''); ?>:</strong> <?= html_escape($hl['value'] ?? ''); ?></li>
-                                                   <?php endforeach; ?>
-                                                </ul>
-                                             </div>
-                                          </div>
-                                          <?php endif; ?>
-                                          <div class="col-xl-6">
-                                             <div class="product-details-desc-list">
-                                                <h4 class="product-details-desc-list-title">Warranty &amp; Package</h4>
-                                                <ul>
-                                                   <li>Warranty: <?= html_escape($product['warranty_info'] ?? '1 Year Official Manufacturer Warranty'); ?></li>
-                                                   <li>SKU: <?= html_escape($initial_sku); ?></li>
-                                                   <li>100% Authentic Sealed Package</li>
-                                                </ul>
-                                             </div>
-                                          </div>
-                                       </div>
+                                 <?php
+                                    $raw_full_desc = trim((string)($product['description'] ?? ''));
+                                    $plain_full_desc = trim(strip_tags(str_replace('&nbsp;', ' ', $raw_full_desc)));
+                                    $has_full_desc = ($plain_full_desc !== '');
+                                 ?>
+                                 <?php if ($has_full_desc): ?>
+                                    <div class="product-full-description-content" style="font-size: 15px; line-height: 1.75; color: #334155;">
+                                       <?php if (preg_match('/<[a-z][\s\S]*>/i', $raw_full_desc)): ?>
+                                          <?= $raw_full_desc; ?>
+                                       <?php else: ?>
+                                          <p class="mb-0"><?= nl2br(html_escape($raw_full_desc)); ?></p>
+                                       <?php endif; ?>
                                     </div>
-                                    <div class="col-xl-4">
-                                       <div class="product-details-desc-img">
-                                          <img src="<?= $elt_gallery_urls[0] ?? ''; ?>" alt="<?= html_escape($product['title'] ?? ''); ?>" style="border-radius:12px;max-height:260px;object-fit:contain;">
+                                 <?php else: ?>
+                                    <h3 class="product-details-desc-title"><?= html_escape($product['title'] ?? $product['name'] ?? 'Product Overview'); ?></h3>
+                                    <?php if (!empty($product['short_description'])): ?>
+                                       <p class="mb-30"><?= nl2br(html_escape($product['short_description'])); ?></p>
+                                    <?php endif; ?>
+                                    <?php
+                                       $fallback_specs = [];
+                                       if (!empty($merged_specs) && is_array($merged_specs)) {
+                                          $fallback_specs = array_slice($merged_specs, 0, 8);
+                                       } elseif (!empty($product_highlights) && is_array($product_highlights)) {
+                                          foreach (array_slice($product_highlights, 0, 8) as $hl) {
+                                             $fallback_specs[] = [
+                                                'name' => $hl['key'] ?? $hl['name'] ?? '',
+                                                'value' => $hl['value'] ?? ''
+                                             ];
+                                          }
+                                       }
+                                       if (empty($fallback_specs)) {
+                                          if (!empty($product['brand_name'])) {
+                                             $fallback_specs[] = ['name' => 'Brand', 'value' => $product['brand_name']];
+                                          }
+                                          if (!empty($product['category_name'])) {
+                                             $fallback_specs[] = ['name' => 'Category', 'value' => $product['category_name']];
+                                          }
+                                          if (!empty($initial_sku)) {
+                                             $fallback_specs[] = ['name' => 'SKU', 'value' => $initial_sku];
+                                          }
+                                          if (!empty($product['warranty_info'])) {
+                                             $fallback_specs[] = ['name' => 'Warranty', 'value' => $product['warranty_info']];
+                                          }
+                                       }
+                                    ?>
+                                    <?php if (!empty($fallback_specs)): ?>
+                                       <div class="product-details-desc-list mt-3">
+                                          <h4 class="product-details-desc-list-title">Key Specifications</h4>
+                                          <ul>
+                                             <?php foreach ($fallback_specs as $fspec): ?>
+                                                <?php if (trim((string)($fspec['name'] ?? '')) !== '' || trim((string)($fspec['value'] ?? '')) !== ''): ?>
+                                                   <li><strong><?= html_escape($fspec['name'] ?? ''); ?>:</strong> <?= html_escape($fspec['value'] ?? ''); ?></li>
+                                                <?php endif; ?>
+                                             <?php endforeach; ?>
+                                          </ul>
                                        </div>
-                                    </div>
-                                 </div>
+                                    <?php endif; ?>
+                                 <?php endif; ?>
                               </div>
                            </div>
                         </div>
@@ -1646,164 +1667,6 @@ if (!empty($initial_variant)) {
                                           <p class="mb-0">No customer reviews yet for <strong><?= html_escape($product['title'] ?? $product['name'] ?? 'this product'); ?></strong>.</p>
                                        </div>
                                     <?php endif; ?>
-                                 </div>
-                              </div>
-                           </div>
-                        </div>
-                        <div class="tab-pane fade" id="nav-question" role="tabpanel" aria-labelledby="nav-question-tab" tabindex="0">
-                           <div class="product-details-tab-item">
-                              <div class="product-details-question-container">
-                                 <div class="product-details-question-header">
-                                    <div class="product-details-question-header-left">
-                                       <h3 class="product-details-policy-title">Questions (4)</h3>
-                                       <p class="m-0">Have question about this product? Get specific details about this product from expert.</p>
-                                    </div>
-                                    <div class="product-details-question-header-right">
-                                       <button type="button" class="aq-btn-black btn-red-bg btn-square" data-bs-target="#exampleModalToggle4" data-bs-toggle="modal">Ask Question</button>
-                                    </div>
-                                 </div>
-
-                                 <div class="product-details-question-list">
-                                    
-                                    <div class="product-details-question-item">
-                                       <p class="product-details-question-meta">
-                                          <span class="product-details-question-user">Faiza Rahman</span> on 03 Dec 2025
-                                       </p>
-                                       <div class="product-details-question-row">
-                                          <span class="product-details-question-label">Q:</span>
-                                          <p class="product-details-question-text product-details-question-text--bold">What is the screen size of the COLMI P81?</p>
-                                       </div>
-                                       <div class="product-details-question-row">
-                                          <span class="product-details-question-label">A:</span>
-                                          <p class="product-details-question-text text-ans">COLMI P81 Smart Watch has a 1.9-inch TFT HD display with 240×284 resolution and a 95% screen-to-body ratio</p>
-                                       </div>
-                                    </div>
-
-                                    <div class="product-details-question-item">
-                                       <p class="product-details-question-meta">
-                                          <span class="product-details-question-user">Akbar Islam</span> on 24 Feb 2025
-                                       </p>
-                                       <div class="product-details-question-row">
-                                          <span class="product-details-question-label">Q:</span>
-                                          <p class="product-details-question-text product-details-question-text--bold">How long does the battery last on the COLMI P81?</p>
-                                       </div>
-                                       <div class="product-details-question-row">
-                                          <span class="product-details-question-label">A:</span>
-                                          <p class="product-details-question-text text-ans">This COLMI P81 Smart Watch battery lasts up to 7 days on normal usage.</p>
-                                       </div>
-                                    </div>
-
-                                    <div class="product-details-question-item">
-                                       <p class="product-details-question-meta">
-                                          <span class="product-details-question-user">Fazle Hasan Abed</span> on 02 Feb 2025
-                                       </p>
-                                       <div class="product-details-question-row">
-                                          <span class="product-details-question-label">Q:</span>
-                                          <p class="product-details-question-text product-details-question-text--bold">What is the resolution of the COLMI P81 Smart Watch?</p>
-                                       </div>
-                                       <div class="product-details-question-row">
-                                          <span class="product-details-question-label">A:</span>
-                                          <p class="product-details-question-text text-ans">The resolution of the COLMI P81 Smart Watch is 240x284 pixels.</p>
-                                       </div>
-                                    </div>
-                                 </div>
-                              </div>
-                           </div>
-                        </div>
-                        <div class="tab-pane fade" id="nav-faq" role="tabpanel" aria-labelledby="nav-faq-tab" tabindex="0">
-                           <div class="product-details-tab-item">
-                              <div class="aq-faq-wrap">
-                                 <div class="accordion" id="accordionExample">
-                                    <div class="accordion-items">
-                                       <div class="accordion-header">
-                                          <button class="accordion-buttons" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                             What is Emeritus Education System?
-                                             <span class="aq-faq-icon"></span>
-                                          </button>
-                                       </div>
-                                       <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
-                                          <div class="accordion-body">
-                                             <p>
-                                                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt <br> ut labore et dolore magna aliqua.
-                                             </p>
-                                          </div>
-                                       </div>
-                                    </div>
-                                    <div class="accordion-items">
-                                       <div class="accordion-header">
-                                          <button class="accordion-buttons collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                             Can I get a refund for my Premium Membership payment?
-                                             <span class="aq-faq-icon"></span>
-                                          </button>
-                                       </div>
-                                       <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-                                          <div class="accordion-body">
-                                             <p>
-                                                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt <br> ut labore et dolore magna aliqua.
-                                             </p>
-                                          </div>
-                                       </div>
-                                    </div>
-                                    <div class="accordion-items">
-                                       <div class="accordion-header">
-                                          <button class="accordion-buttons collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                             How does th Affiliate Program work?
-                                             <span class="aq-faq-icon"></span>
-                                          </button>
-                                       </div>
-                                       <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-                                          <div class="accordion-body">
-                                             <p>
-                                                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt <br> ut labore et dolore magna aliqua.
-                                             </p>
-                                          </div>
-                                       </div>
-                                    </div>
-                                    <div class="accordion-items">
-                                       <div class="accordion-header">
-                                          <button class="accordion-buttons collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-                                             What is included in Standard membership plan?
-                                             <span class="aq-faq-icon"></span>
-                                          </button>
-                                       </div>
-                                       <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-                                          <div class="accordion-body">
-                                             <p>
-                                                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt <br> ut labore et dolore magna aliqua.
-                                             </p>
-                                          </div>
-                                       </div>
-                                    </div>
-                                    <div class="accordion-items">
-                                       <div class="accordion-header">
-                                          <button class="accordion-buttons collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
-                                             How to choose the right class for me?
-                                             <span class="aq-faq-icon"></span>
-                                          </button>
-                                       </div>
-                                       <div id="collapseFive" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-                                          <div class="accordion-body">
-                                             <p>
-                                                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt <br> ut labore et dolore magna aliqua.
-                                             </p>
-                                          </div>
-                                       </div>
-                                    </div>
-                                    <div class="accordion-items">
-                                       <div class="accordion-header">
-                                          <button class="accordion-buttons collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
-                                             How does th Affiliate Program work?
-                                             <span class="aq-faq-icon"></span>
-                                          </button>
-                                       </div>
-                                       <div id="collapseSix" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-                                          <div class="accordion-body">
-                                             <p>
-                                                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt <br> ut labore et dolore magna aliqua.
-                                             </p>
-                                          </div>
-                                       </div>
-                                    </div>
                                  </div>
                               </div>
                            </div>

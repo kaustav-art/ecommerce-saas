@@ -69,8 +69,7 @@ class variants extends MY_Controller {
         // 1. Detect from assigned product attributes
         foreach ($assigned_product_attrs as $apa) {
             $is_multi = (in_array(strtolower($apa['type'] ?? ''), ['multiple_select', 'multiselect', 'multiple'])
-                         || strcasecmp($apa['slug'], 'size') === 0 || strcasecmp($apa['name'], 'size') === 0
-                         || strcasecmp($apa['slug'], 'storage') === 0 || strcasecmp($apa['name'], 'storage') === 0);
+                         || strcasecmp($apa['slug'], 'size') === 0 || strcasecmp($apa['name'], 'size') === 0);
             if ($is_multi) {
                 $active_multi_attr_id = (int)$apa['attribute_id'];
                 break;
@@ -85,8 +84,7 @@ class variants extends MY_Controller {
                     if (!empty($pv['values'])) {
                         foreach ($pv['values'] as $pv_val) {
                             $is_multi = (in_array(strtolower($pv_val['type'] ?? ''), ['multiple_select', 'multiselect', 'multiple'])
-                                         || strcasecmp($pv_val['attribute_slug'], 'size') === 0 || strcasecmp($pv_val['attribute_name'], 'size') === 0
-                                         || strcasecmp($pv_val['attribute_slug'], 'storage') === 0 || strcasecmp($pv_val['attribute_name'], 'storage') === 0);
+                                         || strcasecmp($pv_val['attribute_slug'], 'size') === 0 || strcasecmp($pv_val['attribute_name'], 'size') === 0);
                             if ($is_multi) {
                                 $active_multi_attr_id = (int)$pv_val['attribute_id'];
                                 break 2;
@@ -97,11 +95,10 @@ class variants extends MY_Controller {
             }
         }
 
-        // 3. Fallback to any attribute with type multiple_select or slug storage/size
+        // 3. Fallback to any attribute with type multiple_select or slug size
         if (!$active_multi_attr_id && !empty($attributes)) {
             foreach ($attributes as $attr) {
                 $is_multi = (in_array(strtolower($attr['type'] ?? ''), ['multiple_select', 'multiselect', 'multiple'])
-                             || strcasecmp($attr['slug'], 'storage') === 0 || strcasecmp($attr['name'], 'storage') === 0
                              || strcasecmp($attr['slug'], 'size') === 0 || strcasecmp($attr['name'], 'size') === 0);
                 if ($is_multi) {
                     $active_multi_attr_id = (int)$attr['id'];
@@ -194,8 +191,7 @@ class variants extends MY_Controller {
             $assigned_attrs = $this->attribute_model->get_product_attributes($product_id);
             foreach ($assigned_attrs as $aa) {
                 if (in_array(strtolower($aa['type'] ?? ''), ['multiple_select', 'multiselect', 'multiple'])
-                    || strcasecmp($aa['slug'], 'size') === 0 || strcasecmp($aa['name'], 'size') === 0
-                    || strcasecmp($aa['slug'], 'storage') === 0 || strcasecmp($aa['name'], 'storage') === 0) {
+                    || strcasecmp($aa['slug'], 'size') === 0 || strcasecmp($aa['name'], 'size') === 0) {
                     $fallback_multi_id = (int)$aa['attribute_id'];
                     break;
                 }
@@ -206,8 +202,8 @@ class variants extends MY_Controller {
                     $is_multi = false;
                     if ($fallback_multi_id && (int)$val['attribute_id'] === $fallback_multi_id) {
                         $is_multi = true;
-                    } elseif (strcasecmp($val['attribute_slug'], 'size') === 0 || strcasecmp($val['attribute_name'], 'size') === 0
-                              || strcasecmp($val['attribute_slug'], 'storage') === 0 || strcasecmp($val['attribute_name'], 'storage') === 0) {
+                    } elseif (in_array(strtolower($val['type'] ?? ''), ['multiple_select', 'multiselect', 'multiple'])
+                              || strcasecmp($val['attribute_slug'], 'size') === 0 || strcasecmp($val['attribute_name'], 'size') === 0) {
                         $is_multi = true;
                     }
                     if ($is_multi) {
@@ -243,8 +239,7 @@ class variants extends MY_Controller {
             $assigned_product_attrs = $this->attribute_model->get_product_attributes($product_id);
             foreach ($assigned_product_attrs as $apa) {
                 $is_multi = (in_array(strtolower($apa['type'] ?? ''), ['multiple_select', 'multiselect', 'multiple'])
-                             || strcasecmp($apa['slug'], 'size') === 0 || strcasecmp($apa['name'], 'size') === 0
-                             || strcasecmp($apa['slug'], 'storage') === 0 || strcasecmp($apa['name'], 'storage') === 0);
+                             || strcasecmp($apa['slug'], 'size') === 0 || strcasecmp($apa['name'], 'size') === 0);
                 if ($is_multi) {
                     $active_multi_attr_id = (int)$apa['attribute_id'];
                     break;
@@ -395,8 +390,7 @@ class variants extends MY_Controller {
                 $assigned_product_attrs = $this->attribute_model->get_product_attributes($product_id);
                 foreach ($assigned_product_attrs as $apa) {
                     $is_multi = (in_array(strtolower($apa['type'] ?? ''), ['multiple_select', 'multiselect', 'multiple'])
-                                 || strcasecmp($apa['slug'], 'size') === 0 || strcasecmp($apa['name'], 'size') === 0
-                                 || strcasecmp($apa['slug'], 'storage') === 0 || strcasecmp($apa['name'], 'storage') === 0);
+                                 || strcasecmp($apa['slug'], 'size') === 0 || strcasecmp($apa['name'], 'size') === 0);
                     if ($is_multi) {
                         $size_attr_id = (int) $apa['attribute_id'];
                         $size_attr_name = $apa['name'];
@@ -413,11 +407,10 @@ class variants extends MY_Controller {
                 }
             }
 
-            // Fallback: check all attributes for multiple_select or size/storage
+            // Fallback: check all attributes for multiple_select or size
             if (!$size_attr_id) {
                 foreach ($all_attributes as $attr) {
                     $is_multi = (in_array(strtolower($attr['type'] ?? ''), ['multiple_select', 'multiselect', 'multiple'])
-                                 || strcasecmp($attr['slug'], 'storage') === 0 || strcasecmp($attr['name'], 'storage') === 0
                                  || strcasecmp($attr['slug'], 'size') === 0 || strcasecmp($attr['name'], 'size') === 0);
                     if ($is_multi) {
                         $size_attr_id = (int) $attr['id'];

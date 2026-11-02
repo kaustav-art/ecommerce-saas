@@ -37,7 +37,26 @@
 .sticky-organization-card .card-body::-webkit-scrollbar-thumb:hover {
   background: #b5b9c0;
 }
+#description-editor-wrap .ql-toolbar.ql-snow {
+  border-top-left-radius: 0.375rem;
+  border-top-right-radius: 0.375rem;
+  border-color: #d4d7dc;
+  background-color: #f8f9fa;
+}
+#description-editor-wrap .ql-container.ql-snow {
+  border-bottom-left-radius: 0.375rem;
+  border-bottom-right-radius: 0.375rem;
+  border-color: #d4d7dc;
+  min-height: 220px;
+  font-family: inherit;
+  font-size: 0.9375rem;
+}
+#description-editor-wrap .ql-editor {
+  min-height: 220px;
+}
 </style>
+<link rel="stylesheet" href="<?= base_url('assets/vendor/libs/quill/typography.css'); ?>" />
+<link rel="stylesheet" href="<?= base_url('assets/vendor/libs/quill/editor.css'); ?>" />
 
 <div class="container-xxl flex-grow-1 container-p-y">
   <div class="d-flex justify-content-between align-items-center mb-4">
@@ -70,7 +89,10 @@
             </div>
             <div class="mb-3">
               <label class="form-label" for="description">Full Description</label>
-              <textarea class="form-control" id="description" name="description" rows="5"><?= html_escape($product['description']); ?></textarea>
+              <div id="description-editor-wrap">
+                <div id="description-editor"></div>
+                <textarea class="form-control d-none" id="description" name="description" rows="5"><?= html_escape($product['description']); ?></textarea>
+              </div>
             </div>
           </div>
         </div>
@@ -673,4 +695,51 @@ function escapeHtml(text) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
+</script>
+<script src="<?= base_url('assets/vendor/libs/quill/quill.js'); ?>"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var descTextarea = document.getElementById('description');
+  var descEditorEl = document.getElementById('description-editor');
+  if (descEditorEl && typeof Quill !== 'undefined') {
+    var quill = new Quill('#description-editor', {
+      theme: 'snow',
+      placeholder: 'Detailed product specifications, materials, care instructions...',
+      modules: {
+        toolbar: [
+          [{ 'header': [1, 2, 3, 4, false] }],
+          ['bold', 'italic', 'underline', 'strike'],
+          [{ 'color': [] }, { 'background': [] }],
+          [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+          [{ 'align': [] }],
+          ['blockquote', 'link', 'clean']
+        ]
+      }
+    });
+
+    if (descTextarea && descTextarea.value.trim() !== '') {
+      var initVal = descTextarea.value;
+      if (/<[a-z][\s\S]*>/i.test(initVal)) {
+        quill.clipboard.dangerouslyPasteHTML(initVal);
+      } else {
+        quill.setText(initVal);
+      }
+    }
+
+    function syncQuillToTextarea() {
+      if (!descTextarea) return;
+      var html = quill.root.innerHTML;
+      var plain = quill.getText().trim();
+      descTextarea.value = (plain === '' && (html === '<p><br></p>' || html === '')) ? '' : html;
+    }
+
+    quill.on('text-change', syncQuillToTextarea);
+    var formEl = document.getElementById('productEditForm') || (descTextarea ? descTextarea.closest('form') : null);
+    if (formEl) {
+      formEl.addEventListener('submit', syncQuillToTextarea);
+    }
+  } else if (descTextarea) {
+    descTextarea.classList.remove('d-none');
+  }
+});
 </script>
