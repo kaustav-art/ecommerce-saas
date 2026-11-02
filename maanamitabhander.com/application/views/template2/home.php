@@ -471,8 +471,8 @@ $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empt
                       $d_old   = isset($dp['original_price']) ? (float)$dp['original_price'] : (float)($dp['mrp'] ?? $dp['price'] ?? 0);
                       $d_disc  = !empty($dp['total_discount_percent']) ? (int)$dp['total_discount_percent'] : (($d_old > $d_price && $d_old > 0) ? round((($d_old - $d_price) / $d_old) * 100) : 15);
                       $d_rev_cnt = (isset($dp['reviews']) && is_array($dp['reviews'])) ? count($dp['reviews']) : (int)($dp['reviews_count'] ?? 0);
-                      $d_rating  = $d_rev_cnt > 0 ? (float)($dp['rating'] ?? 0) : 0.0;
-                      $d_stars   = (int)round($d_rating);
+                      $d_rating  = (float)($dp['rating'] ?? 0);
+                      $d_stars   = ($d_rev_cnt > 0 || $d_rating > 0) ? max(0, min(5, (int)round($d_rating))) : 0;
                       $d_swatches  = elt_get_product_swatches($dp, $d_img, !empty($is_user_project));
                       $d_hover_img = elt_get_hover_img($dp, $d_img, $d_swatches);
                   ?>
@@ -499,13 +499,14 @@ $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empt
                         </div>
                         <div class="aq-product-content text-center text-md-start">
                            <div class="aq-product-ratting">
-                              <?php for ($si = 1; $si <= 5; $si++): ?>
-                              <span<?= ($d_stars > 0 && $si > $d_stars) ? ' style="opacity:0.25;"' : ''; ?>>
+                              <span>
+                                 <?php for ($si = 1; $si <= 5; $si++): ?>
                                  <svg width="12" height="11" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M5.21608 0.307961C5.38688 -0.102685 5.9686 -0.102684 6.1394 0.307962L7.34463 3.20568C7.41664 3.3788 7.57944 3.49709 7.76634 3.51207L10.8947 3.76287C11.338 3.79841 11.5178 4.35166 11.18 4.641L8.79653 6.68268C8.65414 6.80466 8.59195 6.99605 8.63546 7.17843L9.36364 10.2311C9.46684 10.6638 8.99621 11.0057 8.61666 10.7739L5.93837 9.13797C5.77836 9.04024 5.57712 9.04024 5.41711 9.13797L2.73882 10.7739C2.35927 11.0057 1.88865 10.6638 1.99184 10.2311L2.72003 7.17843C2.76353 6.99605 2.70135 6.80466 2.55895 6.68268L0.175492 4.641C-0.162276 4.35166 0.0174878 3.79841 0.460815 3.76287L3.58915 3.51207C3.77604 3.49709 3.93885 3.3788 4.01085 3.20568L5.21608 0.307961Z" fill="currentcolor"></path>
+                                    <path d="M5.21608 0.307961C5.38688 -0.102685 5.9686 -0.102684 6.1394 0.307962L7.34463 3.20568C7.41664 3.3788 7.57944 3.49709 7.76634 3.51207L10.8947 3.76287C11.338 3.79841 11.5178 4.35166 11.18 4.641L8.79653 6.68268C8.65414 6.80466 8.59195 6.99605 8.63546 7.17843L9.36364 10.2311C9.46684 10.6638 8.99621 11.0057 8.61666 10.7739L5.93837 9.13797C5.77836 9.04024 5.57712 9.04024 5.41711 9.13797L2.73882 10.7739C2.35927 11.0057 1.88865 10.6638 1.99184 10.2311L2.72003 7.17843C2.76353 6.99605 2.70135 6.80466 2.55895 6.68268L0.175492 4.641C-0.162276 4.35166 0.0174878 3.79841 0.460815 3.76287L3.58915 3.51207C3.77604 3.49709 3.93885 3.3788 4.01085 3.20568L5.21608 0.307961Z" fill="<?= ($si <= $d_stars) ? '#f59e0b' : '#d1d5db'; ?>"></path>
                                  </svg>
+                                 <?php endfor; ?>
+                                 <span class="aq-rating-count">(<?= $d_rev_cnt; ?>)</span>
                               </span>
-                              <?php endfor; ?>
                            </div>
                            <h4 class="aq-product-title mb-10"><a href="<?= $d_slug; ?>"><?= html_escape($d_name); ?></a></h4>
                            <div class="aq-product-price">
@@ -655,8 +656,8 @@ $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empt
                    $a_old   = isset($ap['original_price']) ? (float)$ap['original_price'] : (float)($ap['mrp'] ?? $ap['price'] ?? 0);
                    $a_disc  = ($a_old > $a_price && $a_old > 0) ? round((($a_old - $a_price) / $a_old) * 100) : 0;
                    $a_rev_cnt = (isset($ap['reviews']) && is_array($ap['reviews'])) ? count($ap['reviews']) : (int)($ap['reviews_count'] ?? 0);
-                   $a_rating  = $a_rev_cnt > 0 ? (float)($ap['rating'] ?? 0) : 0.0;
-                   $a_stars   = (int)round($a_rating);
+                   $a_rating  = (float)($ap['rating'] ?? 0);
+                   $a_stars   = ($a_rev_cnt > 0 || $a_rating > 0) ? max(0, min(5, (int)round($a_rating))) : 0;
                    $a_swatches  = elt_get_product_swatches($ap, $a_img, !empty($is_user_project));
                    $a_hover_img = elt_get_hover_img($ap, $a_img, $a_swatches);
                ?>
@@ -683,13 +684,14 @@ $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empt
                      </div>
                      <div class="aq-product-content text-center text-md-start">
                         <div class="aq-product-ratting">
-                           <?php for ($si = 1; $si <= 5; $si++): ?>
-                           <span<?= ($a_stars > 0 && $si > $a_stars) ? ' style="opacity:0.25;"' : ''; ?>>
+                           <span>
+                              <?php for ($si = 1; $si <= 5; $si++): ?>
                               <svg width="12" height="11" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                 <path d="M5.21608 0.307961C5.38688 -0.102685 5.9686 -0.102684 6.1394 0.307962L7.34463 3.20568C7.41664 3.3788 7.57944 3.49709 7.76634 3.51207L10.8947 3.76287C11.338 3.79841 11.5178 4.35166 11.18 4.641L8.79653 6.68268C8.65414 6.80466 8.59195 6.99605 8.63546 7.17843L9.36364 10.2311C9.46684 10.6638 8.99621 11.0057 8.61666 10.7739L5.93837 9.13797C5.77836 9.04024 5.57712 9.04024 5.41711 9.13797L2.73882 10.7739C2.35927 11.0057 1.88865 10.6638 1.99184 10.2311L2.72003 7.17843C2.76353 6.99605 2.70135 6.80466 2.55895 6.68268L0.175492 4.641C-0.162276 4.35166 0.0174878 3.79841 0.460815 3.76287L3.58915 3.51207C3.77604 3.49709 3.93885 3.3788 4.01085 3.20568L5.21608 0.307961Z" fill="currentcolor"></path>
+                                 <path d="M5.21608 0.307961C5.38688 -0.102685 5.9686 -0.102684 6.1394 0.307962L7.34463 3.20568C7.41664 3.3788 7.57944 3.49709 7.76634 3.51207L10.8947 3.76287C11.338 3.79841 11.5178 4.35166 11.18 4.641L8.79653 6.68268C8.65414 6.80466 8.59195 6.99605 8.63546 7.17843L9.36364 10.2311C9.46684 10.6638 8.99621 11.0057 8.61666 10.7739L5.93837 9.13797C5.77836 9.04024 5.57712 9.04024 5.41711 9.13797L2.73882 10.7739C2.35927 11.0057 1.88865 10.6638 1.99184 10.2311L2.72003 7.17843C2.76353 6.99605 2.70135 6.80466 2.55895 6.68268L0.175492 4.641C-0.162276 4.35166 0.0174878 3.79841 0.460815 3.76287L3.58915 3.51207C3.77604 3.49709 3.93885 3.3788 4.01085 3.20568L5.21608 0.307961Z" fill="<?= ($si <= $a_stars) ? '#f59e0b' : '#d1d5db'; ?>"></path>
                               </svg>
+                              <?php endfor; ?>
+                              <span class="aq-rating-count">(<?= $a_rev_cnt; ?>)</span>
                            </span>
-                           <?php endfor; ?>
                         </div>
                         <h4 class="aq-product-title mb-10"><a href="<?= $a_slug; ?>"><?= html_escape($a_name); ?></a></h4>
                         <div class="aq-product-price">

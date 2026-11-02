@@ -32,6 +32,11 @@ class flash_sales extends MY_Controller {
 
                 if (empty($id)) {
                     // 1. Create New Flash Sale
+                    if (strtotime(date('Y-m-d', $start_ts)) < strtotime(date('Y-m-d', $now))) {
+                        $this->session->set_flashdata('error', 'Start Date/Time cannot be before today\'s date.');
+                        redirect('flash_sales');
+                        return;
+                    }
                     if ($end_ts <= $start_ts) {
                         $this->session->set_flashdata('error', 'End Date/Time must be after Start Date/Time.');
                         redirect('flash_sales');

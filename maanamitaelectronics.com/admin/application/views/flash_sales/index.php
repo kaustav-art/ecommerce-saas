@@ -49,12 +49,12 @@
             <div class="row">
               <div class="col-6 mb-3">
                 <label class="form-label" for="fs_start">Start Date/Time <span class="text-danger">*</span></label>
-                <input type="datetime-local" class="form-control" id="fs_start" name="start_time" value="<?= date('Y-m-d\TH:i'); ?>" required>
+                <input type="datetime-local" class="form-control" id="fs_start" name="start_time" value="<?= date('Y-m-d\TH:i'); ?>" min="<?= date('Y-m-d\TH:i'); ?>" required>
                 <small id="fs_start_notice" class="text-muted d-block mt-1" style="display:none; font-size:11px;"></small>
               </div>
               <div class="col-6 mb-3">
                 <label class="form-label" for="fs_end">End Date/Time <span class="text-danger">*</span></label>
-                <input type="datetime-local" class="form-control" id="fs_end" name="end_time" value="<?= date('Y-m-d\TH:i', strtotime('+7 days')); ?>" required>
+                <input type="datetime-local" class="form-control" id="fs_end" name="end_time" value="<?= date('Y-m-d\TH:i', strtotime('+7 days')); ?>" min="<?= date('Y-m-d\TH:i'); ?>" required>
                 <small id="fs_end_notice" class="text-muted d-block mt-1" style="display:none; font-size:11px;"></small>
               </div>
             </div>
@@ -334,6 +334,7 @@ function editFlashSale(fs) {
   titleInput.value = fs.title;
   discInput.value = fs.discount_percent || '30.00';
 
+  startInput.removeAttribute('min');
   if (fs.start_time) {
     startInput.value = fs.start_time.replace(' ', 'T').substring(0, 16);
   }
@@ -539,6 +540,21 @@ function terminateCurrentFs() {
   promptTerminateSale('<?= site_url("flash_sales/terminate/"); ?>' + activeEditFsId, title, currentEditStatus || 'running');
 }
 
+function getLocalIsoString(dateObj) {
+  const d = dateObj ? new Date(dateObj.getTime()) : new Date();
+  d.setSeconds(0, 0);
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().substring(0, 16);
+}
+
+function addMinutesToIso(isoStr, mins) {
+  if (!isoStr) return getLocalIsoString(new Date(Date.now() + mins * 60000));
+  const dt = new Date(isoStr);
+  if (isNaN(dt.getTime())) return getLocalIsoString(new Date(Date.now() + mins * 60000));
+  dt.setMinutes(dt.getMinutes() + mins);
+  return getLocalIsoString(dt);
+}
+
 function resetFsForm() {
   activeEditFsId = null;
   currentEditStatus = null;
@@ -576,16 +592,15 @@ function resetFsForm() {
   endNotice.style.display = 'none';
 
   // Format current local date/time YYYY-MM-DDTHH:mm
-  const d = new Date();
-  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-  const nowLocal = d.toISOString().substring(0, 16);
+  const nowLocal = getLocalIsoString(new Date());
+  startInput.min = nowLocal;
   startInput.value = nowLocal;
 
   const d7 = new Date();
   d7.setDate(d7.getDate() + 7);
-  d7.setMinutes(d7.getMinutes() - d7.getTimezoneOffset());
-  endInput.value = d7.toISOString().substring(0, 16);
-  endInput.min = nowLocal;
+  const d7Local = getLocalIsoString(d7);
+  endInput.min = addMinutesToIso(nowLocal, 1);
+  endInput.value = d7Local;
 
   document.getElementById('fs_banner').disabled = false;
   document.getElementById('fs_current_banner').value = '';
@@ -612,8 +627,6 @@ function resetFsForm() {
 
   document.getElementById('fs_terminate_btn').style.display = 'none';
   document.getElementById('fs_reset_btn').innerText = 'Reset';
-
-
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -644,12 +657,122 @@ document.addEventListener('DOMContentLoaded', function() {
 
   const startInput = document.getElementById('fs_start');
   const endInput = document.getElementById('fs_end');
+  const startNotice = document.getElementById('fs_start_notice');
+  const endNotice = document.getElementById('fs_end_notice');
+
   if (startInput && endInput) {
-    startInput.addEventListener('change', function() {
+    // Initialize min constraints using browser local time on page load
+    const initNowLocal = getLocalIsoString(new Date());
+    if (!document.getElementById('fs_id').value) {
+      startInput.min = initNowLocal;
+      if (!startInput.value || startInput.value < initNowLocal) {
+        startInput.value = initNowLocal;
+      }
+      const d7Init = new Date();
+      d7Init.setDate(d7Init.getDate() + 7);
+      endInput.min = addMinutesToIso(startInput.value, 1);
+      if (!endInput.value || endInput.value <= startInput.value) {
+        endInput.value = getLocalIsoString(d7Init);
+      }
+    }
+
+    function syncStartAndEndConstraints(showFeedback) {
+      const isEditing = !!document.getElementById('fs_id').value;
+      const nowLocal = getLocalIsoString(new Date());
+
+      if (!isEditing) {
+        startInput.min = nowLocal;
+        if (startInput.value && startInput.value < nowLocal) {
+          startInput.value = nowLocal;
+          if (startNotice && showFeedback) {
+            startNotice.style.display = 'block';
+            startNotice.className = 'text-danger d-block mt-1';
+            startNotice.innerHTML = '<i class="fa-solid fa-circle-exclamation me-1"></i>Start date/time cannot be in the past.';
+          }
+        } else if (startNotice && !isEditing) {
+          startNotice.style.display = 'none';
+        }
+      }
+
+      if (startInput.value) {
+        const minEnd = (isEditing && currentEditStatus === 'running' && origEndTimeMs)
+          ? addMinutesToIso(getLocalIsoString(new Date(origEndTimeMs)), 1)
+          : addMinutesToIso(startInput.value, 1);
+        endInput.min = minEnd;
+
+        if (endInput.value && endInput.value < minEnd) {
+          endInput.value = addMinutesToIso(startInput.value, 60);
+          if (endNotice && showFeedback) {
+            endNotice.style.display = 'block';
+            endNotice.className = 'text-danger d-block mt-1';
+            endNotice.innerHTML = '<i class="fa-solid fa-circle-exclamation me-1"></i>End date/time must be after start date/time.';
+          }
+        } else if (endNotice && !isEditing) {
+          endNotice.style.display = 'none';
+        }
+      }
+    }
+
+    startInput.addEventListener('focus', function() {
       if (!document.getElementById('fs_id').value) {
-        endInput.min = this.value;
-        if (endInput.value && endInput.value < this.value) {
-          endInput.value = this.value;
+        this.min = getLocalIsoString(new Date());
+      }
+    });
+
+    startInput.addEventListener('change', function() {
+      syncStartAndEndConstraints(true);
+    });
+
+    endInput.addEventListener('focus', function() {
+      if (startInput.value) {
+        const isEditing = !!document.getElementById('fs_id').value;
+        this.min = (isEditing && currentEditStatus === 'running' && origEndTimeMs)
+          ? addMinutesToIso(getLocalIsoString(new Date(origEndTimeMs)), 1)
+          : addMinutesToIso(startInput.value, 1);
+      }
+    });
+
+    endInput.addEventListener('change', function() {
+      const isEditing = !!document.getElementById('fs_id').value;
+      if (isEditing && currentEditStatus === 'running' && origEndTimeMs) {
+        const minRunEnd = addMinutesToIso(getLocalIsoString(new Date(origEndTimeMs)), 1);
+        this.min = minRunEnd;
+        if (this.value && this.value < minRunEnd) {
+          this.value = minRunEnd;
+          if (typeof Swal !== 'undefined') {
+            Swal.fire({
+              title: 'Extension Required',
+              text: 'For running campaigns, End Date/Time can only be extended beyond the current end date/time.',
+              icon: 'warning',
+              customClass: { confirmButton: 'btn btn-primary waves-effect waves-light' },
+              buttonsStyling: false
+            });
+          }
+        }
+        return;
+      }
+
+      if (startInput.value) {
+        const minEnd = addMinutesToIso(startInput.value, 1);
+        this.min = minEnd;
+        if (this.value && this.value <= startInput.value) {
+          this.value = addMinutesToIso(startInput.value, 60);
+          if (endNotice) {
+            endNotice.style.display = 'block';
+            endNotice.className = 'text-danger d-block mt-1';
+            endNotice.innerHTML = '<i class="fa-solid fa-circle-exclamation me-1"></i>End date/time cannot be before or equal to start date/time.';
+          }
+          if (typeof Swal !== 'undefined') {
+            Swal.fire({
+              title: 'Invalid End Date/Time',
+              text: 'End Date/Time must be after Start Date/Time.',
+              icon: 'error',
+              customClass: { confirmButton: 'btn btn-primary waves-effect waves-light' },
+              buttonsStyling: false
+            });
+          }
+        } else if (endNotice && !isEditing) {
+          endNotice.style.display = 'none';
         }
       }
     });
@@ -688,6 +811,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
       const startTs = new Date(sVal).getTime();
       const endTs = new Date(eVal).getTime();
+      const nowFloorMinTs = Math.floor(Date.now() / 60000) * 60000 - 60000; // 1 min grace for current minute
+
+      if (!id && startTs < nowFloorMinTs) {
+        e.preventDefault();
+        const nowLocal = getLocalIsoString(new Date());
+        document.getElementById('fs_start').min = nowLocal;
+        document.getElementById('fs_start').value = nowLocal;
+        if (typeof Swal !== 'undefined') {
+          Swal.fire({
+            title: 'Invalid Start Date/Time',
+            text: 'Start Date/Time cannot be in the past. Please select today\'s current or future date/time.',
+            icon: 'error',
+            customClass: { confirmButton: 'btn btn-primary waves-effect waves-light' },
+            buttonsStyling: false
+          });
+        }
+        return false;
+      }
 
       if (endTs <= startTs) {
         e.preventDefault();

@@ -46,7 +46,27 @@ $display_review_count = $total_review_count;
 
 // Variant configuration
 $has_variants = !empty($product['variants']);
-$has_color = !empty($product['attributes']['color']);
+$color_attr = null;
+$color_attr_slug = 'color';
+if (!empty($product['attributes'])) {
+    if (!empty($product['attributes']['color'])) {
+        $color_attr = $product['attributes']['color'];
+        $color_attr_slug = 'color';
+    } else {
+        foreach ($product['attributes'] as $slug => $attr_info) {
+            if (
+                (!empty($attr_info['type']) && $attr_info['type'] === 'color') ||
+                strcasecmp($attr_info['name'] ?? '', 'color') === 0 ||
+                stripos($slug, 'color') === 0
+            ) {
+                $color_attr = $attr_info;
+                $color_attr_slug = $slug;
+                break;
+            }
+        }
+    }
+}
+$has_color = !empty($color_attr['values']);
 
 // Detect secondary option attribute (e.g., Size, Storage, or any active multiple_select attribute)
 $multi_attr      = null;
@@ -55,7 +75,7 @@ $multi_attr_name = 'Option';
 
 if (!empty($product['attributes'])) {
     foreach ($product['attributes'] as $slug => $attr_info) {
-        if ($slug === 'color') continue;
+        if ($slug === 'color' || $slug === $color_attr_slug || (!empty($attr_info['type']) && $attr_info['type'] === 'color')) continue;
         if (!empty($attr_info['values']) && (!empty($attr_info['type']) && $attr_info['type'] === 'multiple_select')) {
             $multi_attr      = $attr_info;
             $multi_attr_slug = $slug;
@@ -65,7 +85,7 @@ if (!empty($product['attributes'])) {
     }
     if (empty($multi_attr)) {
         foreach ($product['attributes'] as $slug => $attr_info) {
-            if ($slug === 'color') continue;
+            if ($slug === 'color' || $slug === $color_attr_slug || (!empty($attr_info['type']) && $attr_info['type'] === 'color')) continue;
             if (!empty($attr_info['values'])) {
                 $multi_attr      = $attr_info;
                 $multi_attr_slug = $slug;
@@ -84,8 +104,8 @@ $initial_size = '';
 $initial_variant_id = 0;
 $initial_sku = $product['sku'] ?? 'MOD-W-001-BG-S';
 
-if ($has_color && !empty($product['attributes']['color']['values'])) {
-    foreach ($product['attributes']['color']['values'] as $idx => $c_val) {
+if ($has_color && !empty($color_attr['values'])) {
+    foreach ($color_attr['values'] as $idx => $c_val) {
         $c_name = $c_val['value'];
         if ($idx === 0) {
             $initial_color = $c_name;
@@ -98,7 +118,12 @@ if ($has_color && !empty($product['attributes']['color']['values'])) {
                 $matches_color = false;
                 if (!empty($pv['values'])) {
                     foreach ($pv['values'] as $val) {
-                        if ($val['attribute_slug'] === 'color' && strcasecmp($val['attribute_value'], $c_name) === 0) {
+                        $v_slug = $val['attribute_slug'] ?? '';
+                        $v_name = $val['attribute_name'] ?? '';
+                        if (
+                            ($v_slug === 'color' || $v_slug === $color_attr_slug || strcasecmp($v_name, 'color') === 0 || stripos($v_slug, 'color') === 0) &&
+                            strcasecmp($val['attribute_value'], $c_name) === 0
+                        ) {
                             $matches_color = true;
                             break;
                         }
@@ -154,9 +179,15 @@ if ($has_color && !empty($product['attributes']['color']['values'])) {
             'image'      => $c_photo,
             'gallery'    => $c_gallery,
             'images'     => $c_images,
+            'variant'    => null,
             'sizes'      => []
         ];
     }
+}
+
+if (!empty($initial_color) && !empty($color_map[$initial_color]['images'])) {
+    $all_images = $color_map[$initial_color]['images'];
+    $total_images = count($all_images);
 }
 
 $size_variant_map = [];
@@ -168,12 +199,14 @@ if ($has_variants) {
         $v_size  = '';
         if (!empty($pv['values'])) {
             foreach ($pv['values'] as $val) {
-                if (strcasecmp($val['attribute_slug'], 'color') === 0 || strcasecmp($val['attribute_name'], 'color') === 0) {
+                $v_slug = $val['attribute_slug'] ?? '';
+                $v_name = $val['attribute_name'] ?? '';
+                if (strcasecmp($v_slug, 'color') === 0 || strcasecmp($v_slug, $color_attr_slug) === 0 || strcasecmp($v_name, 'color') === 0 || stripos($v_slug, 'color') === 0) {
                     $v_color = $val['attribute_value'];
                 }
-                if ($multi_attr_slug && (strcasecmp($val['attribute_slug'], $multi_attr_slug) === 0 || strcasecmp($val['attribute_name'], $multi_attr_name) === 0)) {
+                if ($multi_attr_slug && (strcasecmp($v_slug, $multi_attr_slug) === 0 || strcasecmp($v_name, $multi_attr_name) === 0)) {
                     $v_size = $val['attribute_value'];
-                } elseif (strcasecmp($val['attribute_slug'], 'size') === 0 || strcasecmp($val['attribute_name'], 'size') === 0 || strcasecmp($val['attribute_slug'], 'storage') === 0 || strcasecmp($val['attribute_name'], 'storage') === 0) {
+                } elseif (strcasecmp($v_slug, 'size') === 0 || strcasecmp($v_name, 'size') === 0 || strcasecmp($v_slug, 'storage') === 0 || strcasecmp($v_name, 'storage') === 0) {
                     $v_size = $val['attribute_value'];
                 }
             }
@@ -195,10 +228,16 @@ if ($has_variants) {
             'specifications' => $v_specs
         ];
 
-        if ($v_color && $v_size && isset($color_map[$v_color])) {
-            $color_map[$v_color]['sizes'][$v_size] = $var_entry;
-            if ($v_color === $initial_color && empty($initial_size) && (int) $pv['stock_quantity'] > 0) {
-                $initial_size       = $v_size;
+        if ($v_color && isset($color_map[$v_color])) {
+            if (empty($color_map[$v_color]['variant']) || ((int)$color_map[$v_color]['variant']['stock'] <= 0 && (int)$pv['stock_quantity'] > 0)) {
+                $color_map[$v_color]['variant'] = $var_entry;
+            }
+            $size_key = ($v_size !== '') ? $v_size : '_default';
+            $color_map[$v_color]['sizes'][$size_key] = $var_entry;
+            if ($v_color === $initial_color && empty($initial_variant) && (int) $pv['stock_quantity'] > 0) {
+                if ($v_size !== '') {
+                    $initial_size = $v_size;
+                }
                 $initial_variant_id = (int) $pv['id'];
                 $initial_sku        = $pv['sku'];
                 $initial_variant    = $var_entry;
@@ -225,8 +264,10 @@ if ($has_variants && empty($initial_variant_id) && !empty($product['variants']))
 }
 
 if (empty($initial_variant) && $has_variants) {
-    if (!empty($initial_color) && !empty($color_map[$initial_color]['sizes'][$initial_size])) {
+    if (!empty($initial_color) && !empty($initial_size) && !empty($color_map[$initial_color]['sizes'][$initial_size])) {
         $initial_variant = $color_map[$initial_color]['sizes'][$initial_size];
+    } elseif (!empty($initial_color) && !empty($color_map[$initial_color]['variant'])) {
+        $initial_variant = $color_map[$initial_color]['variant'];
     } elseif (!empty($size_variant_map[$initial_size])) {
         $initial_variant = $size_variant_map[$initial_size];
     } elseif (!empty($product['variants'])) {
@@ -1402,7 +1443,7 @@ if (!empty($initial_variant)) {
                                     <div class="col-xl-12">
                                        <h4 class="product-details-additional-info-title">Additional information</h4>
                                        <table>
-                                          <tbody>
+                                          <tbody id="tab-specs-tbody">
                                              <?php if (!empty($merged_specs)): ?>
                                                 <?php foreach ($merged_specs as $msp): ?>
                                                 <tr>
@@ -1833,8 +1874,8 @@ if (!empty($initial_variant)) {
                   $rp_sal     = (!empty($rp['sale_price']) && (float)$rp['sale_price'] > 0 && (float)$rp['sale_price'] < $rp_reg) ? (float)$rp['sale_price'] : $rp_reg;
                   $rp_disc    = ($rp_sal < $rp_reg && $rp_reg > 0) ? round((($rp_reg - $rp_sal) / $rp_reg) * 100) : 0;
                   $rp_rev_cnt = (isset($rp['reviews']) && is_array($rp['reviews'])) ? count($rp['reviews']) : (int)($rp['reviews_count'] ?? 0);
-                  $rp_rating  = $rp_rev_cnt > 0 ? (float)($rp['rating'] ?? 0) : 0.0;
-                  $rp_stars   = (int)round($rp_rating);
+                  $rp_rating  = (float)($rp['rating'] ?? 0);
+                  $rp_stars   = ($rp_rev_cnt > 0 || $rp_rating > 0) ? max(0, min(5, (int)round($rp_rating))) : 0;
                ?>
                <div class="col">
                   <div class="aq-product-item aq-product-main mb-40" data-lazy="true">
@@ -1862,9 +1903,10 @@ if (!empty($initial_variant)) {
                            <span>
                               <?php for ($si = 1; $si <= 5; $si++): ?>
                               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="11" viewBox="0 0 12 11" fill="none">
-                                 <path d="M5.40275 0.362705C5.63051 -0.120902 6.36949 -0.120902 6.59725 0.362705L7.93836 3.21024C8.02854 3.40172 8.21562 3.53352 8.43269 3.55948L11.5059 3.927C12.0439 3.99135 12.261 4.63775 11.8639 4.9945L9.59633 7.03198C9.44263 7.17008 9.37388 7.37752 9.41391 7.57727L10.0085 10.5439C10.1112 11.0566 9.54935 11.4547 9.07645 11.2028L6.31896 9.73361C6.11992 9.62757 5.88008 9.62757 5.68104 9.73361L2.92355 11.2028C2.45065 11.4547 1.88878 11.0566 1.99153 10.5439L2.58609 7.57727C2.62612 7.37752 2.55737 7.17008 2.40367 7.03198L0.136127 4.9945C-0.260953 4.63775 -0.0439128 3.99135 0.49411 3.927L3.56731 3.55948C3.78438 3.53352 3.97146 3.40172 4.06164 3.21024L5.40275 0.362705Z" fill="<?= ($si <= $rp_stars || $rp_rev_cnt === 0) ? 'currentcolor' : '#d1d5db'; ?>"></path>
+                                 <path d="M5.40275 0.362705C5.63051 -0.120902 6.36949 -0.120902 6.59725 0.362705L7.93836 3.21024C8.02854 3.40172 8.21562 3.53352 8.43269 3.55948L11.5059 3.927C12.0439 3.99135 12.261 4.63775 11.8639 4.9945L9.59633 7.03198C9.44263 7.17008 9.37388 7.37752 9.41391 7.57727L10.0085 10.5439C10.1112 11.0566 9.54935 11.4547 9.07645 11.2028L6.31896 9.73361C6.11992 9.62757 5.88008 9.62757 5.68104 9.73361L2.92355 11.2028C2.45065 11.4547 1.88878 11.0566 1.99153 10.5439L2.58609 7.57727C2.62612 7.37752 2.55737 7.17008 2.40367 7.03198L0.136127 4.9945C-0.260953 4.63775 -0.0439128 3.99135 0.49411 3.927L3.56731 3.55948C3.78438 3.53352 3.97146 3.40172 4.06164 3.21024L5.40275 0.362705Z" fill="<?= ($si <= $rp_stars) ? '#f59e0b' : '#d1d5db'; ?>"></path>
                               </svg>
                               <?php endfor; ?>
+                              <span class="aq-rating-count">(<?= $rp_rev_cnt; ?>)</span>
                            </span>
                         </div>
                         <h4 class="aq-product-title mb-10"><a href="<?= $rp_slug; ?>"><?= html_escape($rp_name); ?></a></h4>
@@ -2165,6 +2207,136 @@ if (!empty($initial_variant)) {
                 seeMoreWrap.style.display = (count > 14) ? 'block' : 'none';
             }
         }
+
+        var tabSpecsTbody = document.getElementById('tab-specs-tbody');
+        if (tabSpecsTbody && mergedSpecs.length > 0) {
+            var rowsHtml = '';
+            mergedSpecs.forEach(function(item) {
+                rowsHtml += '<tr><td>' + escapeHtml(item.name) + '</td><td>' + escapeHtml(item.value) + '</td></tr>';
+            });
+            tabSpecsTbody.innerHTML = rowsHtml;
+        }
+    }
+
+    var baseImgUrl = "<?= base_url('assets/images/'); ?>";
+    var siteBaseUrl = "<?= base_url(); ?>";
+    var productTitleEscaped = "<?= addslashes(html_escape($product['name'] ?? 'Product')); ?>";
+
+    function resolveGalleryImageUrl(rawPath) {
+        if (!rawPath) return '';
+        var p = String(rawPath).trim();
+        if (p.indexOf('http://') === 0 || p.indexOf('https://') === 0) return p;
+        var clean = p.replace(/^\/+/, '');
+        if (clean.indexOf('assets/') === 0 || clean.indexOf('uploads/') === 0) {
+            return siteBaseUrl + clean;
+        }
+        return baseImgUrl + clean;
+    }
+
+    function updateProductGallerySliders(colorName) {
+        if (!colorMap[colorName]) return;
+        var rawList = [];
+        if (Array.isArray(colorMap[colorName].images) && colorMap[colorName].images.length > 0) {
+            rawList = colorMap[colorName].images.slice();
+        } else if (colorMap[colorName].image) {
+            rawList = [colorMap[colorName].image];
+        }
+        if (rawList.length === 0) return;
+
+        var urls = [];
+        rawList.forEach(function(item) {
+            var u = resolveGalleryImageUrl(item);
+            if (u) urls.push(u);
+        });
+        if (urls.length === 0) return;
+        while (urls.length < 4) {
+            urls = urls.concat(urls);
+        }
+
+        var forHtml = '';
+        var navHtml = '';
+        urls.forEach(function(u) {
+            var safeU = escapeHtml(u);
+            forHtml += '<div class="product-slider-for-img">' +
+                       '<a class="popup-image" href="' + safeU + '">' +
+                       '<img src="' + safeU + '" alt="' + productTitleEscaped + '">' +
+                       '</a></div>';
+            navHtml += '<div class="product-slider-nav-img">' +
+                       '<img src="' + safeU + '" alt="' + productTitleEscaped + '">' +
+                       '</div>';
+        });
+
+        if (window.jQuery && window.jQuery.fn && typeof window.jQuery.fn.slick === 'function') {
+            var $ = window.jQuery;
+            var $for = $('.slider-for');
+            var $nav = $('.slider-nav-2');
+
+            if ($for.length && $nav.length) {
+                if ($for.hasClass('slick-initialized')) {
+                    $for.slick('unslick');
+                }
+                if ($nav.hasClass('slick-initialized')) {
+                    $nav.slick('unslick');
+                }
+                $for.siblings('.product-slider-arrow').remove();
+                $nav.siblings('.product-slider-arrow').remove();
+
+                $for.html(forHtml);
+                $nav.html(navHtml);
+
+                $for.slick({
+                    slidesToShow: 1,
+                    slidesToScroll: 1,
+                    arrows: false,
+                    fade: true,
+                    asNavFor: '.slider-nav-2'
+                });
+
+                $nav.slick({
+                    slidesToShow: 5,
+                    slidesToScroll: 1,
+                    asNavFor: '.slider-for',
+                    arrows: false,
+                    dots: false,
+                    centerMode: false,
+                    focusOnSelect: true,
+                    prevArrow: '<button type="button" class="product-slider-prev product-slider-arrow"><i class="fa-regular fa-angle-left"></i></button>',
+                    nextArrow: '<button type="button" class="product-slider-next product-slider-arrow"><i class="fa-regular fa-angle-right"></i></button>',
+                    appendArrows: $(".product-slider-nav-2").parent(),
+                    responsive: [
+                        {
+                            breakpoint: 1400,
+                            settings: { slidesToShow: 4 }
+                        },
+                        {
+                            breakpoint: 1200,
+                            settings: { slidesToShow: 3 }
+                        },
+                        {
+                            breakpoint: 992,
+                            settings: { slidesToShow: 4 }
+                        },
+                        {
+                            breakpoint: 500,
+                            settings: { slidesToShow: 3 }
+                        }
+                    ]
+                });
+
+                if ($.fn.magnificPopup) {
+                    $('.popup-image').magnificPopup({
+                        type: 'image',
+                        gallery: { enabled: true }
+                    });
+                }
+                return;
+            }
+        }
+
+        var forEl = document.querySelector('.slider-for');
+        var navEl = document.querySelector('.slider-nav-2');
+        if (forEl) forEl.innerHTML = forHtml;
+        if (navEl) navEl.innerHTML = navHtml;
     }
 
     function updateSizeAvailability() {
@@ -2199,13 +2371,15 @@ if (!empty($initial_variant)) {
 
     function syncCurrentVariant() {
         var variantData = null;
-        if (hasVariants && colorMap[selectedColor] && colorMap[selectedColor].sizes && colorMap[selectedColor].sizes[selectedSize]) {
+        if (hasVariants && colorMap[selectedColor] && selectedSize && colorMap[selectedColor].sizes && colorMap[selectedColor].sizes[selectedSize]) {
             variantData = colorMap[selectedColor].sizes[selectedSize];
-        } else if (hasVariants && sizeVariantMap && sizeVariantMap[selectedSize]) {
-            variantData = sizeVariantMap[selectedSize];
+        } else if (hasVariants && colorMap[selectedColor] && colorMap[selectedColor].variant) {
+            variantData = colorMap[selectedColor].variant;
         } else if (hasVariants && colorMap[selectedColor] && colorMap[selectedColor].sizes) {
             var firstS = Object.keys(colorMap[selectedColor].sizes)[0];
             if (firstS) variantData = colorMap[selectedColor].sizes[firstS];
+        } else if (hasVariants && sizeVariantMap && selectedSize && sizeVariantMap[selectedSize]) {
+            variantData = sizeVariantMap[selectedSize];
         }
 
         if (variantData) {
@@ -2284,6 +2458,7 @@ if (!empty($initial_variant)) {
             }
         }
 
+        updateProductGallerySliders(colorName);
         updateSizeAvailability();
         syncCurrentVariant();
         hideVariantLoader(250);
@@ -2315,7 +2490,7 @@ if (!empty($initial_variant)) {
         }
         var qtyInput = document.getElementById('product-qty-input');
         var qty = parseInt(qtyInput ? qtyInput.value : '1', 10) || 1;
-        if (typeof bazaroAddToCart === 'function') {
+        if (!selectedVariantId && typeof bazaroAddToCart === 'function') {
             bazaroAddToCart(productId, qty, true);
             return;
         }
@@ -2331,8 +2506,12 @@ if (!empty($initial_variant)) {
             },
             body: payload.toString()
         }).then(function() {
-            var cartDrawer = document.querySelector('.cartmini__area');
-            if (cartDrawer) cartDrawer.classList.add('cartmini-opened');
+            if (typeof bazaroRefreshMiniCart === 'function') {
+                bazaroRefreshMiniCart(true);
+            } else {
+                var cartDrawer = document.querySelector('.cartmini__area');
+                if (cartDrawer) cartDrawer.classList.add('cartmini-opened');
+            }
         });
     };
 

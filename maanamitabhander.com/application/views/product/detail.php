@@ -204,11 +204,14 @@ if ($has_variants) {
             'specifications' => $v_specs
         ];
 
-        if ($v_color && $v_size && isset($color_map[$v_color])) {
-            $color_map[$v_color]['sizes'][$v_size] = $var_entry;
+        if ($v_color && isset($color_map[$v_color])) {
+            $size_key = ($v_size !== '') ? $v_size : '_default';
+            $color_map[$v_color]['sizes'][$size_key] = $var_entry;
             // Pick initial in-stock size for initial color
-            if ($v_color === $initial_color && empty($initial_size) && (int) $pv['stock_quantity'] > 0) {
-                $initial_size       = $v_size;
+            if ($v_color === $initial_color && empty($initial_variant) && (int) $pv['stock_quantity'] > 0) {
+                if ($v_size !== '') {
+                    $initial_size = $v_size;
+                }
                 $initial_variant_id = (int) $pv['id'];
                 $initial_sku        = $pv['sku'];
                 $initial_variant    = $var_entry;
