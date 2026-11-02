@@ -24,16 +24,32 @@ class cart extends MY_Controller {
         $items = $this->cart_model->get_items();
         $summary = $this->cart_model->get_cart_summary($shipping_method);
 
+        $all_products = Static_template_data::get('products');
+        $prod_map = [];
+        if (!empty($all_products) && is_array($all_products)) {
+            foreach ($all_products as $ap) {
+                if (!empty($ap['id'])) {
+                    $prod_map[(int)$ap['id']] = $ap;
+                }
+            }
+        }
+
         $recently_viewed_ids = $this->session->userdata('recently_viewed') ?: [];
         $recently_viewed_products = [];
         if (!empty($recently_viewed_ids) && is_array($recently_viewed_ids)) {
-            $recently_viewed_products = $this->product_model->get_by_ids($recently_viewed_ids);
+            foreach ($recently_viewed_ids as $rvid) {
+                $rvid_int = (int)$rvid;
+                if (isset($prod_map[$rvid_int])) {
+                    $recently_viewed_products[] = $prod_map[$rvid_int];
+                }
+            }
+            if (empty($recently_viewed_products)) {
+                $recently_viewed_products = $this->product_model->get_by_ids($recently_viewed_ids);
+            }
         }
         if (empty($recently_viewed_products)) {
-            $recently_viewed_products = $this->product_model->get_products([], 6);
+            $recently_viewed_products = !empty($all_products) ? array_slice($all_products, 0, 5) : $this->product_model->get_products([], 5);
         }
-
-        $all_products = Static_template_data::get('products');
 
         $data = [
             'title'                    => 'Shopping Cart - ' . $this->site_name,

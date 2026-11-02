@@ -524,6 +524,170 @@
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <h5 class="fw-bold text-dark m-0" style="font-size: 18px;">Recently Viewed</h5>
                     </div>
+                    <?php if (($active_template ?? '') === 'electronics' || ($active_tpl_key ?? '') === 'template2'): ?>
+                        <?php
+                        if (!function_exists('elt_product_img')) {
+                            function elt_product_img($p, $fallback_idx = 1, $type = 'arrival') {
+                                $bazaro_base = base_url('assets/templates/bazaro/');
+                                $img = '';
+                                if (is_array($p)) {
+                                    $img = !empty($p['primary_image']) ? $p['primary_image'] : (!empty($p['main_image']) ? $p['main_image'] : ($p['image'] ?? ''));
+                                } elseif (is_string($p)) {
+                                    $img = $p;
+                                }
+                                if (!empty($img)) {
+                                    if (strpos($img, 'http://') === 0 || strpos($img, 'https://') === 0) {
+                                        return $img;
+                                    }
+                                    $clean = ltrim($img, '/');
+                                    if ((strpos($clean, 'assets/') === 0 || strpos($clean, 'uploads/') === 0) && file_exists(FCPATH . $clean)) {
+                                        return base_url($clean);
+                                    }
+                                    if (file_exists(FCPATH . 'assets/images/products/' . $clean)) {
+                                        return base_url('assets/images/products/' . $clean);
+                                    }
+                                    if (file_exists(FCPATH . 'assets/images/' . $clean)) {
+                                        return base_url('assets/images/' . $clean);
+                                    }
+                                    if (file_exists(FCPATH . 'assets/templates/bazaro/img/' . $clean)) {
+                                        return $bazaro_base . 'img/' . $clean;
+                                    }
+                                }
+                                $idx = (($fallback_idx - 1) % 8) + 1;
+                                return $bazaro_base . 'img/electronics/arrival-product/product-' . $idx . '/product-1.jpg';
+                            }
+                        }
+                        if (!function_exists('elt_get_product_swatches')) {
+                            function elt_get_product_swatches($p, $default_img, $is_user_project = false) {
+                                $swatches = [];
+                                $seen = [];
+                                if (!empty($p['color_swatches']) && is_array($p['color_swatches'])) {
+                                    foreach ($p['color_swatches'] as $sw) {
+                                        $name = $sw['name'] ?? 'Color';
+                                        if (!isset($seen[$name])) {
+                                            $seen[$name] = true;
+                                            $swatches[] = [
+                                                'name'       => $name,
+                                                'color_code' => !empty($sw['color_code']) ? $sw['color_code'] : '#8D694A',
+                                                'image'      => !empty($sw['image']) ? elt_product_img($sw['image']) : $default_img,
+                                            ];
+                                        }
+                                    }
+                                }
+                                if (empty($swatches) && !empty($p['variants']) && is_array($p['variants'])) {
+                                    foreach ($p['variants'] as $pv) {
+                                        if (!empty($pv['values']) && is_array($pv['values'])) {
+                                            foreach ($pv['values'] as $val) {
+                                                $rSlug = $val['attribute_slug'] ?? '';
+                                                $isCol = ($rSlug === 'color' || ($val['attribute_type'] ?? '') === 'color' || strpos($rSlug, 'color-') === 0 || strcasecmp($val['attribute_name'] ?? '', 'color') === 0);
+                                                if ($isCol) {
+                                                    $vName = $val['attribute_value'] ?? 'Color';
+                                                    if (!isset($seen[$vName])) {
+                                                        $seen[$vName] = true;
+                                                        $swatches[] = [
+                                                            'name'       => $vName,
+                                                            'color_code' => !empty($val['color_code']) ? $val['color_code'] : '#111827',
+                                                            'image'      => !empty($pv['image']) ? elt_product_img($pv['image']) : $default_img,
+                                                        ];
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                return $swatches;
+                            }
+                        }
+                        if (!function_exists('elt_get_hover_img')) {
+                            function elt_get_hover_img($p, $default_img, $swatches = []) {
+                                if (!empty($p['gallery_images_decoded']) && is_array($p['gallery_images_decoded']) && !empty($p['gallery_images_decoded'][0])) {
+                                    return elt_product_img($p['gallery_images_decoded'][0]);
+                                }
+                                if (!empty($p['hover_image']) && $p['hover_image'] !== ($p['main_image'] ?? '')) {
+                                    return elt_product_img($p['hover_image']);
+                                }
+                                if (!empty($swatches[1]['image'])) {
+                                    return $swatches[1]['image'];
+                                }
+                                return $default_img;
+                            }
+                        }
+                        ?>
+                        <div class="row gx-15 row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-1">
+                            <?php
+                            $rvi = 1;
+                            foreach ($recently_viewed_products as $rvp):
+                                $rv_id      = (int)($rvp['id'] ?? 0);
+                                $rv_name    = $rvp['name'] ?? ($rvp['title'] ?? 'Electronics Item');
+                                $rv_slug    = !empty($rvp['slug']) ? site_url('product/' . $rvp['slug']) : site_url('product/' . $rv_id);
+                                $rv_img     = elt_product_img($rvp, $rvi++, 'arrival');
+                                $rv_price   = isset($rvp['display_price']) ? (float)$rvp['display_price'] : (float)(!empty($rvp['sale_price']) && $rvp['sale_price'] < $rvp['price'] ? $rvp['sale_price'] : $rvp['price']);
+                                $rv_old     = isset($rvp['original_price']) ? (float)$rvp['original_price'] : (float)($rvp['mrp'] ?? $rvp['price'] ?? 0);
+                                $rv_disc    = ($rv_old > $rv_price && $rv_old > 0) ? round((($rv_old - $rv_price) / $rv_old) * 100) : 0;
+                                $rv_rev_cnt = (isset($rvp['reviews']) && is_array($rvp['reviews'])) ? count($rvp['reviews']) : (int)($rvp['reviews_count'] ?? 0);
+                                $rv_rating  = (float)($rvp['rating'] ?? 0);
+                                $rv_stars   = ($rv_rev_cnt > 0 || $rv_rating > 0) ? max(0, min(5, (int)round($rv_rating))) : 0;
+                                $rv_swatches  = elt_get_product_swatches($rvp, $rv_img, !empty($is_user_project));
+                                $rv_hover_img = elt_get_hover_img($rvp, $rv_img, $rv_swatches);
+                            ?>
+                            <div class="col">
+                                <div class="aq-product-item aq-product-main mb-30" data-lazy="true">
+                                    <div class="aq-product-thumb aq-img-hover-wrap p-relative mb-10">
+                                        <?php if ($rv_disc > 0): ?>
+                                        <div class="aq-product-badge">
+                                            <span class="clr-sale">-<?= $rv_disc; ?>%</span>
+                                        </div>
+                                        <?php endif; ?>
+                                        <div class="aq-product-action">
+                                            <button type="button" class="aq-product-action-btn aq-wishlist-btn aq-tooltip" onclick="bazaroToggleWishlist(<?= $rv_id; ?>, this)">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="16" viewBox="0 0 18 16" fill="none">
+                                                    <path d="M14.7197 1.52347C12.5744 0.244089 10.7019 0.759666 9.57712 1.58092C9.11591 1.91766 8.88531 2.08602 8.74963 2.08602C8.61396 2.08602 8.38336 1.91766 7.92215 1.58092C6.79733 0.759666 4.9249 0.244089 2.77958 1.52347C-0.0359114 3.20253 -0.67299 8.7418 5.82126 13.4151C7.05821 14.3052 7.67668 14.7502 8.74963 14.7502C9.82258 14.7502 10.4411 14.3052 11.678 13.4151C18.1723 8.7418 17.5352 3.20253 14.7197 1.52347Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"></path>
+                                                </svg>
+                                                <span class="aq-tooltip-item">Add To Wishlist</span>
+                                            </button>
+                                        </div>
+                                        <a href="<?= $rv_slug; ?>">
+                                            <img class="aq-product-img current-cached lazyloaded" src="<?= $rv_img; ?>" alt="<?= html_escape($rv_name); ?>">
+                                            <img class="aq-img-hover current-cached lazyloaded" src="<?= $rv_hover_img; ?>" alt="<?= html_escape($rv_name); ?>">
+                                        </a>
+                                    </div>
+                                    <div class="aq-product-content text-center text-md-start">
+                                        <div class="aq-product-ratting">
+                                            <span>
+                                                <?php for ($si = 1; $si <= 5; $si++): ?>
+                                                <svg width="12" height="11" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M5.21608 0.307961C5.38688 -0.102685 5.9686 -0.102684 6.1394 0.307962L7.34463 3.20568C7.41664 3.3788 7.57944 3.49709 7.76634 3.51207L10.8947 3.76287C11.338 3.79841 11.5178 4.35166 11.18 4.641L8.79653 6.68268C8.65414 6.80466 8.59195 6.99605 8.63546 7.17843L9.36364 10.2311C9.46684 10.6638 8.99621 11.0057 8.61666 10.7739L5.93837 9.13797C5.77836 9.04024 5.57712 9.04024 5.41711 9.13797L2.73882 10.7739C2.35927 11.0057 1.88865 10.6638 1.99184 10.2311L2.72003 7.17843C2.76353 6.99605 2.70135 6.80466 2.55895 6.68268L0.175492 4.641C-0.162276 4.35166 0.0174878 3.79841 0.460815 3.76287L3.58915 3.51207C3.77604 3.49709 3.93885 3.3788 4.01085 3.20568L5.21608 0.307961Z" fill="<?= ($si <= $rv_stars) ? '#f59e0b' : '#d1d5db'; ?>"></path>
+                                                </svg>
+                                                <?php endfor; ?>
+                                                <span class="aq-rating-count">(<?= $rv_rev_cnt; ?>)</span>
+                                            </span>
+                                        </div>
+                                        <h4 class="aq-product-title mb-10"><a href="<?= $rv_slug; ?>"><?= html_escape($rv_name); ?></a></h4>
+                                        <div class="aq-product-price">
+                                            <ins><span class="aq-product-new-price"><?= $currency_symbol . number_format($rv_price, 2); ?></span></ins>
+                                            <?php if ($rv_old > $rv_price): ?>
+                                            <del><span class="aq-product-old-price"><?= $currency_symbol . number_format($rv_old, 2); ?></span></del>
+                                            <?php endif; ?>
+                                        </div>
+                                        <?php if (!empty($rv_swatches)): ?>
+                                        <div class="aq-product-color">
+                                            <ul>
+                                                <?php foreach ($rv_swatches as $sw_idx => $sw): ?>
+                                                <li class="aq-product-color-item aq-tooltip-top aq-color-swatch <?= $sw_idx === 0 ? 'active' : ''; ?>">
+                                                    <span class="aq-tooltip-item"><?= html_escape($sw['name']); ?></span>
+                                                    <span class="aq-product-color-value" data-bg-color="<?= html_escape($sw['color_code']); ?>" style="background-color: <?= html_escape($sw['color_code']); ?>;"></span>
+                                                    <img class=" current-cached lazyloaded" data-src="<?= $sw['image']; ?>" src="<?= $sw['image']; ?>" alt="image-product">
+                                                </li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
                     <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">
                         <?php foreach ($recently_viewed_products as $rvp): 
                             $rvp_price = !empty($rvp['sale_price']) ? (float) $rvp['sale_price'] : (float) $rvp['price'];
@@ -563,6 +727,7 @@
                         </div>
                         <?php endforeach; ?>
                     </div>
+                    <?php endif; ?>
                 </div>
                 <?php endif; ?>
 
