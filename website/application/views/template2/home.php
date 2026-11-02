@@ -146,7 +146,7 @@ foreach ([$products ?? [], $featured_products ?? [], $new_products ?? [], $bests
 }
 
 $deals_list     = (!empty($flash_sale) && (!empty($flash_sale_products) || !empty($deal_products))) ? (!empty($flash_sale_products) ? $flash_sale_products : $deal_products) : [];
-$arrivals_list  = !empty($new_products) ? array_slice($new_products, 0, 8) : array_slice($all_products, 0, 8);
+$arrivals_list  = !empty($new_products) ? array_slice($new_products, 0, 10) : array_slice($all_products, 0, 10);
 $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empty($all_products[0]) ? $all_products[0] : (empty($is_user_project) && !empty($featured_product) ? $featured_product : null));
 ?>
 
@@ -459,7 +459,7 @@ $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empt
                </div>
             </div>
             <div class="aq-product-3-wrap">
-               <div class="row gx-15 row-cols-xl-4 row-cols-lg-3 row-cols-md-2 row-cols-sm-2 row-cols-1">
+               <div class="row gx-15 row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-1">
                   <?php
                   $di = 1;
                   foreach ($deals_list as $dp):
@@ -639,7 +639,7 @@ $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empt
                </div>
             </div>
             <?php endif; ?>
-            <div class="row gx-15 row-cols-xl-4 row-cols-lg-3 row-cols-md-2 row-cols-sm-2 row-cols-1">
+            <div class="row gx-15 row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-1">
                <?php if (empty($arrivals_list)): ?>
                <div class="col-12 w-100 py-5 text-center text-muted">
                   <p class="mb-0">No products available at the moment.</p>

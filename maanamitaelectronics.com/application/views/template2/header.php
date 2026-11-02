@@ -502,32 +502,32 @@ if (!function_exists('elt_resolve_img')) {
          color: #E1EEB7 !important;
       }
 
-      /* Unified Product Card Fixed Height, Background, Single-Line Title & Contain Image */
+      /* Unified Product Card Fixed Height, White Background, Two-Line Title & Contain Image */
       .aq-product-item.aq-product-main {
          display: flex;
          flex-direction: column;
-         height: 445px;
-         background-color: #f3f5f9;
+         height: 465px;
+         background-color: #ffffff !important;
          border: 1px solid #e2e8f0;
          border-radius: 16px;
          padding: 12px;
-         box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+         box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
          transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background-color 0.25s ease;
       }
       .aq-product-item.aq-product-main:hover {
          transform: translateY(-4px);
-         background-color: #eef2f7;
+         background-color: #ffffff !important;
          border-color: #cbd5e1;
-         box-shadow: 0 12px 28px rgba(15, 23, 42, 0.09);
+         box-shadow: 0 12px 28px rgba(15, 23, 42, 0.10);
       }
       .aq-product-item.aq-product-main .aq-product-thumb {
          height: 270px;
          flex: 0 0 270px;
          width: 100%;
-         background-color: #ffffff;
-         border: 1px solid #edf1f7;
+         background-color: #ffffff !important;
+         border: none !important;
          border-radius: 12px;
-         padding: 12px;
+         padding: 10px;
          overflow: hidden;
       }
       .aq-product-item.aq-product-main .aq-product-thumb > a {
@@ -568,25 +568,30 @@ if (!function_exists('elt_resolve_img')) {
          line-height: 1;
       }
       .aq-product-item .aq-product-title {
-         white-space: nowrap;
+         display: -webkit-box;
+         -webkit-line-clamp: 2;
+         -webkit-box-orient: vertical;
+         white-space: normal;
          overflow: hidden;
          text-overflow: ellipsis;
-         display: block;
          max-width: 100%;
-         line-height: 24px;
-         height: 24px;
-         font-size: 15px;
+         line-height: 21px;
+         height: 42px;
+         min-height: 42px;
+         font-size: 14.5px;
          font-weight: 600;
       }
       .aq-product-item .aq-product-title a {
-         display: block;
-         white-space: nowrap;
+         display: -webkit-box;
+         -webkit-line-clamp: 2;
+         -webkit-box-orient: vertical;
+         white-space: normal;
          overflow: hidden;
          text-overflow: ellipsis;
       }
       @media (max-width: 575.98px) {
          .aq-product-item.aq-product-main {
-            height: 380px;
+            height: 405px;
             padding: 10px;
          }
          .aq-product-item.aq-product-main .aq-product-thumb {

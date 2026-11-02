@@ -536,35 +536,64 @@ if (!empty($is_user_project)) {
       color: #0B0D0E;
    }
 
-   /* List View Mode for Tech Specs Comparison */
+   /* List View Mode: Left Image, Right Product Details */
    #eltProductsGrid.is-list-view > .elt-product-col {
       width: 100% !important;
       flex: 0 0 100% !important;
    }
+   #eltProductsGrid.is-list-view .aq-product-item.aq-product-main,
    #eltProductsGrid.is-list-view .elt-shop-card {
-      flex-direction: row;
-      align-items: center;
-      gap: 24px;
-      padding: 20px;
+      flex-direction: row !important;
+      align-items: center !important;
+      height: auto !important;
+      min-height: 230px;
+      gap: 28px;
+      padding: 20px 24px !important;
+      margin-bottom: 18px !important;
    }
+   #eltProductsGrid.is-list-view .aq-product-item.aq-product-main .aq-product-thumb,
    #eltProductsGrid.is-list-view .elt-shop-card .aq-product-thumb {
-      width: 220px;
-      flex-shrink: 0;
-      margin-bottom: 0;
+      width: 230px !important;
+      flex: 0 0 230px !important;
+      height: 200px !important;
+      margin-bottom: 0 !important;
    }
+   #eltProductsGrid.is-list-view .aq-product-item.aq-product-main .aq-product-content,
    #eltProductsGrid.is-list-view .elt-shop-card .elt-card-body {
-      flex: 1;
+      flex: 1 1 auto !important;
       text-align: left !important;
+      justify-content: center;
+      padding: 4px 0 !important;
+   }
+   #eltProductsGrid.is-list-view .aq-product-item.aq-product-main .aq-product-title {
+      font-size: 17px;
+      line-height: 24px;
+      height: auto;
+      min-height: 0;
+      margin-bottom: 10px !important;
+   }
+   #eltProductsGrid.is-list-view .aq-product-item.aq-product-main .aq-product-price {
+      margin-bottom: 12px;
+   }
+   #eltProductsGrid.is-list-view .aq-product-item.aq-product-main .aq-product-new-price {
+      font-size: 18px;
    }
    @media (max-width: 767.98px) {
       .elt-shop-hero-title {
          font-size: 26px;
       }
+      #eltProductsGrid.is-list-view .aq-product-item.aq-product-main,
       #eltProductsGrid.is-list-view .elt-shop-card {
-         flex-direction: column;
+         flex-direction: column !important;
+         align-items: stretch !important;
+         gap: 14px;
+         padding: 14px !important;
       }
+      #eltProductsGrid.is-list-view .aq-product-item.aq-product-main .aq-product-thumb,
       #eltProductsGrid.is-list-view .elt-shop-card .aq-product-thumb {
-         width: 100%;
+         width: 100% !important;
+         flex: 0 0 210px !important;
+         height: 210px !important;
       }
    }
 </style>
