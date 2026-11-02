@@ -1,7 +1,12 @@
 <?php
 $bazaro     = isset($tpl_assets) ? rtrim($tpl_assets, '/') . '/' : base_url('assets/templates/bazaro/');
 $curr       = isset($currency_symbol) ? $currency_symbol : '$';
-$cart_total = isset($cart_summary['subtotal']) ? (float)$cart_summary['subtotal'] : 0.00;
+$cart_total = isset($cart_summary['subtotal']) ? (float)$cart_summary['subtotal'] : (isset($cart_total) ? (float)$cart_total : 0.00);
+if ($cart_total <= 0 && !empty($cart_items) && is_array($cart_items)) {
+    foreach ($cart_items as $ci) {
+        $cart_total += (float)($ci['price'] ?? 0) * max(1, (int)($ci['quantity'] ?? 1));
+    }
+}
 $cart_cnt   = isset($cart_count) ? (int)$cart_count : 0;
 $wish_cnt   = isset($wishlist_count) ? (int)$wishlist_count : 0;
 
@@ -649,6 +654,216 @@ if (!function_exists('elt_resolve_img')) {
       .color-thumb-card img {
          object-fit: contain !important;
       }
+
+      /* =====================================================================
+       * Side Modal Cart Drawer (#eltCartMiniDrawer) Clean Layout & Buttons
+       * ===================================================================== */
+      #eltCartMiniDrawer.aq-cartmini-area {
+         width: 420px;
+         max-width: 92vw;
+         height: 100vh;
+         display: flex;
+         flex-direction: column;
+         justify-content: space-between;
+         background: #ffffff;
+         box-shadow: -8px 0 32px rgba(15, 23, 42, 0.14);
+      }
+      #eltCartMiniDrawer .aq-cartmini-top {
+         flex: 1 1 auto;
+         display: flex;
+         flex-direction: column;
+         min-height: 0;
+         overflow: hidden;
+      }
+      #eltCartMiniDrawer .aq-cartmini-header {
+         padding: 20px 24px;
+         border-bottom: 1px solid #eef2f6;
+         flex-shrink: 0;
+      }
+      #eltCartMiniDrawer .aq-cartmini-title {
+         font-size: 20px;
+         font-weight: 700;
+         margin: 0;
+         color: #0B0D0E;
+         letter-spacing: -0.3px;
+      }
+      #eltCartMiniDrawer .aq-cartmini-close-btn {
+         width: 36px;
+         height: 36px;
+         border-radius: 50%;
+         border: 1px solid #e2e8f0;
+         background: #f8fafc;
+         color: #0B0D0E;
+         display: inline-flex;
+         align-items: center;
+         justify-content: center;
+         padding: 0;
+         cursor: pointer;
+         transition: all 0.2s ease;
+      }
+      #eltCartMiniDrawer .aq-cartmini-close-btn:hover {
+         background: #0B0D0E;
+         border-color: #0B0D0E;
+         color: #ffffff;
+      }
+      #eltCartMiniDrawer .aq-cartmini-body {
+         padding: 16px 24px;
+         flex: 1 1 auto;
+         overflow-y: auto;
+         border-top: none;
+      }
+      #eltCartMiniDrawer .aq-cartmini-product-item {
+         display: flex;
+         align-items: center;
+         justify-content: space-between;
+         gap: 12px;
+         padding: 14px 0;
+         border-bottom: 1px solid #f1f5f9;
+      }
+      #eltCartMiniDrawer .aq-cartmini-product-item:last-child {
+         border-bottom: none;
+      }
+      #eltCartMiniDrawer .aq-cartmini-product-info {
+         display: flex;
+         align-items: center;
+         gap: 14px;
+         flex: 1 1 auto;
+         min-width: 0;
+      }
+      #eltCartMiniDrawer .aq-cartmini-product-img {
+         width: 72px;
+         height: 72px;
+         flex: 0 0 72px;
+         border-radius: 10px;
+         background: #ffffff;
+         border: 1px solid #e2e8f0;
+         padding: 6px;
+         overflow: hidden;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+      }
+      #eltCartMiniDrawer .aq-cartmini-product-img a {
+         display: flex;
+         width: 100%;
+         height: 100%;
+         align-items: center;
+         justify-content: center;
+      }
+      #eltCartMiniDrawer .aq-cartmini-product-img img {
+         width: 100%;
+         height: 100%;
+         object-fit: contain !important;
+      }
+      #eltCartMiniDrawer .aq-cartmini-product-content {
+         flex: 1 1 auto;
+         min-width: 0;
+      }
+      #eltCartMiniDrawer .aq-cartmini-product-title {
+         font-size: 14px;
+         font-weight: 600;
+         line-height: 1.35;
+         margin: 0 0 5px;
+         color: #0B0D0E;
+         display: -webkit-box;
+         -webkit-line-clamp: 2;
+         -webkit-box-orient: vertical;
+         overflow: hidden;
+         text-overflow: ellipsis;
+      }
+      #eltCartMiniDrawer .aq-cartmini-product-title a {
+         color: inherit;
+         text-decoration: none;
+      }
+      #eltCartMiniDrawer .aq-cartmini-product-title a:hover {
+         color: #2563eb;
+      }
+      #eltCartMiniDrawer .aq-cartmini-product-price {
+         font-size: 13.5px;
+         font-weight: 700;
+         color: #0B0D0E;
+         margin: 0;
+         display: block;
+      }
+      #eltCartMiniDrawer .aq-cartmini-product-Action button {
+         width: 30px;
+         height: 30px;
+         border-radius: 50%;
+         border: 1px solid #e2e8f0;
+         background: #ffffff;
+         color: #64748b;
+         display: inline-flex;
+         align-items: center;
+         justify-content: center;
+         padding: 0;
+         flex-shrink: 0;
+         cursor: pointer;
+         transition: all 0.2s ease;
+      }
+      #eltCartMiniDrawer .aq-cartmini-product-Action button:hover {
+         background: #fef2f2;
+         border-color: #fecaca;
+         color: #ef4444;
+      }
+      #eltCartMiniDrawer .aq-cartmini-footer {
+         padding: 20px 24px 24px;
+         background: #ffffff;
+         border-top: 1px solid #eef2f6;
+         box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.05);
+         flex-shrink: 0;
+      }
+      #eltCartMiniDrawer .aq-cartmini-total {
+         margin-bottom: 16px;
+         padding-bottom: 0;
+      }
+      #eltCartMiniDrawer .aq-cartmini-total h4 {
+         font-size: 16px;
+         font-weight: 600;
+         color: #475569;
+         margin: 0;
+      }
+      #eltCartMiniDrawer #eltCartMiniSubtotal {
+         font-size: 20px;
+         font-weight: 800;
+         color: #0B0D0E;
+      }
+      #eltCartMiniDrawer .aq-cartmini-main-btn {
+         display: flex;
+         align-items: center;
+         gap: 12px;
+      }
+      #eltCartMiniDrawer .elt-cartmini-view-btn,
+      #eltCartMiniDrawer .elt-cartmini-checkout-btn {
+         flex: 1 1 50%;
+         height: 46px;
+         display: inline-flex;
+         align-items: center;
+         justify-content: center;
+         border-radius: 10px;
+         font-size: 14px;
+         font-weight: 700;
+         text-decoration: none !important;
+         transition: all 0.2s ease;
+      }
+      #eltCartMiniDrawer .elt-cartmini-view-btn {
+         background: #ffffff;
+         color: #0B0D0E !important;
+         border: 1.5px solid #0B0D0E;
+      }
+      #eltCartMiniDrawer .elt-cartmini-view-btn:hover {
+         background: #f1f5f9;
+         color: #0B0D0E !important;
+      }
+      #eltCartMiniDrawer .elt-cartmini-checkout-btn {
+         background: #0B0D0E;
+         color: #ffffff !important;
+         border: 1.5px solid #0B0D0E;
+      }
+      #eltCartMiniDrawer .elt-cartmini-checkout-btn:hover {
+         background: #E1EEB7;
+         border-color: #E1EEB7;
+         color: #0B0D0E !important;
+      }
    </style>
 
    <script>
@@ -786,9 +1001,9 @@ if (!function_exists('elt_resolve_img')) {
             <h4>Subtotal</h4>
             <span id="eltCartMiniSubtotal"><?= $curr . number_format($cart_total, 2); ?></span>
          </div>
-         <div class="aq-cartmini-btn d-flex justify-content-between">
-            <a class="aq-btn-border" href="<?= site_url('cart'); ?>">View Cart</a>
-            <a class="aq-btn-black" href="<?= site_url('checkout'); ?>" onclick="return handleCheckoutClick(event, '<?= site_url('checkout'); ?>')">Checkout</a>
+         <div class="aq-cartmini-main-btn d-flex justify-content-between">
+            <a class="elt-cartmini-view-btn" href="<?= site_url('cart'); ?>">View Cart</a>
+            <a class="elt-cartmini-checkout-btn" href="<?= site_url('checkout'); ?>" onclick="if(typeof handleCheckoutClick==='function'){return handleCheckoutClick(event, '<?= site_url('checkout'); ?>');}">Checkout</a>
          </div>
       </div>
    </div>

@@ -212,6 +212,26 @@ $curr   = isset($currency_symbol) ? $currency_symbol : '$';
        }, 3000);
    }
 
+   function resolveBazaroCartImgUrl(rawImg) {
+       var fallback = '<?= $bazaro; ?>img/electronics/arrival-product/product-1/product-1.jpg';
+       if (!rawImg) return fallback;
+       var clean = String(rawImg).trim().replace(/^\/+/, '');
+       if (!clean) return fallback;
+       if (clean.indexOf('http://') === 0 || clean.indexOf('https://') === 0) return clean;
+       if (clean.indexOf('assets/') === 0 || clean.indexOf('uploads/') === 0) return window.ASSET_URL + clean;
+       if (clean.indexOf('products/') === 0 || clean.indexOf('electronics/') === 0 || clean.indexOf('grocery/') === 0 || clean.indexOf('categories/') === 0) {
+           return window.ASSET_URL + 'assets/images/' + clean;
+       }
+       return window.ASSET_URL + 'assets/images/products/' + clean;
+   }
+
+   function openBazaroCartDrawer() {
+       var cm = document.getElementById('eltCartMiniDrawer') || document.querySelector('.aq-cartmini-active');
+       var ov = document.querySelector('.body-overlay');
+       if (cm) cm.classList.add('opened');
+       if (ov) ov.classList.add('opened');
+   }
+
    function renderBazaroCartDrawer(data) {
        if (!data) return;
        var count = (data.cart_summary && typeof data.cart_summary.item_count !== 'undefined')
@@ -219,7 +239,20 @@ $curr   = isset($currency_symbol) ? $currency_symbol : '$';
            : (typeof data.cart_count !== 'undefined' ? data.cart_count : null);
        var subtotal = (data.cart_summary && typeof data.cart_summary.subtotal !== 'undefined')
            ? parseFloat(data.cart_summary.subtotal)
-           : (typeof data.cart_total !== 'undefined' ? parseFloat(data.cart_total) : 0);
+           : (typeof data.cart_total !== 'undefined' ? parseFloat(data.cart_total) : null);
+
+       if (subtotal === null && Array.isArray(data.cart_items)) {
+           subtotal = 0;
+           data.cart_items.forEach(function(it) {
+               subtotal += (parseFloat(it.price || 0) * parseInt(it.quantity || 1, 10));
+           });
+       }
+       if (count === null && Array.isArray(data.cart_items)) {
+           count = 0;
+           data.cart_items.forEach(function(it) {
+               count += parseInt(it.quantity || 1, 10);
+           });
+       }
 
        if (count !== null) {
            document.querySelectorAll('.cart-count').forEach(function(el) {
@@ -227,7 +260,7 @@ $curr   = isset($currency_symbol) ? $currency_symbol : '$';
            });
        }
        var subEl = document.getElementById('eltCartMiniSubtotal');
-       if (subEl) {
+       if (subEl && subtotal !== null && !isNaN(subtotal)) {
            subEl.textContent = window.CURRENCY_SYMBOL + subtotal.toFixed(2);
        }
 
@@ -240,21 +273,19 @@ $curr   = isset($currency_symbol) ? $currency_symbol : '$';
            } else {
                var html = '';
                data.cart_items.forEach(function(item) {
-                   var cleanImg = (item.image || item.main_image || '').replace(/^\/+/, '');
-                   var img = cleanImg
-                       ? (cleanImg.indexOf('http') === 0 ? cleanImg : (cleanImg.indexOf('electronics/') === 0 || cleanImg.indexOf('grocery/') === 0 ? window.ASSET_URL + 'assets/images/' + cleanImg : window.ASSET_URL + 'assets/images/products/' + cleanImg))
-                       : '<?= $bazaro; ?>img/electronics/arrival-product/product-1/product-1.jpg';
-                   var pUrl = window.SITE_URL + '/product/' + (item.slug || item.product_id);
-                   var key = item.cart_key || item.product_id;
+                   var img = resolveBazaroCartImgUrl(item.image || item.main_image || '');
+                   var itemTitle = item.name || item.title || item.product_title || 'Product';
+                   var pUrl = window.SITE_URL + '/product/' + (item.slug || item.product_id || item.id);
+                   var key = item.cart_key || item.product_id || item.id;
                    html += '<div class="aq-cartmini-product-item d-flex align-items-center justify-content-between">' +
                        '<div class="aq-cartmini-product-info d-flex align-items-center">' +
                        '<div class="aq-cartmini-product-img"><a href="' + pUrl + '"><img src="' + img + '" alt=""></a></div>' +
                        '<div class="aq-cartmini-product-content">' +
-                       '<h4 class="aq-cartmini-product-title"><a href="' + pUrl + '">' + item.name + '</a></h4>' +
-                       '<span class="aq-cartmini-product-price">' + item.quantity + ' &times; ' + window.CURRENCY_SYMBOL + parseFloat(item.price).toFixed(2) + '</span>' +
+                       '<h4 class="aq-cartmini-product-title"><a href="' + pUrl + '">' + itemTitle + '</a></h4>' +
+                       '<span class="aq-cartmini-product-price">' + item.quantity + ' &times; ' + window.CURRENCY_SYMBOL + parseFloat(item.price || 0).toFixed(2) + '</span>' +
                        '</div></div>' +
                        '<div class="aq-cartmini-product-Action">' +
-                       '<button type="button" onclick="removeCartItemAjax(\'' + key + '\')">' +
+                       '<button type="button" onclick="removeCartItemAjax(\'' + key + '\')" title="Remove item">' +
                        '<svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">' +
                        '<path d="M9 1L1 9M1 1L9 9" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
                        '</button></div></div>';
@@ -264,16 +295,33 @@ $curr   = isset($currency_symbol) ? $currency_symbol : '$';
        }
    }
 
-   function bazaroAddToCart(productId, quantity, openMiniCart) {
+   function bazaroRefreshMiniCart(openMiniCart) {
+       fetch('<?= site_url("cart/data"); ?>', {
+           method: 'GET',
+           headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+       })
+       .then(function(r) { return r.json(); })
+       .then(function(res) {
+           if (res && res.success) {
+               renderBazaroCartDrawer(res);
+               if (openMiniCart) openBazaroCartDrawer();
+           }
+       });
+   }
+
+   function bazaroAddToCart(productId, quantity, openMiniCart, variantId) {
        quantity = quantity || 1;
        if (typeof openMiniCart === 'undefined') openMiniCart = true;
        var fd = new FormData();
        fd.append('product_id', productId);
        fd.append('quantity', quantity);
+       if (variantId) {
+           fd.append('variant_id', variantId);
+       }
 
        fetch('<?= site_url("cart/add"); ?>', {
            method: 'POST',
-           headers: { 'X-Requested-With': 'XMLHttpRequest' },
+           headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
            body: fd
        })
        .then(function(r) { return r.json(); })
@@ -282,10 +330,7 @@ $curr   = isset($currency_symbol) ? $currency_symbol : '$';
                renderBazaroCartDrawer(res);
                showEltToast(res.message || 'Added to cart!');
                if (openMiniCart) {
-                   var cm = document.querySelector('.aq-cartmini-active');
-                   var ov = document.querySelector('.body-overlay');
-                   if (cm) cm.classList.add('opened');
-                   if (ov) ov.classList.add('opened');
+                   openBazaroCartDrawer();
                }
            } else {
                showEltToast(res.message || 'Could not add item', true);
