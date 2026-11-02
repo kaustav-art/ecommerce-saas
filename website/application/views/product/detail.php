@@ -43,28 +43,64 @@ $display_review_count = $total_review_count;
 
 // Variant configuration
 $has_variants = !empty($product['variants']);
-$has_color = !empty($product['attributes']['color']);
+$color_attr = null;
+$color_attr_slug = 'color';
+$color_attr_name = 'Color';
+$is_color_type_attr = true;
 
-// Detect secondary option attribute (e.g., Size, Storage, or any active multiple_select attribute)
+if (!empty($product['attributes'])) {
+    if (!empty($product['attributes']['color'])) {
+        $color_attr = $product['attributes']['color'];
+        $color_attr_slug = 'color';
+        $color_attr_name = $color_attr['name'] ?? 'Color';
+        $is_color_type_attr = true;
+    } else {
+        foreach ($product['attributes'] as $slug => $attr_info) {
+            if (
+                (!empty($attr_info['type']) && $attr_info['type'] === 'color') ||
+                strcasecmp($attr_info['name'] ?? '', 'color') === 0 ||
+                stripos($slug, 'color') === 0
+            ) {
+                $color_attr = $attr_info;
+                $color_attr_slug = $slug;
+                $color_attr_name = $attr_info['name'] ?? 'Color';
+                $is_color_type_attr = true;
+                break;
+            }
+        }
+    }
+}
+
+// Detect secondary option attribute (e.g., Size, Storage + Ram, Read Speed, or any active multiple_select attribute)
 $multi_attr      = null;
 $multi_attr_slug = '';
 $multi_attr_name = 'Option';
 
 if (!empty($product['attributes'])) {
-    // First priority: look for attribute with multiple_select type or size or storage
     foreach ($product['attributes'] as $slug => $attr_info) {
-        if ($slug === 'color') continue;
-        if (!empty($attr_info['values']) && (!empty($attr_info['type']) && $attr_info['type'] === 'multiple_select')) {
+        if ($color_attr && ($slug === $color_attr_slug || (!empty($attr_info['type']) && $attr_info['type'] === 'color'))) continue;
+        if (!empty($attr_info['values']) && (!empty($attr_info['type']) && in_array(strtolower($attr_info['type']), ['multiple_select', 'multiselect', 'multiple'], true))) {
             $multi_attr      = $attr_info;
             $multi_attr_slug = $slug;
             $multi_attr_name = $attr_info['name'];
             break;
         }
     }
-    // Second priority: any non-color attribute with values
+    if (empty($color_attr)) {
+        foreach ($product['attributes'] as $slug => $attr_info) {
+            if ($multi_attr && $slug === $multi_attr_slug) continue;
+            if (!empty($attr_info['values']) && !in_array(strtolower($attr_info['type'] ?? ''), ['multiple_select', 'multiselect', 'multiple'], true)) {
+                $color_attr = $attr_info;
+                $color_attr_slug = $slug;
+                $color_attr_name = $attr_info['name'] ?? ucfirst($slug);
+                $is_color_type_attr = false;
+                break;
+            }
+        }
+    }
     if (empty($multi_attr)) {
         foreach ($product['attributes'] as $slug => $attr_info) {
-            if ($slug === 'color') continue;
+            if ($color_attr && $slug === $color_attr_slug) continue;
             if (!empty($attr_info['values'])) {
                 $multi_attr      = $attr_info;
                 $multi_attr_slug = $slug;
@@ -74,17 +110,18 @@ if (!empty($product['attributes'])) {
         }
     }
 }
+$has_color = !empty($color_attr['values']);
 $has_size = !empty($multi_attr);
 
-// Color map with variant photos & size/option inventory
+// Color / Primary attribute map with variant photos & size/option inventory
 $color_map = [];
 $initial_color = '';
 $initial_size = '';
 $initial_variant_id = 0;
 $initial_sku = $product['sku'] ?? ('SKU-' . ($product['id'] ?? '100'));
 
-if ($has_color && !empty($product['attributes']['color']['values'])) {
-    foreach ($product['attributes']['color']['values'] as $idx => $c_val) {
+if ($has_color && !empty($color_attr['values'])) {
+    foreach ($color_attr['values'] as $idx => $c_val) {
         $c_name = $c_val['value'];
         if ($idx === 0) {
             $initial_color = $c_name;
@@ -98,7 +135,12 @@ if ($has_color && !empty($product['attributes']['color']['values'])) {
                 $matches_color = false;
                 if (!empty($pv['values'])) {
                     foreach ($pv['values'] as $val) {
-                        if ($val['attribute_slug'] === 'color' && strcasecmp($val['attribute_value'], $c_name) === 0) {
+                        $v_slug = $val['attribute_slug'] ?? '';
+                        $v_name = $val['attribute_name'] ?? '';
+                        if (
+                            (strcasecmp($v_slug, $color_attr_slug) === 0 || strcasecmp($v_name, $color_attr_name) === 0 || ($is_color_type_attr && ($v_slug === 'color' || strcasecmp($v_name, 'color') === 0 || stripos($v_slug, 'color') === 0))) &&
+                            strcasecmp($val['attribute_value'], $c_name) === 0
+                        ) {
                             $matches_color = true;
                             break;
                         }
@@ -177,12 +219,13 @@ if ($has_variants) {
         $v_size  = '';
         if (!empty($pv['values'])) {
             foreach ($pv['values'] as $val) {
-                if (strcasecmp($val['attribute_slug'], 'color') === 0 || strcasecmp($val['attribute_name'], 'color') === 0) {
+                $v_slug = $val['attribute_slug'] ?? '';
+                $v_name = $val['attribute_name'] ?? '';
+                if ($has_color && (strcasecmp($v_slug, $color_attr_slug) === 0 || strcasecmp($v_name, $color_attr_name) === 0 || ($is_color_type_attr && (strcasecmp($v_slug, 'color') === 0 || strcasecmp($v_name, 'color') === 0 || stripos($v_slug, 'color') === 0)))) {
                     $v_color = $val['attribute_value'];
-                }
-                if ($multi_attr_slug && (strcasecmp($val['attribute_slug'], $multi_attr_slug) === 0 || strcasecmp($val['attribute_name'], $multi_attr_name) === 0)) {
+                } elseif ($multi_attr_slug && (strcasecmp($v_slug, $multi_attr_slug) === 0 || strcasecmp($v_name, $multi_attr_name) === 0)) {
                     $v_size = $val['attribute_value'];
-                } elseif (strcasecmp($val['attribute_slug'], 'size') === 0 || strcasecmp($val['attribute_name'], 'size') === 0 || strcasecmp($val['attribute_slug'], 'storage') === 0 || strcasecmp($val['attribute_name'], 'storage') === 0) {
+                } elseif (!$has_color && (strcasecmp($v_slug, 'size') === 0 || strcasecmp($v_name, 'size') === 0)) {
                     $v_size = $val['attribute_value'];
                 }
             }
@@ -1293,39 +1336,61 @@ if (!empty($initial_variant)) {
                                     <!-- ALL PRODUCT VARIANTS (Color, Size / Storage / Option) - Top of Product Name (varient_products.PNG) -->
                                     <?php if (($has_color && !empty($color_map)) || ($has_size && !empty($multi_attr['values']))): ?>
                                         <div class="tf-product-info-variants mb-2">
-                                            <!-- 1. COLOR SELECTION WITH SLIDER & PRODUCT PHOTOS (color_badge.PNG) -->
+                                            <!-- 1. PRIMARY SINGLE-SELECT ATTRIBUTE (COLOR WITH PRODUCT PHOTOS OR NORMAL CHIPS FOR STORAGE/ETC.) -->
                                             <?php if ($has_color && !empty($color_map)): ?>
                                                 <div class="variant-picker-item mb-2">
-                                                    <div class="color-badge-heading mb-2">
-                                                        <span class="color-badge-title">Selected Color:</span>
-                                                        <span class="color-badge-name" id="selected-color-name"><?= ucwords(html_escape($initial_color)); ?></span>
-                                                    </div>
-
-                                                    <!-- Horizontal color slider with navigation arrows (color_badge.PNG) -->
-                                                    <div class="color-variant-container">
-                                                        <button type="button" class="color-slider-arrow prev" id="color-arrow-prev" onclick="slideColorTrack(-1)" aria-label="Previous Color" style="display: none;">
-                                                            <i class="fa-solid fa-chevron-left"></i>
-                                                        </button>
-                                                        
-                                                        <div class="color-slider-track" id="color-slider-track" onscroll="updateColorSliderArrows()">
-                                                            <?php foreach ($color_map as $c_name => $c_info): 
-                                                                $is_active_color = ($c_name === $initial_color);
-                                                                $c_img = !empty($c_info['image']) ? $c_info['image'] : $product['main_image'];
-                                                            ?>
-                                                                <div class="color-thumb-card <?= $is_active_color ? 'active' : ''; ?>" 
-                                                                     data-color="<?= html_escape($c_name); ?>"
-                                                                     data-image="<?= base_url('assets/images/' . $c_img); ?>"
-                                                                     onclick="selectColor('<?= html_escape($c_name); ?>', this)"
-                                                                     title="<?= html_escape($c_name); ?>">
-                                                                    <img src="<?= base_url('assets/images/' . $c_img); ?>" alt="<?= html_escape($c_name); ?>" onerror="this.src='<?= base_url('assets/images/' . $product['main_image']); ?>'">
-                                                                </div>
-                                                            <?php endforeach; ?>
+                                                    <?php if ($is_color_type_attr): ?>
+                                                        <div class="color-badge-heading mb-2">
+                                                            <span class="color-badge-title">Selected <?= html_escape($color_attr_name); ?>:</span>
+                                                            <span class="color-badge-name" id="selected-color-name"><?= ucwords(html_escape($initial_color)); ?></span>
                                                         </div>
 
-                                                        <button type="button" class="color-slider-arrow next" id="color-arrow-next" onclick="slideColorTrack(1)" aria-label="Next Color">
-                                                            <i class="fa-solid fa-chevron-right"></i>
-                                                        </button>
-                                                    </div>
+                                                        <!-- Horizontal color slider with navigation arrows (color_badge.PNG) -->
+                                                        <div class="color-variant-container">
+                                                            <button type="button" class="color-slider-arrow prev" id="color-arrow-prev" onclick="slideColorTrack(-1)" aria-label="Previous Color" style="display: none;">
+                                                                <i class="fa-solid fa-chevron-left"></i>
+                                                            </button>
+                                                            
+                                                            <div class="color-slider-track" id="color-slider-track" onscroll="updateColorSliderArrows()">
+                                                                <?php foreach ($color_map as $c_name => $c_info): 
+                                                                    $is_active_color = ($c_name === $initial_color);
+                                                                    $c_img = !empty($c_info['image']) ? $c_info['image'] : $product['main_image'];
+                                                                ?>
+                                                                    <div class="color-thumb-card <?= $is_active_color ? 'active' : ''; ?>" 
+                                                                         data-color="<?= html_escape($c_name); ?>"
+                                                                         data-image="<?= base_url('assets/images/' . $c_img); ?>"
+                                                                         onclick="selectColor('<?= html_escape($c_name); ?>', this)"
+                                                                         title="<?= html_escape($c_name); ?>">
+                                                                        <img src="<?= base_url('assets/images/' . $c_img); ?>" alt="<?= html_escape($c_name); ?>" onerror="this.src='<?= base_url('assets/images/' . $product['main_image']); ?>'">
+                                                                    </div>
+                                                                <?php endforeach; ?>
+                                                            </div>
+
+                                                            <button type="button" class="color-slider-arrow next" id="color-arrow-next" onclick="slideColorTrack(1)" aria-label="Next Color">
+                                                                <i class="fa-solid fa-chevron-right"></i>
+                                                            </button>
+                                                        </div>
+                                                    <?php else: ?>
+                                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                                            <div class="variant-picker-label">
+                                                                <span class="text-dark fw-bold" style="font-size: 15px;">Select <?= html_escape($color_attr_name); ?></span>
+                                                                <span class="text-secondary ms-1 small">(<strong id="selected-color-name" class="text-dark"><?= html_escape($initial_color); ?></strong>)</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="d-flex flex-wrap gap-2" id="primary-option-chips-wrapper">
+                                                            <?php foreach ($color_map as $c_name => $c_info): 
+                                                                $is_active_color = ($c_name === $initial_color);
+                                                            ?>
+                                                                <button type="button" 
+                                                                        class="variant-size-chip color-thumb-card-chip <?= $is_active_color ? 'active' : ''; ?>" 
+                                                                        data-color="<?= html_escape($c_name); ?>"
+                                                                        onclick="selectColor('<?= html_escape($c_name); ?>', this)"
+                                                                        title="<?= html_escape($color_attr_name . ' ' . $c_name); ?>">
+                                                                    <?= html_escape($c_name); ?>
+                                                                </button>
+                                                            <?php endforeach; ?>
+                                                        </div>
+                                                    <?php endif; ?>
                                                 </div>
                                             <?php endif; ?>
 
@@ -2811,11 +2876,11 @@ if (!empty($initial_variant)) {
         }
 
         // Update active class on cards
-        var cards = document.querySelectorAll('.color-thumb-card');
+        var cards = document.querySelectorAll('.color-thumb-card, .color-thumb-card-chip');
         cards.forEach(function(c) { c.classList.remove('active'); });
         if (cardEl) {
             cardEl.classList.add('active');
-            if (cardEl.scrollIntoView) {
+            if (cardEl.classList.contains('color-thumb-card') && cardEl.scrollIntoView) {
                 cardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                 setTimeout(updateColorSliderArrows, 250);
             }
@@ -2866,7 +2931,7 @@ if (!empty($initial_variant)) {
         var label = document.getElementById('selected-size-name');
         if (label) label.textContent = sizeName;
 
-        var chips = document.querySelectorAll('.variant-size-chip');
+        var chips = document.querySelectorAll('#size-chips-wrapper .variant-size-chip');
         chips.forEach(function(ch) { ch.classList.remove('active'); });
         if (chipEl) chipEl.classList.add('active');
 
@@ -2882,7 +2947,7 @@ if (!empty($initial_variant)) {
     };
 
     window.onStickySizeChange = function(val) {
-        var chips = document.querySelectorAll('.variant-size-chip');
+        var chips = document.querySelectorAll('#size-chips-wrapper .variant-size-chip');
         chips.forEach(function(ch) {
             if (ch.getAttribute('data-size') === val) {
                 ch.click();
@@ -2894,7 +2959,7 @@ if (!empty($initial_variant)) {
     function updateSizeAvailability() {
         if (!hasSize) return;
 
-        var chips = document.querySelectorAll('.variant-size-chip');
+        var chips = document.querySelectorAll('#size-chips-wrapper .variant-size-chip');
         var colorSizes = (colorMap[selectedColor] && colorMap[selectedColor].sizes) ? colorMap[selectedColor].sizes : {};
 
         var firstInStockSize = '';
