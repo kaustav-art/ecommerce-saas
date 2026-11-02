@@ -803,13 +803,13 @@ if (!empty($is_user_project)) {
                            <?php if (!empty($p_swatches)): ?>
                            <div class="aq-product-color">
                               <ul>
-                                 <?php foreach ($p_swatches as $sw_idx => $sw): ?>
-                                 <li>
-                                    <div class="aq-product-color-item aq-tooltip-top aq-color-swatch<?= $sw_idx === 0 ? ' active' : ''; ?>">
-                                       <img src="<?= $sw['image']; ?>" alt="<?= html_escape($sw['name']); ?>">
-                                       <span class="swatch" data-bg-color="<?= html_escape($sw['hex']); ?>" style="background-color: <?= html_escape($sw['hex']); ?>;"></span>
-                                       <span class="aq-tooltip-item"><?= html_escape($sw['name']); ?></span>
-                                    </div>
+                                 <?php foreach ($p_swatches as $sw_idx => $sw):
+                                    $sw_hex = $sw['color_code'] ?? ($sw['hex'] ?? '#111827');
+                                 ?>
+                                 <li class="aq-product-color-item aq-tooltip-top aq-color-swatch <?= $sw_idx === 0 ? 'active' : ''; ?>">
+                                    <span class="aq-tooltip-item"><?= html_escape($sw['name']); ?></span>
+                                    <span class="aq-product-color-value" data-bg-color="<?= html_escape($sw_hex); ?>" style="background-color: <?= html_escape($sw_hex); ?>;"></span>
+                                    <img class=" current-cached lazyloaded" data-src="<?= $sw['image']; ?>" src="<?= $sw['image']; ?>" alt="image-product">
                                  </li>
                                  <?php endforeach; ?>
                               </ul>

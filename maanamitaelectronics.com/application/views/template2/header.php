@@ -64,7 +64,7 @@ if (!function_exists('elt_resolve_img')) {
    <link rel="stylesheet" href="<?= $bazaro; ?>css/font-awesome-pro.css">
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
    <link rel="stylesheet" href="<?= $bazaro; ?>css/spacing.css">
-   <link rel="stylesheet" href="<?= $bazaro; ?>css/main.css">
+   <link rel="stylesheet" href="<?= $bazaro; ?>css/main.css?v=<?= file_exists(FCPATH . 'assets/templates/bazaro/css/main.css') ? filemtime(FCPATH . 'assets/templates/bazaro/css/main.css') : '1.1'; ?>">
 
    <link rel="stylesheet" type="text/css" href="<?= base_url('assets/fonts/font-icons.css'); ?>">
    <link rel="stylesheet" type="text/css" href="<?= base_url('assets/fonts/fonts.css'); ?>">
@@ -500,6 +500,69 @@ if (!function_exists('elt_resolve_img')) {
       }
       .tf-page-title .breadcrumbs a:hover {
          color: #E1EEB7 !important;
+      }
+
+      /* Unified Product Card Fixed Height, Single-Line Title & Contain Image */
+      .aq-product-item.aq-product-main {
+         display: flex;
+         flex-direction: column;
+         height: 430px;
+      }
+      .aq-product-item.aq-product-main .aq-product-thumb {
+         height: 300px;
+         flex: 0 0 300px;
+         width: 100%;
+         background-color: #f6f7f9;
+         border-radius: 12px;
+         overflow: hidden;
+      }
+      .aq-product-item.aq-product-main .aq-product-thumb > a {
+         display: block;
+         width: 100%;
+         height: 100%;
+         position: relative;
+      }
+      .aq-product-thumb img {
+         height: 100%;
+         width: 100%;
+         object-fit: contain !important;
+         object-position: center;
+      }
+      .aq-product-thumb .aq-product-img {
+         transition: opacity 0.3s ease;
+      }
+      .aq-img-hover-wrap:hover .aq-product-img {
+         opacity: 0;
+      }
+      .aq-product-item.aq-product-main .aq-product-content {
+         flex: 1 1 auto;
+         min-width: 0;
+         display: flex;
+         flex-direction: column;
+      }
+      .aq-product-item .aq-product-title {
+         white-space: nowrap;
+         overflow: hidden;
+         text-overflow: ellipsis;
+         display: block;
+         max-width: 100%;
+         line-height: 24px;
+         height: 24px;
+      }
+      .aq-product-item .aq-product-title a {
+         display: block;
+         white-space: nowrap;
+         overflow: hidden;
+         text-overflow: ellipsis;
+      }
+      @media (max-width: 575.98px) {
+         .aq-product-item.aq-product-main {
+            height: 360px;
+         }
+         .aq-product-item.aq-product-main .aq-product-thumb {
+            height: 230px;
+            flex: 0 0 230px;
+         }
       }
    </style>
 

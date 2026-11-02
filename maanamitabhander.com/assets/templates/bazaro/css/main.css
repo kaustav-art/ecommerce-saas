@@ -8843,7 +8843,7 @@ body .ui-tooltip {
 .aq-product-thumb img {
   height: 100%;
   width: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
 }
 .aq-product-tab-btn ul li:not(:first-child) {
