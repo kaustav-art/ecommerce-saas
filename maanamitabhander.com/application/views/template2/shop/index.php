@@ -34,6 +34,71 @@ if (!function_exists('elt_shop_prod_img')) {
     }
 }
 
+if (!function_exists('elt_get_product_swatches')) {
+    function elt_get_product_swatches($p, $default_img, $is_user_project = false) {
+        $swatches = [];
+        $seen = [];
+        if (!empty($p['color_swatches']) && is_array($p['color_swatches'])) {
+            foreach ($p['color_swatches'] as $sw) {
+                $name = $sw['name'] ?? 'Color';
+                if (!isset($seen[$name])) {
+                    $seen[$name] = true;
+                    $swatches[] = [
+                        'name'       => $name,
+                        'color_code' => !empty($sw['color_code']) ? $sw['color_code'] : '#8D694A',
+                        'image'      => !empty($sw['image']) ? elt_shop_prod_img($sw['image']) : $default_img,
+                    ];
+                }
+            }
+        }
+        if (empty($swatches) && !empty($p['variants']) && is_array($p['variants'])) {
+            foreach ($p['variants'] as $pv) {
+                if (!empty($pv['values']) && is_array($pv['values'])) {
+                    foreach ($pv['values'] as $val) {
+                        $rSlug = $val['attribute_slug'] ?? '';
+                        $isCol = ($rSlug === 'color' || ($val['attribute_type'] ?? '') === 'color' || strpos($rSlug, 'color-') === 0 || strcasecmp($val['attribute_name'] ?? '', 'color') === 0);
+                        if ($isCol) {
+                            $vName = $val['attribute_value'] ?? 'Color';
+                            if (!isset($seen[$vName])) {
+                                $seen[$vName] = true;
+                                $swatches[] = [
+                                    'name'       => $vName,
+                                    'color_code' => !empty($val['color_code']) ? $val['color_code'] : '#111827',
+                                    'image'      => !empty($pv['image']) ? elt_shop_prod_img($pv['image']) : $default_img,
+                                ];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (empty($swatches) && empty($is_user_project)) {
+            $swatches = [
+                ['name' => 'Brown',   'color_code' => '#8D694A', 'image' => $default_img],
+                ['name' => 'Iridium', 'color_code' => '#3A3F32', 'image' => $default_img],
+                ['name' => 'Darb',    'color_code' => '#7B7C4C', 'image' => $default_img],
+                ['name' => 'Wine',    'color_code' => '#73272D', 'image' => $default_img],
+            ];
+        }
+        return $swatches;
+    }
+}
+
+if (!function_exists('elt_get_hover_img')) {
+    function elt_get_hover_img($p, $default_img, $swatches = []) {
+        if (!empty($p['gallery_images_decoded']) && is_array($p['gallery_images_decoded']) && !empty($p['gallery_images_decoded'][0])) {
+            return elt_shop_prod_img($p['gallery_images_decoded'][0]);
+        }
+        if (!empty($p['hover_image']) && $p['hover_image'] !== ($p['main_image'] ?? '')) {
+            return elt_shop_prod_img($p['hover_image']);
+        }
+        if (!empty($swatches[1]['image'])) {
+            return $swatches[1]['image'];
+        }
+        return $default_img;
+    }
+}
+
 $cats_list = !empty($all_categories) ? $all_categories : (!empty($nav_categories) ? $nav_categories : []);
 $active_cat_slug = $filters['category_slug'] ?? ($selected_category['slug'] ?? '');
 $elt_qs = empty($is_user_project) ? '?preview_tpl=electronics' : '';
@@ -566,21 +631,35 @@ if (!empty($is_user_project)) {
                   </div>
 
                   <!-- Price Range Filter -->
+                  <?php
+                     $elt_dyn_max = max(2500, (int)ceil((float)($max_catalog_price ?? 2500)));
+                     if (!empty($products)) {
+                        foreach ($products as $_ep) {
+                           $_ep_val = (!empty($_ep['sale_price']) && (float)$_ep['sale_price'] > 0 && (float)$_ep['sale_price'] < (float)$_ep['price'])
+                              ? (float)$_ep['sale_price']
+                              : (float)($_ep['price'] ?? 0);
+                           if ($_ep_val > $elt_dyn_max) {
+                              $elt_dyn_max = (int)ceil($_ep_val);
+                           }
+                        }
+                     }
+                     $elt_dyn_max = (int)(ceil($elt_dyn_max / 500) * 500);
+                  ?>
                   <div class="elt-filter-block">
                      <h6 class="elt-filter-heading">
                         <span>Max Price</span>
-                        <span id="eltPriceValLabel" class="badge bg-dark text-white"><?= $curr; ?>2,500</span>
+                        <span id="eltPriceValLabel" class="badge bg-dark text-white"><?= $curr . number_format($elt_dyn_max); ?></span>
                      </h6>
-                     <input type="range" id="eltPriceRange" class="form-range" min="50" max="2500" step="25" value="2500">
+                     <input type="range" id="eltPriceRange" class="form-range" min="50" max="<?= $elt_dyn_max; ?>" step="25" value="<?= $elt_dyn_max; ?>" data-default-max="<?= $elt_dyn_max; ?>">
                      <div class="d-flex justify-content-between small text-muted mb-2">
                         <span><?= $curr; ?>50</span>
-                        <span><?= $curr; ?>2,500+</span>
+                        <span><?= $curr . number_format($elt_dyn_max); ?>+</span>
                      </div>
                      <div class="elt-price-brackets">
                         <button type="button" class="elt-price-chip" data-max-price="150">Under <?= $curr; ?>150</button>
                         <button type="button" class="elt-price-chip" data-max-price="350">Under <?= $curr; ?>350</button>
                         <button type="button" class="elt-price-chip" data-max-price="750">Under <?= $curr; ?>750</button>
-                        <button type="button" class="elt-price-chip is-active" data-max-price="2500">Any Price</button>
+                        <button type="button" class="elt-price-chip is-active" data-max-price="<?= $elt_dyn_max; ?>">Any Price</button>
                      </div>
                   </div>
 
@@ -659,33 +738,23 @@ if (!empty($is_user_project)) {
                   ];
                   $pi = 1;
                   foreach ($products as $idx => $p):
-                     $p_id     = (int)($p['id'] ?? $pi);
-                     $p_name   = $p['name'] ?? ($p['title'] ?? 'Electronics Product');
-                     $p_slug   = !empty($p['slug']) ? site_url('product/' . $p['slug'] . $elt_qs) : site_url('product/' . $p_id . $elt_qs);
-                     $p_img    = elt_shop_prod_img($p, $pi++);
-                     $p_cat    = !empty($p['category_name']) ? $p['category_name'] : ($selected_category['name'] ?? 'Electronics');
-                     $p_price  = (!empty($p['sale_price']) && (float)$p['sale_price'] > 0 && (float)$p['sale_price'] < (float)$p['price'])
+                     $p_id       = (int)($p['id'] ?? $pi);
+                     $p_name     = $p['name'] ?? ($p['title'] ?? 'Electronics Product');
+                     $p_slug     = !empty($p['slug']) ? site_url('product/' . $p['slug'] . $elt_qs) : site_url('product/' . $p_id . $elt_qs);
+                     $p_img      = elt_shop_prod_img($p, $pi++);
+                     $p_hover    = elt_get_hover_img($p, $p_img);
+                     $p_swatches = elt_get_product_swatches($p, $p_img);
+                     $p_cat      = !empty($p['category_name']) ? $p['category_name'] : ($selected_category['name'] ?? 'Electronics');
+                     $p_price    = (!empty($p['sale_price']) && (float)$p['sale_price'] > 0 && (float)$p['sale_price'] < (float)$p['price'])
                                  ? (float)$p['sale_price']
                                  : (float)($p['price'] ?? 199);
-                     $p_old    = (float)($p['price'] ?? $p_price);
-                     $p_disc   = ($p_old > $p_price && $p_old > 0) ? round((($p_old - $p_price) / $p_old) * 100) : 0;
-                     $p_rev    = (isset($p['reviews']) && is_array($p['reviews'])) ? count($p['reviews']) : (int)($p['reviews_count'] ?? 0);
-                     $p_rating = $p_rev > 0 ? (float)($p['rating'] ?? 0) : 0.0;
-                     $p_stars  = (int)round($p_rating);
-                     $p_brand  = !empty($p['brand_name']) ? $p['brand_name'] : (!empty($p['brand']) ? $p['brand'] : (!empty($tech_brands) ? $tech_brands[$idx % count($tech_brands)] : ''));
-                     $p_specs  = $spec_pairs[$idx % count($spec_pairs)];
-                     $p_desc   = !empty($p['short_description']) ? $p['short_description'] : 'Engineered with next-gen hardware architecture, studio-grade acoustics, and all-day battery performance.';
-
-                     $qv_json = htmlspecialchars(json_encode([
-                        'id'       => $p_id,
-                        'title'    => $p_name,
-                        'price'    => $curr . number_format($p_price, 2),
-                        'image'    => $p_img,
-                        'category' => $p_cat,
-                        'desc'     => mb_substr(strip_tags($p_desc), 0, 160),
-                        'sku'      => $p['sku'] ?? ('TECH-' . (1000 + $p_id)),
-                        'url'      => $p_slug,
-                     ]), ENT_QUOTES, 'UTF-8');
+                     $p_old      = (float)($p['price'] ?? $p_price);
+                     $p_disc     = ($p_old > $p_price && $p_old > 0) ? round((($p_old - $p_price) / $p_old) * 100) : 0;
+                     $p_rev      = (isset($p['reviews']) && is_array($p['reviews'])) ? count($p['reviews']) : (int)($p['reviews_count'] ?? 0);
+                     $p_rating   = $p_rev > 0 ? (float)($p['rating'] ?? 0) : 0.0;
+                     $p_stars    = (int)round($p_rating);
+                     $p_brand    = !empty($p['brand_name']) ? $p['brand_name'] : (!empty($p['brand']) ? $p['brand'] : (!empty($tech_brands) ? $tech_brands[$idx % count($tech_brands)] : ''));
+                     $p_specs    = $spec_pairs[$idx % count($spec_pairs)];
                   ?>
                   <div class="col elt-product-col"
                        data-title="<?= html_escape(strtolower($p_name . ' ' . $p_cat . ' ' . $p_brand . ' ' . implode(' ', $p_specs))); ?>"
@@ -694,96 +763,87 @@ if (!empty($is_user_project)) {
                        data-sale="<?= $p_disc > 0 ? '1' : '0'; ?>"
                        data-brand="<?= html_escape($p_brand); ?>"
                        data-order="<?= $idx; ?>">
-                     <div class="elt-shop-card aq-product-item aq-product-main">
-                        <div class="aq-product-thumb aq-img-hover-wrap p-relative">
+                     <div class="aq-product-item aq-product-main mb-40" data-lazy="true">
+                        <div class="aq-product-thumb aq-img-hover-wrap p-relative mb-10">
                            <?php if ($p_disc > 0): ?>
-                              <div class="aq-product-badge">
-                                 <span class="clr-sale">-<?= $p_disc; ?>%</span>
-                              </div>
-                           <?php elseif ($p_brand !== ''): ?>
-                              <div class="aq-product-badge">
-                                 <span style="background:#0B0D0E;color:#E1EEB7;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;"><?= html_escape($p_brand); ?></span>
-                              </div>
+                           <div class="aq-product-badge">
+                              <span class="clr-sale">-<?= $p_disc; ?>%</span>
+                           </div>
                            <?php endif; ?>
-
-                           <div class="aq-product-action pos-bottom-center">
-                              <button type="button" class="aq-product-action-btn aq-tooltip-top" onclick="bazaroAddToCart(<?= $p_id; ?>, 1, true)">
-                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
-                                    <path d="M6.19751 0.75L3.30151 3.654M11.3015 0.75L14.1975 3.654M6.95776 10.3501V13.1901M10.6375 10.3501V13.1901M1.94997 7.14993L3.07797 14.0619C3.33397 15.6139 3.94997 16.7499 6.23796 16.7499H11.062C13.55 16.7499 13.918 15.6619 14.206 14.1579L15.55 7.14993M0.75 5.42996C0.75 3.94996 1.542 3.82996 2.526 3.82996H14.974C15.958 3.82996 16.75 3.94996 16.75 5.42996C16.75 7.14996 15.958 7.02996 14.974 7.02996H2.526C1.542 7.02996 0.75 7.14996 0.75 5.42996Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
-                                 </svg>
-                                 <span class="aq-tooltip-item">Add to Cart</span>
-                              </button>
-                              <button type="button" class="aq-product-action-btn aq-tooltip-top" onclick='bazaroQuickView(<?= $qv_json; ?>)'>
-                                 <svg xmlns="http://www.w3.org/2000/svg" width="19" height="16" viewBox="0 0 19 16" fill="none">
-                                    <path d="M12.0557 7.75429C12.0557 9.42922 10.7022 10.7827 9.0273 10.7827C7.35238 10.7827 5.99891 9.42922 5.99891 7.75429C5.99891 6.07937 7.35238 4.72589 9.0273 4.72589C10.7022 4.72589 12.0557 6.07937 12.0557 7.75429Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M9.02734 14.75C12.0134 14.75 14.7965 12.9905 16.7337 9.94517C17.495 8.75242 17.495 6.74758 16.7337 5.55483C14.7965 2.50952 12.0134 0.75 9.02734 0.75C6.04124 0.75 3.25816 2.50952 1.321 5.55483C0.559668 6.74758 0.559668 8.75242 1.321 9.94517C3.25816 12.9905 6.04124 14.75 9.02734 14.75Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                 </svg>
-                                 <span class="aq-tooltip-item">Quick View</span>
-                              </button>
-                              <button type="button" class="aq-product-action-btn aq-wishlist-btn aq-tooltip-top" onclick="bazaroToggleWishlist(<?= $p_id; ?>, this)">
+                           <div class="aq-product-action">
+                              <button type="button" class="aq-product-action-btn aq-wishlist-btn aq-tooltip" onclick="bazaroToggleWishlist(<?= $p_id; ?>, this)">
                                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="16" viewBox="0 0 18 16" fill="none">
-                                    <path d="M14.7197 1.52347C12.5744 0.244089 10.7019 0.759666 9.57712 1.58092C9.11591 1.91766 8.88531 2.08602 8.74963 2.08602C8.61396 2.08602 8.38336 1.91766 7.92215 1.58092C6.79733 0.759666 4.9249 0.244089 2.77958 1.52347C-0.0359114 3.20253 -0.67299 8.7418 5.82126 13.4151C7.05821 14.3052 7.67668 14.7502 8.74963 14.7502C9.82258 14.7502 10.4411 14.3052 11.678 13.4151C18.1723 8.7418 17.5352 3.20253 14.7197 1.52347Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"/>
-                                 </svg>
-                                 <span class="aq-tooltip-item">Wishlist</span>
+                                    <path d="M14.7197 1.52347C12.5744 0.244089 10.7019 0.759666 9.57712 1.58092C9.11591 1.91766 8.88531 2.08602 8.74963 2.08602C8.61396 2.08602 8.38336 1.91766 7.92215 1.58092C6.79733 0.759666 4.9249 0.244089 2.77958 1.52347C-0.0359114 3.20253 -0.67299 8.7418 5.82126 13.4151C7.05821 14.3052 7.67668 14.7502 8.74963 14.7502C9.82258 14.7502 10.4411 14.3052 11.678 13.4151C18.1723 8.7418 17.5352 3.20253 14.7197 1.52347Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"></path>
+                                 </svg>                                                                               
+                                 <span class="aq-tooltip-item">Add To Wishlist</span>
                               </button>
                            </div>
-
                            <a href="<?= $p_slug; ?>">
-                              <img class="aq-product-img" src="<?= $p_img; ?>" alt="<?= html_escape($p_name); ?>">
+                              <img class="aq-product-img current-cached lazyloaded" src="<?= $p_img; ?>" alt="<?= html_escape($p_name); ?>">
+                              <img class="aq-img-hover current-cached lazyloaded" src="<?= $p_hover; ?>" alt="<?= html_escape($p_name); ?>">
                            </a>
                         </div>
-
-                        <div class="elt-card-body">
-                           <div class="d-flex align-items-center justify-content-between mb-1">
-                              <span class="text-uppercase fw-bold" style="font-size:11px;color:#64748b;letter-spacing:0.4px;">
-                                 <?= html_escape($p_cat); ?>
-                              </span>
-                              <span class="small fw-semibold d-inline-flex align-items-center gap-1" style="font-size:12px;color:#f59e0b;">
-                                 <span>
-                                    <?php for ($si = 1; $si <= 5; $si++): ?>
-                                       <i class="fa-<?= ($si <= $p_stars) ? 'solid' : 'regular'; ?> fa-star"></i>
-                                    <?php endfor; ?>
-                                 </span>
-                                 <span class="text-muted fw-normal">(<?= $p_rev; ?>)</span>
+                        <div class="aq-product-content text-center text-md-start">
+                           <div class="aq-product-ratting">
+                              <span>
+                                 <?php for ($si = 1; $si <= 5; $si++): ?>
+                                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="11" viewBox="0 0 12 11" fill="none">
+                                    <path d="M5.40275 0.362705C5.63051 -0.120902 6.36949 -0.120902 6.59725 0.362705L7.93836 3.21024C8.02854 3.40172 8.21562 3.53352 8.43269 3.55948L11.5059 3.927C12.0439 3.99135 12.261 4.63775 11.8639 4.9945L9.59633 7.03198C9.44263 7.17008 9.37388 7.37752 9.41391 7.57727L10.0085 10.5439C10.1112 11.0566 9.54935 11.4547 9.07645 11.2028L6.31896 9.73361C6.11992 9.62757 5.88008 9.62757 5.68104 9.73361L2.92355 11.2028C2.45065 11.4547 1.88878 11.0566 1.99153 10.5439L2.58609 7.57727C2.62612 7.37752 2.55737 7.17008 2.40367 7.03198L0.136127 4.9945C-0.260953 4.63775 -0.0439128 3.99135 0.49411 3.927L3.56731 3.55948C3.78438 3.53352 3.97146 3.40172 4.06164 3.21024L5.40275 0.362705Z" fill="<?= ($si <= $p_stars || $p_rev === 0) ? 'currentcolor' : '#d1d5db'; ?>"></path>
+                                 </svg>
+                                 <?php endfor; ?>
                               </span>
                            </div>
-
-                           <h4 class="aq-product-title mb-1" style="font-size:15.5px;font-weight:700;line-height:1.35;">
-                              <a href="<?= $p_slug; ?>" class="text-dark text-decoration-none"><?= html_escape($p_name); ?></a>
-                           </h4>
-
-                           <!-- Hardware Spec Pills -->
-                           <div class="elt-card-spec-badges">
-                              <span class="elt-spec-tag"><i class="fa-solid fa-microchip me-1"></i><?= html_escape($p_specs[0]); ?></span>
-                              <span class="elt-spec-tag"><?= html_escape($p_specs[1]); ?></span>
+                           <h4 class="aq-product-title mb-10"><a href="<?= $p_slug; ?>"><?= html_escape($p_name); ?></a></h4>
+                           <div class="aq-product-price">
+                              <ins><span class="aq-product-new-price"><?= $curr . number_format($p_price, 2); ?></span></ins>
+                              <?php if ($p_old > $p_price): ?>
+                              <del><span class="aq-product-old-price"><?= $curr . number_format($p_old, 2); ?></span></del>
+                              <?php endif; ?>
                            </div>
-
-                           <div class="elt-card-bottom-row">
-                              <div class="aq-product-price mb-0">
-                                 <ins><span class="aq-product-new-price" style="font-size:18px;font-weight:800;color:#0B0D0E;"><?= $curr . number_format($p_price, 2); ?></span></ins>
-                                 <?php if ($p_old > $p_price): ?>
-                                    <del class="ms-1"><span class="aq-product-old-price" style="font-size:13px;color:#94a3b8;"><?= $curr . number_format($p_old, 2); ?></span></del>
-                                 <?php endif; ?>
-                              </div>
-                              <button type="button" class="elt-add-cart-pill" onclick="bazaroAddToCart(<?= $p_id; ?>, 1, true)">
-                                 <i class="fa-solid fa-cart-plus"></i>
-                                 <span>Add</span>
-                              </button>
+                           <?php if (!empty($p_swatches)): ?>
+                           <div class="aq-product-color">
+                              <ul>
+                                 <?php foreach ($p_swatches as $sw_idx => $sw): ?>
+                                 <li>
+                                    <div class="aq-product-color-item aq-tooltip-top aq-color-swatch<?= $sw_idx === 0 ? ' active' : ''; ?>">
+                                       <img src="<?= $sw['image']; ?>" alt="<?= html_escape($sw['name']); ?>">
+                                       <span class="swatch" data-bg-color="<?= html_escape($sw['hex']); ?>" style="background-color: <?= html_escape($sw['hex']); ?>;"></span>
+                                       <span class="aq-tooltip-item"><?= html_escape($sw['name']); ?></span>
+                                    </div>
+                                 </li>
+                                 <?php endforeach; ?>
+                              </ul>
                            </div>
+                           <?php endif; ?>
                         </div>
                      </div>
                   </div>
                   <?php endforeach; ?>
                </div>
 
-               <!-- Empty Filter State -->
-               <div id="eltNoResultsBox" class="text-center py-5 bg-white rounded-4 border d-none">
-                  <i class="fa-solid fa-microchip mb-3" style="font-size:38px;color:#94a3b8;"></i>
-                  <h5 class="fw-bold text-dark">No matching electronics found</h5>
-                  <p class="text-muted small mb-3">Try adjusting your price range, brand selection, or search keyword.</p>
-                  <button type="button" class="aq-btn-black radius-30 border-0" onclick="document.getElementById('eltResetFiltersBtn').click();">
-                     Reset Tech Filters
+               <!-- Empty Filter / No Products State -->
+               <?php
+                  $elt_has_filters = !empty($filters['search']) || !empty($filters['min_price']) || !empty($filters['max_price']) || !empty($filters['on_sale']) || !empty($filters['attr_value_ids']) || !empty($selected_brands);
+               ?>
+               <div id="eltNoResultsBox" class="empty-products-state text-center <?= empty($products) ? '' : 'd-none'; ?>" style="width: 100%; padding: 60px 24px; background: #ffffff; border: 1px dashed #e5e7eb; border-radius: 16px; margin: 10px 0 30px;">
+                  <div class="empty-icon-box mb-3 d-inline-flex align-items-center justify-content-center" style="width: 70px; height: 70px; border-radius: 50%; background: #f8fafc; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #eef1f6;">
+                     <i class="fa-solid fa-box-open" style="font-size: 28px; color: #9ca3af;"></i>
+                  </div>
+                  <h5 class="fw-bold mb-2" style="font-size: 19px; color: #1f2937; letter-spacing: -0.2px;">No products found</h5>
+                  <p class="text-muted mb-0" style="font-size: 14px; max-width: 440px; margin: 0 auto; line-height: 1.55;">
+                     <?php if (!empty($selected_category) && !$elt_has_filters): ?>
+                        There are currently no products available in <?= html_escape($selected_category['name']); ?>.
+                     <?php elseif ($elt_has_filters): ?>
+                        We couldn't find any products matching your selected filters.
+                     <?php else: ?>
+                        There are currently no products available in this section.
+                     <?php endif; ?>
+                  </p>
+                  <?php if (!empty($products)): ?>
+                  <button type="button" class="aq-btn-black radius-30 border-0 mt-3" onclick="document.getElementById('eltResetFiltersBtn').click();">
+                     Reset Filters
                   </button>
+                  <?php endif; ?>
                </div>
 
             </div>
@@ -904,10 +964,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
    if (resetBtn) {
       resetBtn.addEventListener('click', function() {
+         var defMax = priceRange ? (parseInt(priceRange.getAttribute('data-default-max') || priceRange.max, 10) || 2500) : 2500;
          if (quickInput) quickInput.value = '';
          if (saleBtn) saleBtn.classList.remove('is-active');
-         if (priceRange) priceRange.value = 2500;
-         if (priceLabel) priceLabel.textContent = currSymbol + '2,500';
+         if (priceRange) priceRange.value = defMax;
+         if (priceLabel) priceLabel.textContent = currSymbol + defMax.toLocaleString();
          priceChips.forEach(function(c) { c.classList.remove('is-active'); });
          if (priceChips.length > 0) priceChips[priceChips.length - 1].classList.add('is-active');
          brandChecks.forEach(function(cb) { cb.checked = false; });

@@ -1766,7 +1766,7 @@ if (!empty($initial_variant)) {
          </div>
       </div>
       <?php if (!empty($related_products)): ?>
-      <div class="elt-arrival-area elt-arrival-style pb-100">
+      <div class="elt-arrival-area pb-100">
          <div class="container">
             <div class="elt-arrival-top mb-35">
                <div class="row align-items-center">
@@ -1801,6 +1801,34 @@ if (!empty($initial_variant)) {
                           }
                       }
                   }
+                  $rp_hover = $rp_img;
+                  if (!empty($rp['gallery_images']) && is_array($rp['gallery_images'])) {
+                      foreach ($rp['gallery_images'] as $g) {
+                          $raw_g = is_array($g) ? ($g['image_url'] ?? ($g['url'] ?? ($g['image'] ?? ''))) : (is_string($g) ? $g : '');
+                          if ($raw_g !== '') {
+                              $g_url = (strpos($raw_g, 'http://') === 0 || strpos($raw_g, 'https://') === 0) ? $raw_g : ((strpos(ltrim($raw_g, '/'), 'assets/') === 0 || strpos(ltrim($raw_g, '/'), 'uploads/') === 0) ? base_url(ltrim($raw_g, '/')) : base_url('assets/images/' . ltrim($raw_g, '/')));
+                              if ($g_url !== $rp_img) {
+                                  $rp_hover = $g_url;
+                                  break;
+                              }
+                          }
+                      }
+                  }
+                  $rp_swatches = [];
+                  if (!empty($rp['color_swatches']) && is_array($rp['color_swatches'])) {
+                      foreach ($rp['color_swatches'] as $sw) {
+                          $sw_raw = !empty($sw['image']) ? $sw['image'] : '';
+                          $sw_img = $rp_img;
+                          if ($sw_raw !== '') {
+                              $sw_img = (strpos($sw_raw, 'http://') === 0 || strpos($sw_raw, 'https://') === 0) ? $sw_raw : ((strpos(ltrim($sw_raw, '/'), 'assets/') === 0 || strpos(ltrim($sw_raw, '/'), 'uploads/') === 0) ? base_url(ltrim($sw_raw, '/')) : base_url('assets/images/' . ltrim($sw_raw, '/')));
+                          }
+                          $rp_swatches[] = [
+                              'name'  => $sw['name'] ?? 'Default',
+                              'hex'   => !empty($sw['hex']) ? $sw['hex'] : '#343538',
+                              'image' => $sw_img,
+                          ];
+                      }
+                  }
                   $rp_reg     = (float)($rp['regular_price'] ?? $rp['price'] ?? 199.00);
                   $rp_sal     = (!empty($rp['sale_price']) && (float)$rp['sale_price'] > 0 && (float)$rp['sale_price'] < $rp_reg) ? (float)$rp['sale_price'] : $rp_reg;
                   $rp_disc    = ($rp_sal < $rp_reg && $rp_reg > 0) ? round((($rp_reg - $rp_sal) / $rp_reg) * 100) : 0;
@@ -1809,33 +1837,58 @@ if (!empty($initial_variant)) {
                   $rp_stars   = (int)round($rp_rating);
                ?>
                <div class="col">
-                  <div class="aq-product-item aq-product-main d-flex flex-column justify-content-between mb-15">
+                  <div class="aq-product-item aq-product-main mb-40" data-lazy="true">
                      <div class="aq-product-thumb aq-img-hover-wrap p-relative mb-10">
                         <?php if ($rp_disc > 0): ?>
                         <div class="aq-product-badge">
                            <span class="clr-sale">-<?= $rp_disc; ?>%</span>
                         </div>
                         <?php endif; ?>
+                        <div class="aq-product-action">
+                           <button type="button" class="aq-product-action-btn aq-wishlist-btn aq-tooltip" onclick="bazaroToggleWishlist(<?= $rp_id; ?>, this)">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="16" viewBox="0 0 18 16" fill="none">
+                                 <path d="M14.7197 1.52347C12.5744 0.244089 10.7019 0.759666 9.57712 1.58092C9.11591 1.91766 8.88531 2.08602 8.74963 2.08602C8.61396 2.08602 8.38336 1.91766 7.92215 1.58092C6.79733 0.759666 4.9249 0.244089 2.77958 1.52347C-0.0359114 3.20253 -0.67299 8.7418 5.82126 13.4151C7.05821 14.3052 7.67668 14.7502 8.74963 14.7502C9.82258 14.7502 10.4411 14.3052 11.678 13.4151C18.1723 8.7418 17.5352 3.20253 14.7197 1.52347Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"></path>
+                              </svg>                                                                               
+                              <span class="aq-tooltip-item">Add To Wishlist</span>
+                           </button>
+                        </div>
                         <a href="<?= $rp_slug; ?>">
-                           <img class="aq-product-img" src="<?= $rp_img; ?>" alt="<?= html_escape($rp_name); ?>">
+                           <img class="aq-product-img current-cached lazyloaded" src="<?= $rp_img; ?>" alt="<?= html_escape($rp_name); ?>">
+                           <img class="aq-img-hover current-cached lazyloaded" src="<?= $rp_hover; ?>" alt="<?= html_escape($rp_name); ?>">
                         </a>
                      </div>
-                     <div class="aq-product-content text-center">
-                        <h4 class="aq-product-title mb-1"><a href="<?= $rp_slug; ?>"><?= html_escape($rp_name); ?></a></h4>
-                        <div class="aq-product-ratting text-warning small mb-1 d-flex align-items-center justify-content-center gap-1">
+                     <div class="aq-product-content text-center text-md-start">
+                        <div class="aq-product-ratting">
                            <span>
                               <?php for ($si = 1; $si <= 5; $si++): ?>
-                                 <i class="fa-<?= ($si <= $rp_stars) ? 'solid' : 'regular'; ?> fa-star"></i>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="11" viewBox="0 0 12 11" fill="none">
+                                 <path d="M5.40275 0.362705C5.63051 -0.120902 6.36949 -0.120902 6.59725 0.362705L7.93836 3.21024C8.02854 3.40172 8.21562 3.53352 8.43269 3.55948L11.5059 3.927C12.0439 3.99135 12.261 4.63775 11.8639 4.9945L9.59633 7.03198C9.44263 7.17008 9.37388 7.37752 9.41391 7.57727L10.0085 10.5439C10.1112 11.0566 9.54935 11.4547 9.07645 11.2028L6.31896 9.73361C6.11992 9.62757 5.88008 9.62757 5.68104 9.73361L2.92355 11.2028C2.45065 11.4547 1.88878 11.0566 1.99153 10.5439L2.58609 7.57727C2.62612 7.37752 2.55737 7.17008 2.40367 7.03198L0.136127 4.9945C-0.260953 4.63775 -0.0439128 3.99135 0.49411 3.927L3.56731 3.55948C3.78438 3.53352 3.97146 3.40172 4.06164 3.21024L5.40275 0.362705Z" fill="<?= ($si <= $rp_stars || $rp_rev_cnt === 0) ? 'currentcolor' : '#d1d5db'; ?>"></path>
+                              </svg>
                               <?php endfor; ?>
                            </span>
-                           <span class="text-muted" style="font-size:12px;">(<?= $rp_rev_cnt; ?>)</span>
                         </div>
+                        <h4 class="aq-product-title mb-10"><a href="<?= $rp_slug; ?>"><?= html_escape($rp_name); ?></a></h4>
                         <div class="aq-product-price">
                            <ins><span class="aq-product-new-price"><?= $currency_symbol . number_format($rp_sal, 2); ?></span></ins>
                            <?php if ($rp_reg > $rp_sal): ?>
                            <del><span class="aq-product-old-price"><?= $currency_symbol . number_format($rp_reg, 2); ?></span></del>
                            <?php endif; ?>
                         </div>
+                        <?php if (!empty($rp_swatches)): ?>
+                        <div class="aq-product-color">
+                           <ul>
+                              <?php foreach ($rp_swatches as $sw_idx => $sw): ?>
+                              <li>
+                                 <div class="aq-product-color-item aq-tooltip-top aq-color-swatch<?= $sw_idx === 0 ? ' active' : ''; ?>">
+                                    <img src="<?= $sw['image']; ?>" alt="<?= html_escape($sw['name']); ?>">
+                                    <span class="swatch" data-bg-color="<?= html_escape($sw['hex']); ?>" style="background-color: <?= html_escape($sw['hex']); ?>;"></span>
+                                    <span class="aq-tooltip-item"><?= html_escape($sw['name']); ?></span>
+                                 </div>
+                              </li>
+                              <?php endforeach; ?>
+                           </ul>
+                        </div>
+                        <?php endif; ?>
                      </div>
                   </div>
                </div>
