@@ -7,7 +7,9 @@
                 <h5 class="title fw-bold mb-0 text-dark" style="font-size: 18px;">
                     <i class="fa-solid fa-location-dot me-2 text-primary"></i>Delivery Address
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="font-size: 13px;"></button>
+                <button type="button" class="addr-modal-close-btn" data-bs-dismiss="modal" onclick="if(typeof closeAddressModal==='function')closeAddressModal();" aria-label="Close" title="Close">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
 
             <div class="modal-body p-3 p-md-4" style="overflow-y: auto;">
@@ -25,7 +27,9 @@
                 <div id="add-address-form-box" class="card border p-3 mb-4 rounded-3 bg-light shadow-sm" style="display: none;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h6 class="fw-bold mb-0 text-primary"><i class="fa-solid fa-map-pin me-1"></i> Add New Delivery Address</h6>
-                        <button type="button" class="btn-close small" onclick="toggleNewAddressForm(false)"></button>
+                        <button type="button" class="addr-form-close-btn" onclick="toggleNewAddressForm(false)" aria-label="Close" title="Close">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
                     </div>
                     <form id="newAddressForm" onsubmit="handleSaveAddress(event)">
                         <div class="row g-2 mb-2">
@@ -171,6 +175,55 @@
 }
 .modal-address-side .header {
     border-bottom: 1px solid #e5e7eb;
+    position: relative;
+}
+.modal-address-side .addr-modal-close-btn,
+.modal-address-side .addr-form-close-btn,
+.modal-address-side .header .btn-close,
+#add-address-form-box .btn-close {
+    position: static !important;
+    top: auto !important;
+    right: auto !important;
+    inset-inline-end: auto !important;
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 50% !important;
+    border: 1px solid #e2e8f0 !important;
+    background-color: #f8fafc !important;
+    background-image: none !important;
+    color: #0f172a !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 15px !important;
+    line-height: 1 !important;
+    cursor: pointer !important;
+    opacity: 1 !important;
+    box-shadow: none !important;
+    transition: all 0.2s ease !important;
+    flex-shrink: 0 !important;
+}
+.modal-address-side .addr-form-close-btn,
+#add-address-form-box .btn-close {
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    min-height: 30px !important;
+    font-size: 13px !important;
+    background-color: #ffffff !important;
+}
+.modal-address-side .addr-modal-close-btn:hover,
+.modal-address-side .addr-form-close-btn:hover,
+.modal-address-side .header .btn-close:hover,
+#add-address-form-box .btn-close:hover {
+    background-color: #0f172a !important;
+    border-color: #0f172a !important;
+    color: #ffffff !important;
+    transform: rotate(90deg) !important;
 }
 .address-select-card {
     cursor: pointer;
@@ -197,6 +250,16 @@
             bootstrap.Modal.getOrCreateInstance(modalEl).show();
         } else if (typeof $ !== 'undefined') {
             $('#addressModal').modal('show');
+        }
+    };
+
+    window.closeAddressModal = function() {
+        var modalEl = document.getElementById('addressModal');
+        if (!modalEl) return;
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+        } else if (typeof $ !== 'undefined') {
+            $(modalEl).modal('hide');
         }
     };
 

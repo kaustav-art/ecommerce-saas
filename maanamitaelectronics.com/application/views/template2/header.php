@@ -864,6 +864,57 @@ if (!function_exists('elt_resolve_img')) {
          border-color: #E1EEB7;
          color: #0B0D0E !important;
       }
+
+      /* Delivery Address Side Drawer & Flex Modal Header Close Buttons */
+      .modal-address-side .addr-modal-close-btn,
+      .modal-address-side .addr-form-close-btn,
+      .modal-address-side .header .btn-close,
+      #add-address-form-box .btn-close,
+      .modal-header .btn-close {
+         position: static !important;
+         top: auto !important;
+         right: auto !important;
+         inset-inline-end: auto !important;
+         width: 34px !important;
+         height: 34px !important;
+         min-width: 34px !important;
+         min-height: 34px !important;
+         padding: 0 !important;
+         margin: 0 !important;
+         border-radius: 50% !important;
+         border: 1px solid #e2e8f0 !important;
+         background-color: #f8fafc !important;
+         color: #0B0D0E !important;
+         display: inline-flex !important;
+         align-items: center !important;
+         justify-content: center !important;
+         font-size: 15px !important;
+         line-height: 1 !important;
+         cursor: pointer !important;
+         opacity: 1 !important;
+         box-shadow: none !important;
+         transition: all 0.2s ease !important;
+         flex-shrink: 0 !important;
+      }
+      .modal-address-side .addr-form-close-btn,
+      #add-address-form-box .btn-close {
+         width: 30px !important;
+         height: 30px !important;
+         min-width: 30px !important;
+         min-height: 30px !important;
+         font-size: 13px !important;
+         background-color: #ffffff !important;
+      }
+      .modal-address-side .addr-modal-close-btn:hover,
+      .modal-address-side .addr-form-close-btn:hover,
+      .modal-address-side .header .btn-close:hover,
+      #add-address-form-box .btn-close:hover,
+      .modal-header .btn-close:hover {
+         background-color: #0B0D0E !important;
+         border-color: #0B0D0E !important;
+         color: #E1EEB7 !important;
+         transform: rotate(90deg) !important;
+      }
    </style>
 
    <script>

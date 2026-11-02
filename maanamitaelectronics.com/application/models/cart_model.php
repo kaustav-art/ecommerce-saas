@@ -232,11 +232,16 @@ class cart_model extends CI_Model {
                                       ->get('reviews')
                                       ->row_array();
                 if (!empty($rev_stats) && (int)$rev_stats['total_count'] > 0) {
-                    $item['rating'] = round((float)$rev_stats['avg_rating'], 1);
-                    $item['reviews_count'] = (int)$rev_stats['total_count'];
+                    $new_rating = round((float)$rev_stats['avg_rating'], 1);
+                    $new_reviews = (int)$rev_stats['total_count'];
                 } else {
-                    $item['rating'] = (isset($p_info['rating']) && (float)$p_info['rating'] > 0) ? (float)$p_info['rating'] : 5.0;
-                    $item['reviews_count'] = isset($p_info['reviews_count']) ? (int)$p_info['reviews_count'] : 0;
+                    $new_rating = (isset($p_info['rating']) && (float)$p_info['rating'] > 0) ? (float)$p_info['rating'] : 0.0;
+                    $new_reviews = isset($p_info['reviews_count']) ? (int)$p_info['reviews_count'] : 0;
+                }
+                if (!isset($item['rating']) || abs((float)$item['rating'] - $new_rating) > 0.001 || !isset($item['reviews_count']) || (int)$item['reviews_count'] !== $new_reviews) {
+                    $item['rating'] = $new_rating;
+                    $item['reviews_count'] = $new_reviews;
+                    $cart_changed = true;
                 }
             }
         }
@@ -1159,7 +1164,7 @@ class cart_model extends CI_Model {
             $prod_rating = round((float)$rev_stats['avg_rating'], 1);
             $prod_reviews = (int)$rev_stats['total_count'];
         } else {
-            $prod_rating = (isset($p_info['rating']) && (float)$p_info['rating'] > 0) ? (float)$p_info['rating'] : 5.0;
+            $prod_rating = (isset($p_info['rating']) && (float)$p_info['rating'] > 0) ? (float)$p_info['rating'] : 0.0;
             $prod_reviews = isset($p_info['reviews_count']) ? (int)$p_info['reviews_count'] : 0;
         }
 
