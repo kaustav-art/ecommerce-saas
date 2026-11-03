@@ -43,7 +43,33 @@ $display_review_count = $total_review_count;
 
 // Variant configuration
 $has_variants = !empty($product['variants']);
-$has_color = !empty($product['attributes']['color']);
+$color_attr = null;
+$color_attr_slug = 'color';
+$color_attr_name = 'Color';
+$is_color_type_attr = true;
+
+if (!empty($product['attributes'])) {
+    if (!empty($product['attributes']['color'])) {
+        $color_attr = $product['attributes']['color'];
+        $color_attr_slug = 'color';
+        $color_attr_name = $color_attr['name'] ?? 'Color';
+        $is_color_type_attr = true;
+    } else {
+        foreach ($product['attributes'] as $slug => $attr_info) {
+            if (
+                (!empty($attr_info['type']) && $attr_info['type'] === 'color') ||
+                strcasecmp($attr_info['name'] ?? '', 'color') === 0 ||
+                stripos($slug, 'color') === 0
+            ) {
+                $color_attr = $attr_info;
+                $color_attr_slug = $slug;
+                $color_attr_name = $attr_info['name'] ?? 'Color';
+                $is_color_type_attr = true;
+                break;
+            }
+        }
+    }
+}
 
 // Detect secondary option attribute (e.g., Size, Storage, or any active multiple_select attribute)
 $multi_attr      = null;
@@ -53,18 +79,31 @@ $multi_attr_name = 'Option';
 if (!empty($product['attributes'])) {
     // First priority: look for attribute with multiple_select type or size or storage
     foreach ($product['attributes'] as $slug => $attr_info) {
-        if ($slug === 'color') continue;
-        if (!empty($attr_info['values']) && (!empty($attr_info['type']) && $attr_info['type'] === 'multiple_select')) {
+        if ($color_attr && ($slug === $color_attr_slug || (!empty($attr_info['type']) && $attr_info['type'] === 'color'))) continue;
+        if (!empty($attr_info['values']) && (!empty($attr_info['type']) && in_array(strtolower($attr_info['type']), ['multiple_select', 'multiselect', 'multiple'], true))) {
             $multi_attr      = $attr_info;
             $multi_attr_slug = $slug;
             $multi_attr_name = $attr_info['name'];
             break;
         }
     }
+    // If no color attribute was found, look for a single-select attribute (e.g. Material / Storage) as the primary group selector
+    if (empty($color_attr)) {
+        foreach ($product['attributes'] as $slug => $attr_info) {
+            if ($multi_attr && $slug === $multi_attr_slug) continue;
+            if (!empty($attr_info['values']) && !in_array(strtolower($attr_info['type'] ?? ''), ['multiple_select', 'multiselect', 'multiple'], true)) {
+                $color_attr = $attr_info;
+                $color_attr_slug = $slug;
+                $color_attr_name = $attr_info['name'] ?? ucfirst($slug);
+                $is_color_type_attr = false;
+                break;
+            }
+        }
+    }
     // Second priority: any non-color attribute with values
     if (empty($multi_attr)) {
         foreach ($product['attributes'] as $slug => $attr_info) {
-            if ($slug === 'color') continue;
+            if ($color_attr && $slug === $color_attr_slug) continue;
             if (!empty($attr_info['values'])) {
                 $multi_attr      = $attr_info;
                 $multi_attr_slug = $slug;
@@ -74,17 +113,18 @@ if (!empty($product['attributes'])) {
         }
     }
 }
+$has_color = !empty($color_attr['values']);
 $has_size = !empty($multi_attr);
 
-// Color map with variant photos & size/option inventory
+// Color / Primary attribute map with variant photos & size/option inventory
 $color_map = [];
 $initial_color = '';
 $initial_size = '';
 $initial_variant_id = 0;
 $initial_sku = $product['sku'] ?? ('SKU-' . ($product['id'] ?? '100'));
 
-if ($has_color && !empty($product['attributes']['color']['values'])) {
-    foreach ($product['attributes']['color']['values'] as $idx => $c_val) {
+if ($has_color && !empty($color_attr['values'])) {
+    foreach ($color_attr['values'] as $idx => $c_val) {
         $c_name = $c_val['value'];
         if ($idx === 0) {
             $initial_color = $c_name;
@@ -98,7 +138,12 @@ if ($has_color && !empty($product['attributes']['color']['values'])) {
                 $matches_color = false;
                 if (!empty($pv['values'])) {
                     foreach ($pv['values'] as $val) {
-                        if ($val['attribute_slug'] === 'color' && strcasecmp($val['attribute_value'], $c_name) === 0) {
+                        $v_slug = $val['attribute_slug'] ?? '';
+                        $v_name = $val['attribute_name'] ?? '';
+                        if (
+                            (strcasecmp($v_slug, $color_attr_slug) === 0 || strcasecmp($v_name, $color_attr_name) === 0 || ($is_color_type_attr && ($v_slug === 'color' || strcasecmp($v_name, 'color') === 0 || stripos($v_slug, 'color') === 0))) &&
+                            strcasecmp($val['attribute_value'], $c_name) === 0
+                        ) {
                             $matches_color = true;
                             break;
                         }
@@ -156,13 +201,14 @@ if ($has_color && !empty($product['attributes']['color']['values'])) {
             'image'      => $c_photo,
             'gallery'    => $c_gallery,
             'images'     => $c_images,
+            'variant'    => null,
             'sizes'      => []
         ];
     }
 }
 
-// If initial color has custom gallery images, prioritize them for initial view
-if (!empty($initial_color) && !empty($color_map[$initial_color]['gallery'])) {
+// If initial color has variant images, prioritize them for initial view
+if (!empty($initial_color) && !empty($color_map[$initial_color]['images'])) {
     $all_images = $color_map[$initial_color]['images'];
     $total_images = count($all_images);
 }
@@ -177,12 +223,13 @@ if ($has_variants) {
         $v_size  = '';
         if (!empty($pv['values'])) {
             foreach ($pv['values'] as $val) {
-                if (strcasecmp($val['attribute_slug'], 'color') === 0 || strcasecmp($val['attribute_name'], 'color') === 0) {
+                $v_slug = $val['attribute_slug'] ?? '';
+                $v_name = $val['attribute_name'] ?? '';
+                if ($has_color && (strcasecmp($v_slug, $color_attr_slug) === 0 || strcasecmp($v_name, $color_attr_name) === 0 || ($is_color_type_attr && (strcasecmp($v_slug, 'color') === 0 || strcasecmp($v_name, 'color') === 0 || stripos($v_slug, 'color') === 0)))) {
                     $v_color = $val['attribute_value'];
-                }
-                if ($multi_attr_slug && (strcasecmp($val['attribute_slug'], $multi_attr_slug) === 0 || strcasecmp($val['attribute_name'], $multi_attr_name) === 0)) {
+                } elseif ($multi_attr_slug && (strcasecmp($v_slug, $multi_attr_slug) === 0 || strcasecmp($v_name, $multi_attr_name) === 0)) {
                     $v_size = $val['attribute_value'];
-                } elseif (strcasecmp($val['attribute_slug'], 'size') === 0 || strcasecmp($val['attribute_name'], 'size') === 0 || strcasecmp($val['attribute_slug'], 'storage') === 0 || strcasecmp($val['attribute_name'], 'storage') === 0) {
+                } elseif (!$has_color && (strcasecmp($v_slug, 'size') === 0 || strcasecmp($v_name, 'size') === 0 || strcasecmp($v_slug, 'storage') === 0 || strcasecmp($v_name, 'storage') === 0)) {
                     $v_size = $val['attribute_value'];
                 }
             }
@@ -193,6 +240,7 @@ if ($has_variants) {
 
         $var_entry = [
             'variant_id'     => (int) $pv['id'],
+            'title'          => !empty($pv['title']) ? $pv['title'] : $product['title'],
             'sku'            => $pv['sku'],
             'price'          => (float) $pv['price'],
             'sale_price'     => (isset($pv['sale_price']) && $pv['sale_price'] !== null && $pv['sale_price'] !== '') ? (float) $pv['sale_price'] : null,
@@ -204,11 +252,17 @@ if ($has_variants) {
             'specifications' => $v_specs
         ];
 
-        if ($v_color && $v_size && isset($color_map[$v_color])) {
-            $color_map[$v_color]['sizes'][$v_size] = $var_entry;
-            // Pick initial in-stock size for initial color
-            if ($v_color === $initial_color && empty($initial_size) && (int) $pv['stock_quantity'] > 0) {
-                $initial_size       = $v_size;
+        if ($v_color && isset($color_map[$v_color])) {
+            if (empty($color_map[$v_color]['variant']) || ((int)$color_map[$v_color]['variant']['stock'] <= 0 && (int)$pv['stock_quantity'] > 0)) {
+                $color_map[$v_color]['variant'] = $var_entry;
+            }
+            $size_key = ($v_size !== '') ? $v_size : '_default';
+            $color_map[$v_color]['sizes'][$size_key] = $var_entry;
+            // Pick initial in-stock variant for initial color
+            if ($v_color === $initial_color && empty($initial_variant) && (int) $pv['stock_quantity'] > 0) {
+                if ($v_size !== '') {
+                    $initial_size = $v_size;
+                }
                 $initial_variant_id = (int) $pv['id'];
                 $initial_sku        = $pv['sku'];
                 $initial_variant    = $var_entry;
@@ -237,14 +291,17 @@ if ($has_variants && empty($initial_variant_id) && !empty($product['variants']))
 
 // Resolve initial variant if not resolved yet
 if (empty($initial_variant) && $has_variants) {
-    if (!empty($initial_color) && !empty($color_map[$initial_color]['sizes'][$initial_size])) {
+    if (!empty($initial_color) && !empty($initial_size) && !empty($color_map[$initial_color]['sizes'][$initial_size])) {
         $initial_variant = $color_map[$initial_color]['sizes'][$initial_size];
+    } elseif (!empty($initial_color) && !empty($color_map[$initial_color]['variant'])) {
+        $initial_variant = $color_map[$initial_color]['variant'];
     } elseif (!empty($size_variant_map[$initial_size])) {
         $initial_variant = $size_variant_map[$initial_size];
     } elseif (!empty($product['variants'])) {
         $first_v = $product['variants'][0];
         $initial_variant = [
             'variant_id'     => (int) $first_v['id'],
+            'title'          => !empty($first_v['title']) ? $first_v['title'] : $product['title'],
             'sku'            => $first_v['sku'],
             'price'          => (float) $first_v['price'],
             'sale_price'     => (isset($first_v['sale_price']) && $first_v['sale_price'] !== null && $first_v['sale_price'] !== '') ? (float) $first_v['sale_price'] : null,
@@ -252,13 +309,17 @@ if (empty($initial_variant) && $has_variants) {
             'image'          => !empty($first_v['image']) ? $first_v['image'] : null,
             'color'          => $initial_color,
             'size'           => $initial_size,
-            'highlights'     => !empty($first_v['highlights']) ? (json_decode($first_v['highlights'], true) ?: []) : [],
-            'specifications' => !empty($first_v['specifications']) ? (json_decode($first_v['specifications'], true) ?: []) : []
+            'highlights'     => !empty($first_v['highlights']) ? (is_array($first_v['highlights']) ? $first_v['highlights'] : (json_decode($first_v['highlights'], true) ?: [])) : [],
+            'specifications' => !empty($first_v['specifications']) ? (is_array($first_v['specifications']) ? $first_v['specifications'] : (json_decode($first_v['specifications'], true) ?: [])) : []
         ];
     }
 }
 
 if (!empty($initial_variant)) {
+    $initial_variant_id = (int) $initial_variant['variant_id'];
+    if (!empty($initial_variant['sku'])) {
+        $initial_sku = $initial_variant['sku'];
+    }
     $regular_price = (float) $initial_variant['price'];
     $sale_price    = ($initial_variant['sale_price'] !== null) ? (float) $initial_variant['sale_price'] : null;
     $current_price = ($sale_price !== null && $sale_price > 0) ? $sale_price : $regular_price;
@@ -1290,39 +1351,61 @@ if (!empty($initial_variant)) {
                                     <!-- ALL PRODUCT VARIANTS (Color, Size / Storage / Option) - Top of Product Name (varient_products.PNG) -->
                                     <?php if (($has_color && !empty($color_map)) || ($has_size && !empty($multi_attr['values']))): ?>
                                         <div class="tf-product-info-variants mb-2">
-                                            <!-- 1. COLOR SELECTION WITH SLIDER & PRODUCT PHOTOS (color_badge.PNG) -->
+                                            <!-- 1. COLOR / PRIMARY OPTION SELECTION WITH SLIDER & PRODUCT PHOTOS (color_badge.PNG) -->
                                             <?php if ($has_color && !empty($color_map)): ?>
                                                 <div class="variant-picker-item mb-2">
-                                                    <div class="color-badge-heading mb-2">
-                                                        <span class="color-badge-title">Selected Color:</span>
-                                                        <span class="color-badge-name" id="selected-color-name"><?= ucwords(html_escape($initial_color)); ?></span>
-                                                    </div>
-
-                                                    <!-- Horizontal color slider with navigation arrows (color_badge.PNG) -->
-                                                    <div class="color-variant-container">
-                                                        <button type="button" class="color-slider-arrow prev" id="color-arrow-prev" onclick="slideColorTrack(-1)" aria-label="Previous Color" style="display: none;">
-                                                            <i class="fa-solid fa-chevron-left"></i>
-                                                        </button>
-                                                        
-                                                        <div class="color-slider-track" id="color-slider-track" onscroll="updateColorSliderArrows()">
-                                                            <?php foreach ($color_map as $c_name => $c_info): 
-                                                                $is_active_color = ($c_name === $initial_color);
-                                                                $c_img = !empty($c_info['image']) ? $c_info['image'] : $product['main_image'];
-                                                            ?>
-                                                                <div class="color-thumb-card <?= $is_active_color ? 'active' : ''; ?>" 
-                                                                     data-color="<?= html_escape($c_name); ?>"
-                                                                     data-image="<?= base_url('assets/images/' . $c_img); ?>"
-                                                                     onclick="selectColor('<?= html_escape($c_name); ?>', this)"
-                                                                     title="<?= html_escape($c_name); ?>">
-                                                                    <img src="<?= base_url('assets/images/' . $c_img); ?>" alt="<?= html_escape($c_name); ?>" onerror="this.src='<?= base_url('assets/images/' . $product['main_image']); ?>'">
-                                                                </div>
-                                                            <?php endforeach; ?>
+                                                    <?php if ($is_color_type_attr): ?>
+                                                        <div class="color-badge-heading mb-2">
+                                                            <span class="color-badge-title">Selected <?= html_escape($color_attr_name); ?>:</span>
+                                                            <span class="color-badge-name" id="selected-color-name"><?= ucwords(html_escape($initial_color)); ?></span>
                                                         </div>
 
-                                                        <button type="button" class="color-slider-arrow next" id="color-arrow-next" onclick="slideColorTrack(1)" aria-label="Next Color">
-                                                            <i class="fa-solid fa-chevron-right"></i>
-                                                        </button>
-                                                    </div>
+                                                        <!-- Horizontal color slider with navigation arrows (color_badge.PNG) -->
+                                                        <div class="color-variant-container">
+                                                            <button type="button" class="color-slider-arrow prev" id="color-arrow-prev" onclick="slideColorTrack(-1)" aria-label="Previous Color" style="display: none;">
+                                                                <i class="fa-solid fa-chevron-left"></i>
+                                                            </button>
+                                                            
+                                                            <div class="color-slider-track" id="color-slider-track" onscroll="updateColorSliderArrows()">
+                                                                <?php foreach ($color_map as $c_name => $c_info): 
+                                                                    $is_active_color = ($c_name === $initial_color);
+                                                                    $c_img = !empty($c_info['image']) ? $c_info['image'] : $product['main_image'];
+                                                                ?>
+                                                                    <div class="color-thumb-card <?= $is_active_color ? 'active' : ''; ?>" 
+                                                                         data-color="<?= html_escape($c_name); ?>"
+                                                                         data-image="<?= base_url('assets/images/' . $c_img); ?>"
+                                                                         onclick="selectColor('<?= html_escape($c_name); ?>', this)"
+                                                                         title="<?= html_escape($c_name); ?>">
+                                                                        <img src="<?= base_url('assets/images/' . $c_img); ?>" alt="<?= html_escape($c_name); ?>" onerror="this.src='<?= base_url('assets/images/' . $product['main_image']); ?>'">
+                                                                    </div>
+                                                                <?php endforeach; ?>
+                                                            </div>
+
+                                                            <button type="button" class="color-slider-arrow next" id="color-arrow-next" onclick="slideColorTrack(1)" aria-label="Next Color">
+                                                                <i class="fa-solid fa-chevron-right"></i>
+                                                            </button>
+                                                        </div>
+                                                    <?php else: ?>
+                                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                                            <div class="variant-picker-label">
+                                                                <span class="text-dark fw-bold" style="font-size: 15px;">Select <?= html_escape($color_attr_name); ?></span>
+                                                                <span class="text-secondary ms-1 small">(<strong id="selected-color-name" class="text-dark"><?= html_escape($initial_color); ?></strong>)</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="d-flex flex-wrap gap-2" id="primary-option-chips-wrapper">
+                                                            <?php foreach ($color_map as $c_name => $c_info): 
+                                                                $is_active_color = ($c_name === $initial_color);
+                                                            ?>
+                                                                <button type="button" 
+                                                                        class="variant-size-chip color-thumb-card-chip <?= $is_active_color ? 'active' : ''; ?>" 
+                                                                        data-color="<?= html_escape($c_name); ?>"
+                                                                        onclick="selectColor('<?= html_escape($c_name); ?>', this)"
+                                                                        title="<?= html_escape($color_attr_name . ' ' . $c_name); ?>">
+                                                                    <?= html_escape($c_name); ?>
+                                                                </button>
+                                                            <?php endforeach; ?>
+                                                        </div>
+                                                    <?php endif; ?>
                                                 </div>
                                             <?php endif; ?>
 
@@ -1388,7 +1471,7 @@ if (!empty($initial_variant)) {
                                                 </div>
                                             <?php endif; ?>
 
-                                            <h3 class="name fw-bold mb-2" style="font-size: 26px !important; line-height: 1.35;"><?= html_escape($product['title']); ?></h3>
+                                            <h3 class="name fw-bold mb-2" id="display-product-title" style="font-size: 26px !important; line-height: 1.35;"><?= html_escape(!empty($initial_variant['title']) ? $initial_variant['title'] : $product['title']); ?></h3>
 
                                             <!-- Rating & Review Count (Completely Dynamic - No Static Ratings) -->
                                             <div class="sub d-flex align-items-center gap-2 mt-1">
@@ -1484,12 +1567,12 @@ if (!empty($initial_variant)) {
 
                                         // Size / Storage / Multi Attribute
                                         $spec_multi_vals = [];
-                                        if (!empty($multi_attr['values'])) {
+                                        if (!empty($initial_size)) {
+                                            $spec_multi_vals[] = $initial_size;
+                                        } elseif (!empty($multi_attr['values'])) {
                                             foreach ($multi_attr['values'] as $sv) {
                                                 if (!empty($sv['value'])) $spec_multi_vals[] = $sv['value'];
                                             }
-                                        } elseif (!empty($initial_size)) {
-                                            $spec_multi_vals[] = $initial_size;
                                         }
                                         if (!empty($spec_multi_vals)) {
                                             $merged_specs[] = ['name' => $multi_attr_name, 'value' => implode(', ', array_unique($spec_multi_vals))];
@@ -1497,36 +1580,24 @@ if (!empty($initial_variant)) {
                                             $seen_spec_keys['size'] = true;
                                         }
 
-                                        // Color
+                                        // Color / Primary Attribute
                                         $spec_colors = [];
-                                        if (!empty($color_map)) {
+                                        if (!empty($initial_color)) {
+                                            $spec_colors[] = $initial_color;
+                                        } elseif (!empty($color_map)) {
                                             $spec_colors = array_keys($color_map);
                                         } elseif (!empty($product['attributes']['color']['values'])) {
                                             foreach ($product['attributes']['color']['values'] as $cv) {
                                                 if (!empty($cv['value'])) $spec_colors[] = $cv['value'];
                                             }
-                                        } elseif (!empty($initial_color)) {
-                                            $spec_colors[] = $initial_color;
                                         }
                                         if (!empty($spec_colors)) {
-                                            $merged_specs[] = ['name' => 'Color', 'value' => implode(', ', array_map('ucfirst', array_unique($spec_colors)))];
+                                            $merged_specs[] = ['name' => $color_attr_name, 'value' => implode(', ', array_map('ucfirst', array_unique($spec_colors)))];
+                                            $seen_spec_keys[strtolower($color_attr_name)] = true;
                                             $seen_spec_keys['color'] = true;
                                         }
 
-                                        // Custom specifications from database
-                                        if (!empty($product['specifications']) && is_array($product['specifications'])) {
-                                            foreach ($product['specifications'] as $csp) {
-                                                $cn = trim($csp['spec_name'] ?? '');
-                                                $cv = trim($csp['spec_value'] ?? '');
-                                                $ckey = strtolower($cn);
-                                                if ($cn !== '' && $cv !== '' && !isset($seen_spec_keys[$ckey])) {
-                                                    $seen_spec_keys[$ckey] = true;
-                                                    $merged_specs[] = ['name' => $cn, 'value' => $cv];
-                                                }
-                                            }
-                                        }
-
-                                        // Variant custom specifications (if variable product)
+                                        // Variant custom specifications first (so variant specs override matching base product specs)
                                         if (!empty($initial_variant['specifications'])) {
                                             $v_specs = is_array($initial_variant['specifications']) ? $initial_variant['specifications'] : (json_decode($initial_variant['specifications'], true) ?: []);
                                             foreach ($v_specs as $vsp) {
@@ -1540,11 +1611,25 @@ if (!empty($initial_variant)) {
                                             }
                                         }
 
-                                        // Highlights
-                                        $product_highlights = !empty($product['highlights_decoded']) ? $product['highlights_decoded'] : [];
-                                        if (empty($product_highlights) && !empty($product['highlights'])) {
-                                            $product_highlights = json_decode($product['highlights'], true) ?: [];
+                                        // Custom specifications from base product database
+                                        if (!empty($product['specifications']) && is_array($product['specifications'])) {
+                                            foreach ($product['specifications'] as $csp) {
+                                                $cn = trim($csp['spec_name'] ?? '');
+                                                $cv = trim($csp['spec_value'] ?? '');
+                                                $ckey = strtolower($cn);
+                                                if ($cn !== '' && $cv !== '' && !isset($seen_spec_keys[$ckey])) {
+                                                    $seen_spec_keys[$ckey] = true;
+                                                    $merged_specs[] = ['name' => $cn, 'value' => $cv];
+                                                }
+                                            }
                                         }
+
+                                        // Highlights
+                                        $base_product_highlights = !empty($product['highlights_decoded']) ? $product['highlights_decoded'] : [];
+                                        if (empty($base_product_highlights) && !empty($product['highlights'])) {
+                                            $base_product_highlights = is_array($product['highlights']) ? $product['highlights'] : (json_decode($product['highlights'], true) ?: []);
+                                        }
+                                        $product_highlights = $base_product_highlights;
                                         if (!empty($initial_variant['highlights'])) {
                                             $v_hl = is_array($initial_variant['highlights']) ? $initial_variant['highlights'] : (json_decode($initial_variant['highlights'], true) ?: []);
                                             if (!empty($v_hl)) {
@@ -1685,7 +1770,13 @@ if (!empty($initial_variant)) {
                                             <?php endif; ?>
                                             <li class="d-flex gap-2 py-1">
                                                 <p class="text-caption-1 mb-0 text-secondary">Availability:</p>
-                                                <p class="text-caption-1 mb-0 fw-bold text-success" id="display-stock-status">In Stock</p>
+                                                <?php
+                                                $init_stock_qty = isset($initial_variant['stock']) ? (int)$initial_variant['stock'] : (isset($product['stock_quantity']) ? (int)$product['stock_quantity'] : 15);
+                                                $init_in_stock  = ($init_stock_qty > 0);
+                                                ?>
+                                                <p class="text-caption-1 mb-0 fw-bold <?= $init_in_stock ? 'text-success' : 'text-danger'; ?>" id="display-stock-status">
+                                                    <?= $init_in_stock ? ('In Stock (' . $init_stock_qty . ' available)') : 'Out of Stock'; ?>
+                                                </p>
                                             </li>
                                             <li class="d-flex gap-2 py-1">
                                                 <p class="text-caption-1 mb-0 text-secondary">Cash on Delivery:</p>
@@ -1773,7 +1864,7 @@ if (!empty($initial_variant)) {
                                 <div class="widget-content-inner active">
                                     <div class="tab-description">
                                         <div class="right">
-                                            <div class="letter-1 text-btn-uppercase mb_12"><?= html_escape($product['title']); ?></div>
+                                            <div class="letter-1 text-btn-uppercase mb_12" id="tab-desc-product-title"><?= html_escape(!empty($initial_variant['title']) ? $initial_variant['title'] : $product['title']); ?></div>
                                             <p class="mb_12 text-secondary"><?= !empty($product['description']) ? $product['description'] : 'Designed with utmost care and attention to detail, this premium item combines timeless style with modern performance.'; ?></p>
                                             
                                              <div id="tab-specs-wrapper" style="<?= empty($merged_specs) ? 'display: none;' : ''; ?>">
@@ -2316,13 +2407,15 @@ if (!empty($initial_variant)) {
     var totalGallery     = galleryImages.length;
     var colorMap         = <?= json_encode($color_map); ?>;
     var sizeVariantMap   = <?= json_encode($size_variant_map); ?>;
-    var baseHighlights   = <?= json_encode($product_highlights); ?>;
+    var baseHighlights   = <?= json_encode($base_product_highlights); ?>;
     var baseSpecifications = <?= json_encode(!empty($product['specifications']) ? $product['specifications'] : []); ?>;
     var baseBrand        = <?= json_encode(!empty($product['brand_name']) ? $product['brand_name'] : ''); ?>;
     var baseCategory     = <?= json_encode(!empty($product['category_name']) ? $product['category_name'] : ''); ?>;
     var hasVariants      = <?= $has_variants ? 'true' : 'false'; ?>;
     var hasColor         = <?= $has_color ? 'true' : 'false'; ?>;
     var hasSize          = <?= $has_size ? 'true' : 'false'; ?>;
+    var colorAttrName    = "<?= !empty($color_attr_name) ? addslashes($color_attr_name) : 'Color'; ?>";
+    var isColorTypeAttr  = <?= !empty($is_color_type_attr) ? 'true' : 'false'; ?>;
     var multiAttrName    = "<?= !empty($multi_attr_name) ? addslashes($multi_attr_name) : 'Size'; ?>";
     var multiAttrSlug    = "<?= !empty($multi_attr_slug) ? addslashes($multi_attr_slug) : 'size'; ?>";
     var isProductInWishlist = <?= !empty($is_in_wishlist) ? 'true' : 'false'; ?>;
@@ -2695,21 +2788,24 @@ if (!empty($initial_variant)) {
             seenKeys['size'] = true;
         }
 
-        // 4. Color
+        // 4. Color / Primary Attribute
         var curColor = (variantData && variantData.color) ? variantData.color : selectedColor;
         if (curColor) {
-            var formattedColor = curColor.charAt(0).toUpperCase() + curColor.slice(1);
-            mergedSpecs.push({ name: 'Color', value: formattedColor });
+            var formattedColor = isColorTypeAttr ? (curColor.charAt(0).toUpperCase() + curColor.slice(1)) : curColor;
+            var cLabel = colorAttrName || 'Color';
+            mergedSpecs.push({ name: cLabel, value: formattedColor });
+            seenKeys[cLabel.toLowerCase()] = true;
             seenKeys['color'] = true;
         }
 
-        // 5. Custom specifications
+        // 5. Custom specifications (Variant specs take priority over matching Base specs)
         var customSpecs = [];
         var vSpecs = variantData ? parseJsonSafe(variantData.specifications) : [];
         if (vSpecs && vSpecs.length > 0) {
-            customSpecs = vSpecs;
-        } else if (baseSpecifications && baseSpecifications.length > 0) {
-            customSpecs = baseSpecifications;
+            customSpecs = customSpecs.concat(vSpecs);
+        }
+        if (baseSpecifications && baseSpecifications.length > 0) {
+            customSpecs = customSpecs.concat(baseSpecifications);
         }
 
         customSpecs.forEach(function(sp) {
@@ -2782,7 +2878,7 @@ if (!empty($initial_variant)) {
         }
     }
 
-    // 4. COLOR SELECTION
+    // 4. COLOR / PRIMARY OPTION SELECTION
     window.selectColor = function(colorName, cardEl) {
         if (selectedColor === colorName) return;
         showVariantLoader();
@@ -2792,15 +2888,15 @@ if (!empty($initial_variant)) {
         // Update label (Capitalized as in product_deatils_mobile.jpeg)
         var label = document.getElementById('selected-color-name');
         if (label) {
-            label.textContent = colorName.charAt(0).toUpperCase() + colorName.slice(1);
+            label.textContent = isColorTypeAttr ? (colorName.charAt(0).toUpperCase() + colorName.slice(1)) : colorName;
         }
 
-        // Update active class on cards
-        var cards = document.querySelectorAll('.color-thumb-card');
+        // Update active class on cards / chips
+        var cards = document.querySelectorAll('.color-thumb-card, .color-thumb-card-chip');
         cards.forEach(function(c) { c.classList.remove('active'); });
         if (cardEl) {
             cardEl.classList.add('active');
-            if (cardEl.scrollIntoView) {
+            if (isColorTypeAttr && cardEl.scrollIntoView) {
                 cardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
                 setTimeout(updateColorSliderArrows, 250);
             }
@@ -2910,20 +3006,40 @@ if (!empty($initial_variant)) {
         }
     }
 
-    // 7. SYNC VARIANT DETAILS (Price, SKU, Stock Status, Highlights, Specs)
+    // 7. SYNC VARIANT DETAILS (Title, Price, SKU, Stock Status, Highlights, Specs)
     function syncCurrentVariant() {
         var variantData = null;
-        if (hasVariants && colorMap[selectedColor] && colorMap[selectedColor].sizes && colorMap[selectedColor].sizes[selectedSize]) {
+        if (hasVariants && colorMap[selectedColor] && selectedSize && colorMap[selectedColor].sizes && colorMap[selectedColor].sizes[selectedSize]) {
             variantData = colorMap[selectedColor].sizes[selectedSize];
-        } else if (hasVariants && sizeVariantMap && sizeVariantMap[selectedSize]) {
-            variantData = sizeVariantMap[selectedSize];
+        } else if (hasVariants && colorMap[selectedColor] && colorMap[selectedColor].variant) {
+            variantData = colorMap[selectedColor].variant;
         } else if (hasVariants && colorMap[selectedColor] && colorMap[selectedColor].sizes) {
             var firstS = Object.keys(colorMap[selectedColor].sizes)[0];
             if (firstS) variantData = colorMap[selectedColor].sizes[firstS];
+        } else if (hasVariants && sizeVariantMap && selectedSize && sizeVariantMap[selectedSize]) {
+            variantData = sizeVariantMap[selectedSize];
         }
 
         if (variantData) {
             selectedVariantId = variantData.variant_id;
+
+            // Update Product Title if variant has a title
+            if (variantData.title) {
+                var titleEl = document.getElementById('display-product-title');
+                if (titleEl) titleEl.textContent = variantData.title;
+                var tabTitleEl = document.getElementById('tab-desc-product-title');
+                if (tabTitleEl) tabTitleEl.textContent = variantData.title;
+            }
+
+            // If variant has its own image and we only selected size (no color map image swap triggered), update gallery slot 0
+            if (!hasColor && variantData.image) {
+                var vImgUrl = (variantData.image.indexOf('://') !== -1) ? variantData.image : ("<?= base_url('assets/images/'); ?>" + variantData.image);
+                galleryImages = [vImgUrl].concat(defaultGalleryImages.filter(function(u) { return u !== vImgUrl; }));
+                totalGallery = galleryImages.length;
+                activeLightboxIdx = 0;
+                renderProductGrid(galleryImages);
+                renderLightboxStrip(galleryImages);
+            }
 
             var regularP = (typeof variantData.price !== 'undefined' && variantData.price !== null) ? parseFloat(variantData.price) : regularPrice;
             var saleP = (typeof variantData.sale_price !== 'undefined' && variantData.sale_price !== null && variantData.sale_price !== '') ? parseFloat(variantData.sale_price) : null;
@@ -2972,15 +3088,21 @@ if (!empty($initial_variant)) {
             // Stock status
             var stockEl = document.getElementById('display-stock-status');
             var atcBtn = document.getElementById('main-btn-atc');
+            var buyBtn = document.getElementById('btn-buy-now');
+            var mobBtns = document.querySelectorAll('.btn-mobile-atc, .btn-mobile-buy');
             if (stockEl) {
                 if (variantData.stock > 0) {
                     stockEl.textContent = 'In Stock (' + variantData.stock + ' available)';
                     stockEl.className = 'text-caption-1 mb-0 fw-bold text-success';
                     if (atcBtn) atcBtn.disabled = false;
+                    if (buyBtn) buyBtn.disabled = false;
+                    mobBtns.forEach(function(b) { b.disabled = false; });
                 } else {
                     stockEl.textContent = 'Out of Stock';
                     stockEl.className = 'text-caption-1 mb-0 fw-bold text-danger';
                     if (atcBtn) atcBtn.disabled = true;
+                    if (buyBtn) buyBtn.disabled = true;
+                    mobBtns.forEach(function(b) { b.disabled = true; });
                 }
             }
 

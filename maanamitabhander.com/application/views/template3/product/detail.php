@@ -187,6 +187,7 @@ if (empty($is_user_project) && count($gallery_urls) < 2) {
 // 3) On the template demo site (or when no DB variants exist in demo mode), provide the showcase kg & pc pack options.
 $kg_variants = [];
 $pc_variants = [];
+$grc_variant_map = [];
 $has_db_variants = !empty($product['variants']) && is_array($product['variants']);
 
 if ($has_db_variants) {
@@ -216,20 +217,29 @@ if ($has_db_variants) {
             $v_reg = $v_sale;
         }
         $v_uinfo = grc_calculate_unit_pricing($v_label, $v_sale, $force_unit);
+        $v_img_url = !empty($dbv['image']) ? grc_detail_resolve_img($dbv['image'], $bazaro, 3) : $primary_img_url;
+        $v_highlights = !empty($dbv['highlights']) ? (is_array($dbv['highlights']) ? $dbv['highlights'] : (json_decode((string)$dbv['highlights'], true) ?: [])) : [];
+        $v_specs = !empty($dbv['specifications']) ? (is_array($dbv['specifications']) ? $dbv['specifications'] : (json_decode((string)$dbv['specifications'], true) ?: [])) : [];
+
         $v_entry = [
-            'id'          => $v_id,
-            'variant_id'  => (int)($dbv['id'] ?? 0),
-            'label'       => $v_label,
-            'short_label' => $v_label,
-            'unit_type'   => $v_uinfo['unit_type'],
-            'unit_qty'    => (float)$v_uinfo['qty_in_unit'],
-            'unit_desc'   => $v_uinfo['formula_text'],
-            'reg_price'   => $v_reg,
-            'sale_price'  => $v_sale,
-            'sku'         => !empty($dbv['sku']) ? $dbv['sku'] : ($prod_sku . '-' . ($v_idx + 1)),
-            'stock'       => isset($dbv['stock_quantity']) ? (int)$dbv['stock_quantity'] : $prod_stock,
-            'badge'       => ($v_idx === 0 && count($product['variants']) > 1) ? 'Popular' : ''
+            'id'             => $v_id,
+            'variant_id'     => (int)($dbv['id'] ?? 0),
+            'title'          => !empty($dbv['title']) ? $dbv['title'] : $prod_title,
+            'label'          => $v_label,
+            'short_label'    => $v_label,
+            'unit_type'      => $v_uinfo['unit_type'],
+            'unit_qty'       => (float)$v_uinfo['qty_in_unit'],
+            'unit_desc'      => $v_uinfo['formula_text'],
+            'reg_price'      => $v_reg,
+            'sale_price'     => $v_sale,
+            'sku'            => !empty($dbv['sku']) ? $dbv['sku'] : ($prod_sku . '-' . ($v_idx + 1)),
+            'stock'          => isset($dbv['stock_quantity']) ? (int)$dbv['stock_quantity'] : $prod_stock,
+            'badge'          => ($v_idx === 0 && count($product['variants']) > 1) ? 'Popular' : '',
+            'image'          => $v_img_url,
+            'highlights'     => $v_highlights,
+            'specifications' => $v_specs
         ];
+        $grc_variant_map[$v_id] = $v_entry;
         if ($v_uinfo['unit_type'] === 'pc') {
             $pc_variants[] = $v_entry;
         } else {
@@ -239,19 +249,24 @@ if ($has_db_variants) {
 } elseif (!empty($is_user_project)) {
     // Simple product in a user-setup project: use exact product price, sale_price, unit_label, SKU, and stock
     $s_entry = [
-        'id'          => (string)$prod_id,
-        'variant_id'  => 0,
-        'label'       => $unit_info['display_pack'],
-        'short_label' => $unit_info['display_pack'],
-        'unit_type'   => $unit_info['unit_type'],
-        'unit_qty'    => (float)$unit_info['qty_in_unit'],
-        'unit_desc'   => $unit_info['formula_text'],
-        'reg_price'   => $regular_price,
-        'sale_price'  => $current_price,
-        'sku'         => $prod_sku,
-        'stock'       => $prod_stock,
-        'badge'       => ''
+        'id'             => (string)$prod_id,
+        'variant_id'     => 0,
+        'title'          => $prod_title,
+        'label'          => $unit_info['display_pack'],
+        'short_label'    => $unit_info['display_pack'],
+        'unit_type'      => $unit_info['unit_type'],
+        'unit_qty'       => (float)$unit_info['qty_in_unit'],
+        'unit_desc'      => $unit_info['formula_text'],
+        'reg_price'      => $regular_price,
+        'sale_price'     => $current_price,
+        'sku'            => $prod_sku,
+        'stock'          => $prod_stock,
+        'badge'          => '',
+        'image'          => $primary_img_url,
+        'highlights'     => [],
+        'specifications' => []
     ];
+    $grc_variant_map[(string)$prod_id] = $s_entry;
     if ($unit_info['unit_type'] === 'pc') {
         $pc_variants[] = $s_entry;
     } else {
@@ -461,12 +476,13 @@ $grc_highlights = [
     ['key' => 'Net Pack Content', 'value' => $initial_variant['label'] . ' (' . $initial_variant['unit_desc'] . ')', 'id' => 'hl-pack-content'],
     ['key' => 'Unit Rate',        'value' => $currency_symbol . number_format($init_unit_rate, 2) . ' / ' . $initial_unit_type, 'id' => 'hl-unit-rate'],
 ];
-$raw_hl_list = [];
+$base_raw_hl_list = [];
 if (!empty($product['highlights_decoded']) && is_array($product['highlights_decoded'])) {
-    $raw_hl_list = $product['highlights_decoded'];
+    $base_raw_hl_list = $product['highlights_decoded'];
 } elseif (!empty($product['highlights']) && is_string($product['highlights'])) {
-    $raw_hl_list = json_decode($product['highlights'], true) ?: [];
+    $base_raw_hl_list = json_decode($product['highlights'], true) ?: [];
 }
+$raw_hl_list = !empty($initial_variant['highlights']) ? $initial_variant['highlights'] : $base_raw_hl_list;
 if (!empty($raw_hl_list)) {
     foreach ($raw_hl_list as $hl_row) {
         $hk = trim((string)($hl_row['key'] ?? ($hl_row['name'] ?? '')));
@@ -487,15 +503,29 @@ $grc_specifications = [
     ['name' => 'Department',   'value' => $prod_cat],
     ['name' => 'Unit Type',    'value' => strtoupper($initial_unit_type) . ($initial_unit_type === 'pc' ? ' (Per Piece Calculation)' : ' (Per Kilogram Calculation)')],
 ];
+$seen_grc_spec_keys = ['brand / farm' => true, 'department' => true, 'unit type' => true];
+if (!empty($initial_variant['specifications']) && is_array($initial_variant['specifications'])) {
+    foreach ($initial_variant['specifications'] as $vsp_row) {
+        $vsn = trim((string)($vsp_row['spec_name'] ?? ($vsp_row['name'] ?? ($vsp_row['key'] ?? ''))));
+        $vsv = trim((string)($vsp_row['spec_value'] ?? ($vsp_row['value'] ?? '')));
+        $vskey = strtolower($vsn);
+        if (($vsn !== '' || $vsv !== '') && !isset($seen_grc_spec_keys[$vskey])) {
+            $seen_grc_spec_keys[$vskey] = true;
+            $grc_specifications[] = ['name' => $vsn ?: 'Specification', 'value' => $vsv];
+        }
+    }
+}
 if (!empty($product['specifications']) && is_array($product['specifications'])) {
     foreach ($product['specifications'] as $sp_row) {
         $sn = trim((string)($sp_row['spec_name'] ?? ($sp_row['name'] ?? ($sp_row['key'] ?? ''))));
         $sv = trim((string)($sp_row['spec_value'] ?? ($sp_row['value'] ?? '')));
-        if ($sn !== '' || $sv !== '') {
+        $skey = strtolower($sn);
+        if (($sn !== '' || $sv !== '') && !isset($seen_grc_spec_keys[$skey])) {
+            $seen_grc_spec_keys[$skey] = true;
             $grc_specifications[] = ['name' => $sn ?: 'Specification', 'value' => $sv];
         }
     }
-} elseif (empty($is_user_project)) {
+} elseif (empty($is_user_project) && empty($initial_variant['specifications'])) {
     $grc_specifications[] = ['name' => 'Energy (per 100g)',   'value' => '32 kcal'];
     $grc_specifications[] = ['name' => 'Vitamin C',           'value' => '58.8 mg (98% Daily Value)'];
     $grc_specifications[] = ['name' => 'Dietary Fiber',       'value' => '2.0 g per 100g'];
@@ -1288,7 +1318,7 @@ if (!empty($product['specifications']) && is_array($product['specifications'])) 
                         <?php if (!empty($product['is_flash_sale'])): ?>
                            <span class="badge bg-danger me-2" style="font-size:13px; font-weight:700; padding:5px 12px; letter-spacing:0.5px; vertical-align:middle;">SALE</span>
                         <?php endif; ?>
-                        <?= html_escape($prod_title); ?>
+                        <span id="display-product-title"><?= html_escape(!empty($initial_variant['title']) ? $initial_variant['title'] : $prod_title); ?></span>
                      </h2>
 
                      <!-- Rating, Reviews & Harvest Note -->
@@ -1454,7 +1484,7 @@ if (!empty($product['specifications']) && is_array($product['specifications'])) 
                            </div>
 
                            <div id="product-highlights-collapse" class="pt-2" style="display: block;">
-                              <div class="grc-specs-grid-layout">
+                              <div class="grc-specs-grid-layout" id="highlights-grid-container">
                                  <?php foreach ($grc_highlights as $hl): ?>
                                     <div class="spec-grid-item" style="border-bottom: 1px solid #eef2f0; padding-bottom: 6px;">
                                        <div class="spec-item-key" style="font-size: 12.5px; color: #6b7280; margin-bottom: 2px;"><?= html_escape($hl['key']); ?></div>
@@ -1477,7 +1507,7 @@ if (!empty($product['specifications']) && is_array($product['specifications'])) 
                            </div>
 
                            <div id="product-specs-collapse" class="pt-2" style="display: none;">
-                              <div class="grc-specs-grid-layout">
+                              <div class="grc-specs-grid-layout" id="specs-grid-container">
                                  <?php foreach ($grc_specifications as $sp): ?>
                                     <div class="spec-grid-item" style="border-bottom: 1px solid #eef2f0; padding-bottom: 6px;">
                                        <div class="spec-item-key" style="font-size: 12.5px; color: #6b7280; margin-bottom: 2px;"><?= html_escape($sp['name']); ?></div>
@@ -1556,7 +1586,7 @@ if (!empty($product['specifications']) && is_array($product['specifications'])) 
                         <div class="tab-pane fade show active" id="nav-description" role="tabpanel">
                            <div class="product-details-tab-item pt-4">
                               <div class="product-details-desc-wrap">
-                                 <h3 class="product-details-desc-title" style="color:#003D29;"><?= html_escape($prod_title); ?></h3>
+                                 <h3 class="product-details-desc-title" id="tab-desc-product-title" style="color:#003D29;"><?= html_escape(!empty($initial_variant['title']) ? $initial_variant['title'] : $prod_title); ?></h3>
                                  <div class="mb-30 text-secondary" style="font-size:15px; line-height:1.75;">
                                     <?php if (!empty($product['description'])): ?>
                                        <?= nl2br(html_escape($product['description'])); ?>
@@ -1626,7 +1656,7 @@ if (!empty($product['specifications']) && is_array($product['specifications'])) 
                                     <div class="col-lg-6">
                                        <h4 class="product-details-additional-info-title mb-3" style="color:#003D29;">Product Specifications &amp; Nutritional Facts</h4>
                                        <table>
-                                          <tbody>
+                                          <tbody id="tab-specs-tbody">
                                              <?php foreach ($grc_specifications as $sp_item): ?>
                                              <tr>
                                                 <td><?= html_escape($sp_item['name']); ?></td>
@@ -1988,6 +2018,11 @@ if (!empty($product['specifications']) && is_array($product['specifications'])) 
     var productId      = <?= (int)$prod_id; ?>;
     var currencySymbol = <?= json_encode($currency_symbol); ?>;
     var activeUnitType = <?= json_encode($initial_unit_type); ?>; // 'kg' or 'pc'
+    var grcVariantMap  = <?= json_encode($grc_variant_map); ?>;
+    var baseHighlights = <?= json_encode($base_raw_hl_list); ?>;
+    var baseSpecifications = <?= json_encode(!empty($product['specifications']) ? $product['specifications'] : []); ?>;
+    var baseBrand      = <?= json_encode($prod_brand); ?>;
+    var baseDepartment = <?= json_encode($prod_cat); ?>;
     var activePack     = {
         id:        <?= json_encode($initial_variant['id']); ?>,
         variantId: <?= (int)($initial_variant['variant_id'] ?? 0); ?>,
@@ -2000,6 +2035,16 @@ if (!empty($product['specifications']) && is_array($product['specifications'])) 
         sku:       <?= json_encode($initial_variant['sku']); ?>,
         stock:     <?= (int)$initial_variant['stock']; ?>
     };
+
+    function escapeHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
 
     function formatMoney(val) {
         return currencySymbol + parseFloat(val || 0).toFixed(2);
@@ -2115,19 +2160,122 @@ if (!empty($product['specifications']) && is_array($product['specifications'])) 
             effRateSumEl.textContent = 'Effective Rate: ' + formatMoney(unitRate) + ' / ' + uType;
         }
 
-        // 6. Update Highlights & SKU / Stock
-        var hlUnitEl = document.getElementById('hl-selling-unit');
-        var hlPackEl = document.getElementById('hl-pack-content');
-        var hlRateEl = document.getElementById('hl-unit-rate');
-        if (hlUnitEl) hlUnitEl.textContent = uType === 'pc' ? 'Per Piece (pc)' : 'By Weight (kg)';
-        if (hlPackEl) hlPackEl.textContent = activePack.label + ' (' + activePack.unitDesc + ')';
-        if (hlRateEl) hlRateEl.textContent = formatMoney(unitRate) + ' / ' + uType;
+        // 6. Update Title, Highlights, Specifications, Gallery Image & SKU / Stock
+        var vMeta = (activePack && activePack.id && grcVariantMap && grcVariantMap[activePack.id]) ? grcVariantMap[activePack.id] : null;
+        if (vMeta && vMeta.title) {
+            var titleEl = document.getElementById('display-product-title');
+            if (titleEl) titleEl.textContent = vMeta.title;
+            var tabTitleEl = document.getElementById('tab-desc-product-title');
+            if (tabTitleEl) tabTitleEl.textContent = vMeta.title;
+        }
+
+        // Update Highlights Grid
+        var hlGrid = document.getElementById('highlights-grid-container');
+        if (hlGrid) {
+            var dynHl = [
+                { key: 'Selling Unit', value: uType === 'pc' ? 'Per Piece (pc)' : 'By Weight (kg)', id: 'hl-selling-unit' },
+                { key: 'Net Pack Content', value: activePack.label + ' (' + activePack.unitDesc + ')', id: 'hl-pack-content' },
+                { key: 'Unit Rate', value: formatMoney(unitRate) + ' / ' + uType, id: 'hl-unit-rate' }
+            ];
+            var customHl = (vMeta && Array.isArray(vMeta.highlights) && vMeta.highlights.length > 0) ? vMeta.highlights : (Array.isArray(baseHighlights) ? baseHighlights : []);
+            customHl.forEach(function(h) {
+                var hk = (h.key || h.name || '').trim();
+                var hv = (h.value || '').trim();
+                if (hk !== '' || hv !== '') {
+                    dynHl.push({ key: hk || 'Highlight', value: hv, id: '' });
+                }
+            });
+            var hlHtml = '';
+            dynHl.forEach(function(h) {
+                hlHtml += '<div class="spec-grid-item" style="border-bottom: 1px solid #eef2f0; padding-bottom: 6px;">' +
+                          '  <div class="spec-item-key" style="font-size: 12.5px; color: #6b7280; margin-bottom: 2px;">' + escapeHtml(h.key) + '</div>' +
+                          '  <div class="spec-item-val"' + (h.id ? ' id="' + escapeHtml(h.id) + '"' : '') + ' style="font-size: 14px; color: #003D29; font-weight: 600;">' + escapeHtml(h.value) + '</div>' +
+                          '</div>';
+            });
+            hlGrid.innerHTML = hlHtml;
+        }
+
+        // Update Specifications Grid & Bottom Tab Table
+        var spGrid = document.getElementById('specs-grid-container');
+        var tabSpTbody = document.getElementById('tab-specs-tbody');
+        if (spGrid || tabSpTbody) {
+            var dynSpecs = [
+                { name: 'Brand / Farm', value: baseBrand },
+                { name: 'Department', value: baseDepartment },
+                { name: 'Unit Type', value: uType.toUpperCase() + (uType === 'pc' ? ' (Per Piece Calculation)' : ' (Per Kilogram Calculation)') }
+            ];
+            var seenSp = { 'brand / farm': true, 'department': true, 'unit type': true };
+            var combinedSp = [];
+            if (vMeta && Array.isArray(vMeta.specifications) && vMeta.specifications.length > 0) {
+                combinedSp = combinedSp.concat(vMeta.specifications);
+            }
+            if (Array.isArray(baseSpecifications) && baseSpecifications.length > 0) {
+                combinedSp = combinedSp.concat(baseSpecifications);
+            }
+            combinedSp.forEach(function(sp) {
+                var sn = (sp.spec_name || sp.name || sp.key || '').trim();
+                var sv = (sp.spec_value || sp.value || '').trim();
+                var sk = sn.toLowerCase();
+                if ((sn !== '' || sv !== '') && !seenSp[sk]) {
+                    seenSp[sk] = true;
+                    dynSpecs.push({ name: sn || 'Specification', value: sv });
+                }
+            });
+            if (spGrid) {
+                var spHtml = '';
+                dynSpecs.forEach(function(sp) {
+                    spHtml += '<div class="spec-grid-item" style="border-bottom: 1px solid #eef2f0; padding-bottom: 6px;">' +
+                              '  <div class="spec-item-key" style="font-size: 12.5px; color: #6b7280; margin-bottom: 2px;">' + escapeHtml(sp.name) + '</div>' +
+                              '  <div class="spec-item-val" style="font-size: 13.5px; color: #1f2937; font-weight: 500;">' + escapeHtml(sp.value) + '</div>' +
+                              '</div>';
+                });
+                spGrid.innerHTML = spHtml;
+            }
+            if (tabSpTbody) {
+                var tbHtml = '';
+                dynSpecs.forEach(function(sp) {
+                    tbHtml += '<tr><td>' + escapeHtml(sp.name) + '</td><td>' + escapeHtml(sp.value) + '</td></tr>';
+                });
+                tabSpTbody.innerHTML = tbHtml;
+            }
+        }
+
+        // Jump gallery slider to variant image if present
+        if (vMeta && vMeta.image && window.jQuery && jQuery.fn && jQuery.fn.slick) {
+            var $for = jQuery('.product-slider-main.slider-for');
+            if ($for.length && $for.hasClass('slick-initialized')) {
+                var matchedIdx = -1;
+                $for.find('.slick-slide:not(.slick-cloned) img').each(function(idx) {
+                    if (this.getAttribute('src') === vMeta.image) {
+                        matchedIdx = idx;
+                        return false;
+                    }
+                });
+                if (matchedIdx >= 0) {
+                    $for.slick('slickGoTo', matchedIdx);
+                }
+            }
+        }
 
         var skuEl = document.getElementById('display-sku');
         if (skuEl && activePack.sku) skuEl.textContent = activePack.sku;
 
         var stockEl = document.getElementById('display-stock-status');
-        if (stockEl) stockEl.textContent = 'In Stock (' + activePack.stock + ' packs available)';
+        var atcBtn  = document.getElementById('main-btn-atc');
+        var buyBtn  = document.querySelector('.btn-grc-buy');
+        if (stockEl) {
+            if (activePack.stock > 0) {
+                stockEl.textContent = 'In Stock (' + activePack.stock + ' packs available)';
+                stockEl.className = 'text-success fw-bold';
+                if (atcBtn) atcBtn.disabled = false;
+                if (buyBtn) buyBtn.disabled = false;
+            } else {
+                stockEl.textContent = 'Out of Stock';
+                stockEl.className = 'text-danger fw-bold';
+                if (atcBtn) atcBtn.disabled = true;
+                if (buyBtn) buyBtn.disabled = true;
+            }
+        }
     }
 
     window.switchGrcUnitMode = function(mode) {

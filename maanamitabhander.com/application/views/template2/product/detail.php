@@ -236,6 +236,7 @@ if ($has_variants) {
 
         $var_entry = [
             'variant_id'     => (int) $pv['id'],
+            'title'          => !empty($pv['title']) ? $pv['title'] : ($product['title'] ?? $product['name'] ?? ''),
             'sku'            => $pv['sku'],
             'price'          => (float) $pv['price'],
             'sale_price'     => (isset($pv['sale_price']) && $pv['sale_price'] !== null && $pv['sale_price'] !== '') ? (float) $pv['sale_price'] : null,
@@ -293,6 +294,7 @@ if (empty($initial_variant) && $has_variants) {
         $first_v = $product['variants'][0];
         $initial_variant = [
             'variant_id'     => (int) $first_v['id'],
+            'title'          => !empty($first_v['title']) ? $first_v['title'] : ($product['title'] ?? $product['name'] ?? ''),
             'sku'            => $first_v['sku'],
             'price'          => (float) $first_v['price'],
             'sale_price'     => (isset($first_v['sale_price']) && $first_v['sale_price'] !== null && $first_v['sale_price'] !== '') ? (float) $first_v['sale_price'] : null,
@@ -307,6 +309,10 @@ if (empty($initial_variant) && $has_variants) {
 }
 
 if (!empty($initial_variant)) {
+    $initial_variant_id = (int) $initial_variant['variant_id'];
+    if (!empty($initial_variant['sku'])) {
+        $initial_sku = $initial_variant['sku'];
+    }
     $regular_price = (float) $initial_variant['price'];
     $sale_price    = ($initial_variant['sale_price'] !== null) ? (float) $initial_variant['sale_price'] : null;
     $current_price = ($sale_price !== null && $sale_price > 0) ? $sale_price : $regular_price;
@@ -1106,7 +1112,7 @@ if (!empty($initial_variant)) {
                                  </div>
                               <?php endif; ?>
 
-                              <h3 class="name fw-bold mb-2" style="font-size: 26px !important; line-height: 1.35;"><?= html_escape($product['title'] ?? 'V-neck Linen Blend Summer Dress'); ?></h3>
+                              <h3 class="name fw-bold mb-2" id="display-product-title" style="font-size: 26px !important; line-height: 1.35;"><?= html_escape(!empty($initial_variant['title']) ? $initial_variant['title'] : ($product['title'] ?? 'V-neck Linen Blend Summer Dress')); ?></h3>
 
                               <!-- Rating & Review Count -->
                               <div class="sub d-flex align-items-center gap-2 mt-1">
@@ -1226,18 +1232,6 @@ if (!empty($initial_variant)) {
                               $seen_spec_keys['color'] = true;
                            }
 
-                           if (!empty($product['specifications']) && is_array($product['specifications'])) {
-                              foreach ($product['specifications'] as $csp) {
-                                 $cn = trim($csp['spec_name'] ?? '');
-                                 $cv = trim($csp['spec_value'] ?? '');
-                                 $ckey = strtolower($cn);
-                                 if ($cn !== '' && $cv !== '' && !isset($seen_spec_keys[$ckey])) {
-                                    $seen_spec_keys[$ckey] = true;
-                                    $merged_specs[] = ['name' => $cn, 'value' => $cv];
-                                 }
-                              }
-                           }
-
                            if (!empty($initial_variant['specifications'])) {
                               $v_specs = is_array($initial_variant['specifications']) ? $initial_variant['specifications'] : (json_decode($initial_variant['specifications'], true) ?: []);
                               foreach ($v_specs as $vsp) {
@@ -1251,10 +1245,23 @@ if (!empty($initial_variant)) {
                               }
                            }
 
-                           $product_highlights = !empty($product['highlights_decoded']) ? $product['highlights_decoded'] : [];
-                           if (empty($product_highlights) && !empty($product['highlights'])) {
-                              $product_highlights = is_array($product['highlights']) ? $product['highlights'] : (json_decode($product['highlights'], true) ?: []);
+                           if (!empty($product['specifications']) && is_array($product['specifications'])) {
+                              foreach ($product['specifications'] as $csp) {
+                                 $cn = trim($csp['spec_name'] ?? '');
+                                 $cv = trim($csp['spec_value'] ?? '');
+                                 $ckey = strtolower($cn);
+                                 if ($cn !== '' && $cv !== '' && !isset($seen_spec_keys[$ckey])) {
+                                    $seen_spec_keys[$ckey] = true;
+                                    $merged_specs[] = ['name' => $cn, 'value' => $cv];
+                                 }
+                              }
                            }
+
+                           $base_product_highlights = !empty($product['highlights_decoded']) ? $product['highlights_decoded'] : [];
+                           if (empty($base_product_highlights) && !empty($product['highlights'])) {
+                              $base_product_highlights = is_array($product['highlights']) ? $product['highlights'] : (json_decode($product['highlights'], true) ?: []);
+                           }
+                           $product_highlights = $base_product_highlights;
                            if (!empty($initial_variant['highlights'])) {
                               $v_hl = is_array($initial_variant['highlights']) ? $initial_variant['highlights'] : (json_decode($initial_variant['highlights'], true) ?: []);
                               if (!empty($v_hl)) {
@@ -1867,7 +1874,7 @@ if (!empty($initial_variant)) {
     var currencySymbol     = "<?= $currency_symbol; ?>";
     var colorMap           = <?= json_encode($color_map); ?>;
     var sizeVariantMap     = <?= json_encode($size_variant_map); ?>;
-    var baseHighlights     = <?= json_encode($product_highlights); ?>;
+    var baseHighlights     = <?= json_encode($base_product_highlights); ?>;
     var baseSpecifications = <?= json_encode(!empty($product['specifications']) ? $product['specifications'] : []); ?>;
     var baseBrand          = <?= json_encode(!empty($product['brand_name']) ? $product['brand_name'] : ''); ?>;
     var baseCategory       = <?= json_encode(!empty($product['category_name']) ? $product['category_name'] : ''); ?>;
@@ -2081,9 +2088,10 @@ if (!empty($initial_variant)) {
         var customSpecs = [];
         var vSpecs = variantData ? parseJsonSafe(variantData.specifications) : [];
         if (vSpecs && vSpecs.length > 0) {
-            customSpecs = vSpecs;
-        } else if (baseSpecifications && baseSpecifications.length > 0) {
-            customSpecs = baseSpecifications;
+            customSpecs = customSpecs.concat(vSpecs);
+        }
+        if (baseSpecifications && baseSpecifications.length > 0) {
+            customSpecs = customSpecs.concat(baseSpecifications);
         }
 
         customSpecs.forEach(function(sp) {
@@ -2305,6 +2313,10 @@ if (!empty($initial_variant)) {
 
         if (variantData) {
             selectedVariantId = variantData.variant_id;
+            if (variantData.title) {
+                var titleEl = document.getElementById('display-product-title');
+                if (titleEl) titleEl.textContent = variantData.title;
+            }
             var regularP = (typeof variantData.price !== 'undefined' && variantData.price !== null) ? parseFloat(variantData.price) : regularPrice;
             var saleP = (typeof variantData.sale_price !== 'undefined' && variantData.sale_price !== null && variantData.sale_price !== '') ? parseFloat(variantData.sale_price) : null;
             var effectivePrice = (saleP !== null && saleP > 0) ? saleP : regularP;
@@ -2342,15 +2354,21 @@ if (!empty($initial_variant)) {
 
             var stockEl = document.getElementById('display-stock-status');
             var atcBtn = document.getElementById('main-btn-atc');
+            var buyBtn = document.getElementById('btn-buy-now');
+            var mobBtns = document.querySelectorAll('.btn-mobile-atc, .btn-mobile-buy');
             if (stockEl) {
                 if (variantData.stock > 0) {
                     stockEl.textContent = 'In Stock (' + variantData.stock + ' available)';
                     stockEl.className = 'text-caption-1 mb-0 fw-bold text-success';
                     if (atcBtn) atcBtn.disabled = false;
+                    if (buyBtn) buyBtn.disabled = false;
+                    mobBtns.forEach(function(b) { b.disabled = false; });
                 } else {
                     stockEl.textContent = 'Out of Stock';
                     stockEl.className = 'text-caption-1 mb-0 fw-bold text-danger';
                     if (atcBtn) atcBtn.disabled = true;
+                    if (buyBtn) buyBtn.disabled = true;
+                    mobBtns.forEach(function(b) { b.disabled = true; });
                 }
             }
 
