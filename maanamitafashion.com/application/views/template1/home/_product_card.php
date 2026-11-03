@@ -5,6 +5,56 @@ if ($pct <= 0 && !empty($p['sale_price']) && !empty($p['price']) && $p['sale_pri
 }
 $curr = $currency_symbol ?? '$';
 $hover_img = !empty($p['gallery_images_decoded'][0]) ? $p['gallery_images_decoded'][0] : (!empty($p['hover_image']) ? $p['hover_image'] : $p['main_image']);
+
+// Extract color swatches (from $p['color_swatches'] and/or $p['variants'])
+$p_swatches = [];
+$seen_colors = [];
+if (!empty($p['color_swatches']) && is_array($p['color_swatches'])) {
+    foreach ($p['color_swatches'] as $sw) {
+        $c_name = trim((string)($sw['name'] ?? 'Color'));
+        $c_key  = strtolower($c_name);
+        if ($c_name !== '' && !isset($seen_colors[$c_key])) {
+            $seen_colors[$c_key] = true;
+            $sw_img = !empty($sw['image']) ? $sw['image'] : $p['main_image'];
+            $sw_img_url = (strpos($sw_img, 'http://') === 0 || strpos($sw_img, 'https://') === 0)
+                ? $sw_img
+                : base_url('assets/images/' . ltrim($sw_img, '/'));
+            $p_swatches[] = [
+                'name'       => $c_name,
+                'color_code' => !empty($sw['color_code']) ? $sw['color_code'] : '#111827',
+                'image'      => $sw_img_url,
+            ];
+        }
+    }
+}
+if (!empty($p['variants']) && is_array($p['variants'])) {
+    foreach ($p['variants'] as $pv) {
+        if (!empty($pv['values']) && is_array($pv['values'])) {
+            foreach ($pv['values'] as $val) {
+                $rSlug = strtolower(trim((string)($val['attribute_slug'] ?? '')));
+                $rType = strtolower(trim((string)($val['attribute_type'] ?? '')));
+                $rName = strtolower(trim((string)($val['attribute_name'] ?? '')));
+                $isCol = ($rSlug === 'color' || $rType === 'color' || strpos($rSlug, 'color-') === 0 || $rName === 'color');
+                if ($isCol) {
+                    $c_name = trim((string)($val['attribute_value'] ?? 'Color'));
+                    $c_key  = strtolower($c_name);
+                    if ($c_name !== '' && !isset($seen_colors[$c_key])) {
+                        $seen_colors[$c_key] = true;
+                        $sw_img = !empty($pv['image']) ? $pv['image'] : $p['main_image'];
+                        $sw_img_url = (strpos($sw_img, 'http://') === 0 || strpos($sw_img, 'https://') === 0)
+                            ? $sw_img
+                            : base_url('assets/images/' . ltrim($sw_img, '/'));
+                        $p_swatches[] = [
+                            'name'       => $c_name,
+                            'color_code' => !empty($val['color_code']) ? $val['color_code'] : '#111827',
+                            'image'      => $sw_img_url,
+                        ];
+                    }
+                }
+            }
+        }
+    }
+}
 ?>
 <div class="card-product animate-fade-in">
     <div class="card-product-wrapper">
@@ -68,5 +118,16 @@ $hover_img = !empty($p['gallery_images_decoded'][0]) ? $p['gallery_images_decode
                 <span class="fw-bold"><?= $curr . number_format($p['price'], 2); ?></span>
             <?php endif; ?>
         </div>
+        <?php if (!empty($p_swatches)): ?>
+            <ul class="list-color-product">
+                <?php foreach ($p_swatches as $sw_idx => $sw): ?>
+                    <li class="list-color-item color-swatch line hover-tooltip<?= $sw_idx === 0 ? ' active' : ''; ?>">
+                        <span class="tooltip color-filter"><?= html_escape($sw['name']); ?></span>
+                        <span class="swatch-value" style="background-color: <?= html_escape($sw['color_code']); ?>;"></span>
+                        <img class="lazyload" data-src="<?= html_escape($sw['image']); ?>" src="<?= html_escape($sw['image']); ?>" alt="<?= html_escape($sw['name']); ?>">
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        <?php endif; ?>
     </div>
 </div>

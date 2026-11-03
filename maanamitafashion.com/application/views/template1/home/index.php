@@ -5,70 +5,6 @@ $popular_list  = !empty($popular_products) ? array_slice($popular_products, 0, 1
 $deals_list    = (!empty($flash_sale) && (!empty($flash_sale_products) || !empty($deal_products)))
     ? (!empty($flash_sale_products) ? $flash_sale_products : $deal_products)
     : [];
-
-if (!function_exists('fsh_resolve_prod_img')) {
-    function fsh_resolve_prod_img($img_str, $fallback = '') {
-        if (empty($img_str)) {
-            return $fallback ?: base_url('assets/images/products/womens/women-1.jpg');
-        }
-        if (strpos($img_str, 'http://') === 0 || strpos($img_str, 'https://') === 0) {
-            return $img_str;
-        }
-        $clean = ltrim($img_str, '/');
-        if ((strpos($clean, 'assets/') === 0 || strpos($clean, 'uploads/') === 0) && file_exists(FCPATH . $clean)) {
-            return base_url($clean);
-        }
-        if (file_exists(FCPATH . 'assets/images/products/' . $clean)) {
-            return base_url('assets/images/products/' . $clean);
-        }
-        if (file_exists(FCPATH . 'assets/images/' . $clean)) {
-            return base_url('assets/images/' . $clean);
-        }
-        return base_url('assets/images/' . $clean);
-    }
-}
-
-if (!function_exists('fsh_get_deal_swatches')) {
-    function fsh_get_deal_swatches($dp, $default_img) {
-        $swatches = [];
-        $seen = [];
-        if (!empty($dp['color_swatches']) && is_array($dp['color_swatches'])) {
-            foreach ($dp['color_swatches'] as $sw) {
-                $name = $sw['name'] ?? 'Color';
-                if (!isset($seen[$name])) {
-                    $seen[$name] = true;
-                    $swatches[] = [
-                        'name'       => $name,
-                        'color_code' => !empty($sw['color_code']) ? $sw['color_code'] : '#73272D',
-                        'image'      => !empty($sw['image']) ? fsh_resolve_prod_img($sw['image'], $default_img) : $default_img,
-                    ];
-                }
-            }
-        }
-        if (empty($swatches) && !empty($dp['variants']) && is_array($dp['variants'])) {
-            foreach ($dp['variants'] as $pv) {
-                if (!empty($pv['values']) && is_array($pv['values'])) {
-                    foreach ($pv['values'] as $val) {
-                        $rSlug = $val['attribute_slug'] ?? '';
-                        $isCol = ($rSlug === 'color' || ($val['attribute_type'] ?? '') === 'color' || strpos($rSlug, 'color-') === 0 || strcasecmp($val['attribute_name'] ?? '', 'color') === 0);
-                        if ($isCol) {
-                            $vName = $val['attribute_value'] ?? 'Color';
-                            if (!isset($seen[$vName])) {
-                                $seen[$vName] = true;
-                                $swatches[] = [
-                                    'name'       => $vName,
-                                    'color_code' => !empty($val['color_code']) ? $val['color_code'] : '#2B2929',
-                                    'image'      => !empty($pv['image']) ? fsh_resolve_prod_img($pv['image'], $default_img) : $default_img,
-                                ];
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return $swatches;
-    }
-}
 ?>
         <!-- Slider -->
         <section class="tf-slideshow slider-default slider-effect-fade">
@@ -145,7 +81,7 @@ if (!function_exists('fsh_get_deal_swatches')) {
                 <div class="tf-grid-layout tf-col-2 lg-col-4 xl-col-5">
                     <?php if (!empty($arrivals_list)): ?>
                         <?php foreach ($arrivals_list as $p): ?>
-                            <?php $this->load->view('home/_product_card', ['p' => $p, 'currency_symbol' => $curr]); ?>
+                            <?php $this->load->view('template1/home/_product_card', ['p' => $p, 'currency_symbol' => $curr]); ?>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <div class="col-12 text-center py-5">
@@ -272,103 +208,10 @@ if (!function_exists('fsh_get_deal_swatches')) {
                              <div class="swiper aqf-deals-slider-active">
                                 <div class="swiper-wrapper">
                                    <?php foreach ($deals_list as $dp):
-                                       $d_id    = (int)($dp['id'] ?? 0);
-                                       $d_title = $dp['title'] ?? ($dp['name'] ?? 'Fashion Piece');
-                                       $d_slug  = !empty($dp['slug']) ? site_url('product/' . $dp['slug']) : site_url('product/' . $d_id);
-                                       $d_img   = fsh_resolve_prod_img($dp['main_image'] ?? ($dp['primary_image'] ?? ''), base_url('assets/images/products/womens/women-1.jpg'));
-                                       $d_hover_raw = !empty($dp['gallery_images_decoded'][0])
-                                           ? $dp['gallery_images_decoded'][0]
-                                           : (!empty($dp['hover_image']) ? $dp['hover_image'] : ($dp['main_image'] ?? ''));
-                                       $d_hover = fsh_resolve_prod_img($d_hover_raw, $d_img);
-                                       $d_reg   = (float)($dp['regular_price'] ?? $dp['price'] ?? 0);
-                                       $d_sal   = (!empty($dp['sale_price']) && (float)$dp['sale_price'] > 0 && (float)$dp['sale_price'] < $d_reg)
-                                           ? (float)$dp['sale_price']
-                                           : $d_reg;
-                                       $d_disc  = !empty($dp['total_discount_percent'])
-                                           ? (int)$dp['total_discount_percent']
-                                           : (($d_reg > $d_sal && $d_reg > 0) ? round((($d_reg - $d_sal) / $d_reg) * 100) : (int)$fs_disc_pct);
-                                       $d_rev_cnt = (isset($dp['reviews']) && is_array($dp['reviews'])) ? count($dp['reviews']) : (int)($dp['reviews_count'] ?? 0);
-                                       $d_rating  = $d_rev_cnt > 0 ? (float)($dp['rating'] ?? 0) : 0.0;
-                                       $d_stars   = (int)round($d_rating);
-                                       $d_swatches = fsh_get_deal_swatches($dp, $d_img);
+                                       $dp['is_flash_sale'] = 1;
                                    ?>
                                    <div class="swiper-slide">
-                                      <div class="aq-product-item aq-product-main text-center" data-lazy="true">
-                                         <div class="aq-product-thumb aq-img-hover-wrap p-relative mb-10">
-                                            <div class="aq-product-badge">
-                                               <?php if ($d_disc > 0): ?>
-                                               <span class="clr-sale">-<?= $d_disc; ?>%</span>
-                                               <?php endif; ?>
-                                               <span class="clr-sale" style="text-transform: uppercase;">SALE</span>
-                                            </div>
-                                            <div class="aq-product-action">
-                                               <form action="<?= site_url('cart/add'); ?>" method="POST" class="d-inline">
-                                                  <input type="hidden" name="product_id" value="<?= $d_id; ?>">
-                                                  <input type="hidden" name="quantity" value="1">
-                                                  <button type="submit" class="aq-product-action-btn aq-tooltip">
-                                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
-                                                        <path d="M6.19751 0.75L3.30151 3.654M11.3015 0.75L14.1975 3.654M6.95776 10.3501V13.1901M10.6375 10.3501V13.1901M1.94997 7.14993L3.07797 14.0619C3.33397 15.6139 3.94997 16.7499 6.23796 16.7499H11.062C13.55 16.7499 13.918 15.6619 14.206 14.1579L15.55 7.14993M0.75 5.42996C0.75 3.94996 1.542 3.82996 2.526 3.82996H14.974C15.958 3.82996 16.75 3.94996 16.75 5.42996C16.75 7.14996 15.958 7.02996 14.974 7.02996H2.526C1.542 7.02996 0.75 7.14996 0.75 5.42996Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"></path>
-                                                     </svg>
-                                                     <span class="aq-tooltip-item">Add to Cart</span>
-                                                  </button>
-                                               </form>
-                                               <button type="button" class="aq-product-action-btn aq-tooltip" onclick="window.location.href='<?= $d_slug; ?>'">
-                                                  <svg xmlns="http://www.w3.org/2000/svg" width="19" height="16" viewBox="0 0 19 16" fill="none">
-                                                     <path d="M12.0557 7.75429C12.0557 9.42922 10.7022 10.7827 9.0273 10.7827C7.35238 10.7827 5.99891 9.42922 5.99891 7.75429C5.99891 6.07937 7.35238 4.72589 9.0273 4.72589C10.7022 4.72589 12.0557 6.07937 12.0557 7.75429Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                                     <path d="M9.02734 14.75C12.0134 14.75 14.7965 12.9905 16.7337 9.94517C17.495 8.75242 17.495 6.74758 16.7337 5.55483C14.7965 2.50952 12.0134 0.75 9.02734 0.75C6.04124 0.75 3.25816 2.50952 1.321 5.55483C0.559668 6.74758 0.559668 8.75242 1.321 9.94517C3.25816 12.9905 6.04124 14.75 9.02734 14.75Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                                  </svg>
-                                                  <span class="aq-tooltip-item">Quick View</span>
-                                               </button>
-                                               <button type="button" class="aq-product-action-btn aq-wishlist-btn aq-tooltip" onclick="window.location.href='<?= site_url('wishlist/toggle/' . $d_id); ?>'">
-                                                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="16" viewBox="0 0 18 16" fill="none">
-                                                     <path d="M14.7197 1.52347C12.5744 0.244089 10.7019 0.759666 9.57712 1.58092C9.11591 1.91766 8.88531 2.08602 8.74963 2.08602C8.61396 2.08602 8.38336 1.91766 7.92215 1.58092C6.79733 0.759666 4.9249 0.244089 2.77958 1.52347C-0.0359114 3.20253 -0.67299 8.7418 5.82126 13.4151C7.05821 14.3052 7.67668 14.7502 8.74963 14.7502C9.82258 14.7502 10.4411 14.3052 11.678 13.4151C18.1723 8.7418 17.5352 3.20253 14.7197 1.52347Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"></path>
-                                                  </svg>
-                                                  <span class="aq-tooltip-item">Add To Wishlist</span>
-                                               </button>
-                                               <button type="button" class="aq-product-action-btn aq-compare-btn aq-tooltip" onclick="window.location.href='<?= site_url('compare'); ?>'">
-                                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="14" viewBox="0 0 16 14" fill="none">
-                                                     <path d="M11.6755 5.91828L14.2612 3.33412M14.2612 3.33412L11.6755 0.75M14.2612 3.33412L1.74999 3.33374M3.33562 8.07153L0.75 10.6557L3.33562 13.2398M13.7724 10.75H1.26122" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                                  </svg>
-                                                  <span class="aq-tooltip-item">Add To Compare</span>
-                                               </button>
-                                            </div>
-                                            <a href="<?= $d_slug; ?>">
-                                               <img class="lazyload aq-product-img" src="<?= $d_img; ?>" alt="<?= html_escape($d_title); ?>" onerror="this.src='<?= base_url('assets/images/products/womens/women-1.jpg'); ?>'">
-                                               <img class="aq-img-hover lazyload" src="<?= $d_hover; ?>" alt="<?= html_escape($d_title); ?>" onerror="this.src='<?= base_url('assets/images/products/womens/women-2.jpg'); ?>'">
-                                            </a>
-                                         </div>
-                                         <div class="aq-product-content">
-                                            <div class="aq-product-ratting">
-                                               <?php for ($si = 1; $si <= 5; $si++): ?>
-                                               <span>
-                                                  <svg width="12" height="11" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                     <path d="M5.21608 0.307961C5.38688 -0.102685 5.9686 -0.102684 6.1394 0.307962L7.34463 3.20568C7.41664 3.3788 7.57944 3.49709 7.76634 3.51207L10.8947 3.76287C11.338 3.79841 11.5178 4.35166 11.18 4.641L8.79653 6.68268C8.65414 6.80466 8.59195 6.99605 8.63546 7.17843L9.36364 10.2311C9.46684 10.6638 8.99621 11.0057 8.61666 10.7739L5.93837 9.13797C5.77836 9.04024 5.57712 9.04024 5.41711 9.13797L2.73882 10.7739C2.35927 11.0057 1.88865 10.6638 1.99184 10.2311L2.72003 7.17843C2.76353 6.99605 2.70135 6.80466 2.55895 6.68268L0.175492 4.641C-0.162276 4.35166 0.0174878 3.79841 0.460815 3.76287L3.58915 3.51207C3.77604 3.49709 3.93885 3.3788 4.01085 3.20568L5.21608 0.307961Z" fill="<?= ($d_stars === 0 || $si <= $d_stars) ? 'currentcolor' : '#d1d5db'; ?>"></path>
-                                                  </svg>
-                                               </span>
-                                               <?php endfor; ?>
-                                            </div>
-                                            <h4 class="aq-product-title mb-10"><a href="<?= $d_slug; ?>"><?= html_escape($d_title); ?></a></h4>
-                                            <div class="aq-product-price">
-                                               <ins><span class="aq-product-new-price"><?= html_escape($curr) . number_format($d_sal, 2); ?></span></ins>
-                                               <?php if ($d_reg > $d_sal): ?>
-                                               <del><span class="aq-product-old-price"><?= html_escape($curr) . number_format($d_reg, 2); ?></span></del>
-                                               <?php endif; ?>
-                                            </div>
-                                            <?php if (!empty($d_swatches)): ?>
-                                            <div class="aq-product-color">
-                                               <ul>
-                                                  <?php foreach ($d_swatches as $sw_idx => $sw): ?>
-                                                  <li class="aq-product-color-item aq-tooltip-top aq-color-swatch <?= $sw_idx === 0 ? 'active' : ''; ?>">
-                                                     <span class="aq-tooltip-item"><?= html_escape($sw['name']); ?></span>
-                                                     <span class="aq-product-color-value" data-bg-color="<?= html_escape($sw['color_code']); ?>" style="background-color: <?= html_escape($sw['color_code']); ?>;"></span>
-                                                     <img class="lazyload" data-src="<?= html_escape($sw['image']); ?>" src="<?= html_escape($sw['image']); ?>" alt="image-product">
-                                                  </li>
-                                                  <?php endforeach; ?>
-                                               </ul>
-                                            </div>
-                                            <?php endif; ?>
-                                         </div>
-                                      </div>
+                                      <?php $this->load->view('template1/home/_product_card', ['p' => $dp, 'currency_symbol' => $curr]); ?>
                                    </div>
                                    <?php endforeach; ?>
                                 </div>
@@ -381,12 +224,112 @@ if (!function_exists('fsh_get_deal_swatches')) {
            </div>
         </div>
         <!-- deals area end -->
+        <?php endif; ?>
+        <!-- /Running Flash Sales Section -->
 
-        <!-- Dynamic Countdown & Swiper Initialization for Bazaro Deals Area -->
+        <!-- 3. Popular Products Section (Slider like Bazaro Best Sellers) -->
+        <section class="flat-spacing-3 pt-4 pb-5 aqf-seller-area fix">
+            <div class="container">
+                <div class="fsh-section-header d-flex flex-wrap align-items-end justify-content-between mb-4 pb-2 border-bottom">
+                    <div>
+                        <h3 class="fsh-section-title mb-0">Popular Products</h3>
+                    </div>
+                    <a href="<?= site_url('shop?filter=popular'); ?>" class="fsh-see-all-link">
+                        <span>See all Products</span>
+                        <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+
+                <?php if (!empty($popular_list)): ?>
+                    <div class="aq-product-slide-wrap p-relative">
+                        <div class="aq-product-arrow">
+                            <button type="button" class="aq-product-prev" aria-label="Previous slide">
+                                <span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="7" height="12" viewBox="0 0 7 12" fill="none">
+                                        <path d="M5.75 10.75L0.75 5.75L5.75 0.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </span>
+                            </button>
+                            <button type="button" class="aq-product-next" aria-label="Next slide">
+                                <span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="7" height="12" viewBox="0 0 7 12" fill="none">
+                                        <path d="M0.75 10.75L5.75 5.75L0.75 0.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </span>
+                            </button>
+                        </div>
+                        <div class="swiper aq-product-active">
+                            <div class="swiper-wrapper">
+                                <?php foreach ($popular_list as $p): ?>
+                                    <div class="swiper-slide">
+                                        <?php $this->load->view('template1/home/_product_card', ['p' => $p, 'currency_symbol' => $curr]); ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <div class="col-12 text-center py-5">
+                        <p class="text-muted mb-0">No products available at the moment.</p>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </section>
+        <!-- /Popular Products Section -->
+
+        <!-- Features / Service Iconbox -->
+        <section class="flat-spacing border-top">
+            <div class="container">
+                <div dir="ltr" class="swiper tf-sw-iconbox" data-preview="4" data-tablet="3" data-mobile-sm="2" data-mobile="1" data-space-lg="30" data-space-md="30" data-space="15" data-pagination="1" data-pagination-sm="2" data-pagination-md="3" data-pagination-lg="4">
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide">
+                            <div class="tf-icon-box">
+                                <div class="icon-box"><i class="fa-solid fa-rotate-left"></i></div>
+                                <div class="content text-center">
+                                    <h6>14-Day Returns</h6>
+                                    <p class="text-secondary">Risk-free shopping with easy returns.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="swiper-slide">
+                            <div class="tf-icon-box">
+                                <div class="icon-box"><i class="fa-solid fa-truck-fast"></i></div>
+                                <div class="content text-center">
+                                    <h6>Free Shipping</h6>
+                                    <p class="text-secondary">Free standard shipping on all major orders.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="swiper-slide">
+                            <div class="tf-icon-box">
+                                <div class="icon-box"><i class="fa-solid fa-headset"></i></div>
+                                <div class="content text-center">
+                                    <h6>24/7 Support</h6>
+                                    <p class="text-secondary">Dedicated customer support team anytime.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="swiper-slide">
+                            <div class="tf-icon-box">
+                                <div class="icon-box"><i class="fa-solid fa-shield-halved"></i></div>
+                                <div class="content text-center">
+                                    <h6>Secure Payments</h6>
+                                    <p class="text-secondary">Encrypted transactions via Stripe, Razorpay & PayU.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sw-pagination-iconbox sw-dots type-circle justify-content-center"></div>
+                </div>
+            </div>
+        </section>
+        <!-- /Features -->
+
+        <!-- Dynamic Countdown, Sliders & Color Swatch Initialization -->
         <script>
         (function() {
-            function initBazaroDealsSection() {
-                // 1. Live Countdown
+            function initFashionHomeSlidersAndCountdown() {
+                // 1. Live Countdown (Flash Sales)
                 var countdownEl = document.getElementById('countdown');
                 if (countdownEl) {
                     var daysEl  = document.getElementById('days');
@@ -448,9 +391,9 @@ if (!function_exists('fsh_get_deal_swatches')) {
                     window._aqfDealsTimer = setInterval(tick, 1000);
                 }
 
-                // 2. Swiper Slider (.aqf-deals-slider-active)
-                var sliderEl = document.querySelector('.aqf-deals-slider-active');
-                if (sliderEl && typeof Swiper !== 'undefined' && !sliderEl.swiper) {
+                // 2. Flash Sales Swiper Slider (.aqf-deals-slider-active)
+                var dealsSliderEl = document.querySelector('.aqf-deals-slider-active');
+                if (dealsSliderEl && typeof Swiper !== 'undefined' && !dealsSliderEl.swiper) {
                     new Swiper('.aqf-deals-slider-active', {
                         slidesPerView: 3,
                         loop: true,
@@ -472,117 +415,68 @@ if (!function_exists('fsh_get_deal_swatches')) {
                     });
                 }
 
-                // 3. Color Swatch Hover/Click Preview
-                document.querySelectorAll('.aqf-deals-area .aq-color-swatch').forEach(function(swatch) {
-                    ['click', 'mouseover'].forEach(function(evtName) {
-                        swatch.addEventListener(evtName, function() {
-                            var imgEl = swatch.querySelector('img');
-                            var card  = swatch.closest('.aq-product-main');
-                            if (imgEl && card) {
-                                var mainImg = card.querySelector('.aq-product-img');
-                                if (mainImg && imgEl.getAttribute('src')) {
-                                    mainImg.setAttribute('src', imgEl.getAttribute('src'));
-                                }
+                // 3. Popular Products Swiper Slider (.aq-product-active) - Bazaro Best Sellers style
+                var popularSliderEl = document.querySelector('.aq-product-active');
+                if (popularSliderEl && typeof Swiper !== 'undefined' && !popularSliderEl.swiper) {
+                    new Swiper('.aq-product-active', {
+                        slidesPerView: 4,
+                        loop: true,
+                        autoplay: true,
+                        spaceBetween: 25,
+                        speed: 1000,
+                        navigation: {
+                            prevEl: '.aq-product-prev',
+                            nextEl: '.aq-product-next',
+                        },
+                        breakpoints: {
+                            1400: { slidesPerView: 4 },
+                            1200: { slidesPerView: 3 },
+                            992:  { slidesPerView: 3 },
+                            768:  { slidesPerView: 2 },
+                            576:  { slidesPerView: 2 },
+                            100:  { slidesPerView: 1 }
+                        }
+                    });
+                }
+            }
+
+            // 4. Delegated Color Swatch Hover/Click Preview for all .card-product (including Swiper loop clones)
+            if (!window._fshColorSwatchBound) {
+                window._fshColorSwatchBound = true;
+                ['click', 'mouseover'].forEach(function(evtType) {
+                    document.addEventListener(evtType, function(e) {
+                        var swatch = e.target.closest('.card-product .color-swatch');
+                        if (!swatch) return;
+                        var card = swatch.closest('.card-product');
+                        var swatchImg = swatch.querySelector('img');
+                        if (card && swatchImg) {
+                            var newSrc = swatchImg.getAttribute('src') || swatchImg.getAttribute('data-src');
+                            var prodImg = card.querySelector('.img-product');
+                            if (prodImg && newSrc) {
+                                prodImg.setAttribute('src', newSrc);
+                                prodImg.setAttribute('data-src', newSrc);
                             }
-                            if (swatch.parentElement) {
-                                swatch.parentElement.querySelectorAll('.aq-color-swatch.active').forEach(function(sib) {
-                                    sib.classList.remove('active');
-                                });
-                            }
-                            swatch.classList.add('active');
-                        });
+                        }
+                        if (swatch.parentElement) {
+                            swatch.parentElement.querySelectorAll('.color-swatch.active').forEach(function(sib) {
+                                sib.classList.remove('active');
+                            });
+                        }
+                        swatch.classList.add('active');
                     });
                 });
             }
 
             if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', initBazaroDealsSection);
+                document.addEventListener('DOMContentLoaded', initFashionHomeSlidersAndCountdown);
             } else {
-                initBazaroDealsSection();
+                initFashionHomeSlidersAndCountdown();
             }
-            window.addEventListener('load', initBazaroDealsSection);
+            window.addEventListener('load', initFashionHomeSlidersAndCountdown);
         })();
         </script>
-        <?php endif; ?>
-        <!-- /Running Flash Sales Section -->
 
-        <!-- 3. Popular Products Section -->
-        <section class="flat-spacing-3 pt-4 pb-5">
-            <div class="container">
-                <div class="fsh-section-header d-flex flex-wrap align-items-end justify-content-between mb-4 pb-2 border-bottom">
-                    <div>
-                        <h3 class="fsh-section-title mb-0">Popular Products</h3>
-                    </div>
-                    <a href="<?= site_url('shop?filter=popular'); ?>" class="fsh-see-all-link">
-                        <span>See all Products</span>
-                        <i class="fa-solid fa-arrow-right ms-1"></i>
-                    </a>
-                </div>
-
-                <div class="tf-grid-layout tf-col-2 lg-col-4 xl-col-5">
-                    <?php if (!empty($popular_list)): ?>
-                        <?php foreach ($popular_list as $p): ?>
-                            <?php $this->load->view('home/_product_card', ['p' => $p, 'currency_symbol' => $curr]); ?>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <div class="col-12 text-center py-5">
-                            <p class="text-muted mb-0">No products available at the moment.</p>
-                        </div>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </section>
-        <!-- /Popular Products Section -->
-
-        <!-- Features / Service Iconbox -->
-        <section class="flat-spacing border-top">
-            <div class="container">
-                <div dir="ltr" class="swiper tf-sw-iconbox" data-preview="4" data-tablet="3" data-mobile-sm="2" data-mobile="1" data-space-lg="30" data-space-md="30" data-space="15" data-pagination="1" data-pagination-sm="2" data-pagination-md="3" data-pagination-lg="4">
-                    <div class="swiper-wrapper">
-                        <div class="swiper-slide">
-                            <div class="tf-icon-box">
-                                <div class="icon-box"><i class="fa-solid fa-rotate-left"></i></div>
-                                <div class="content text-center">
-                                    <h6>14-Day Returns</h6>
-                                    <p class="text-secondary">Risk-free shopping with easy returns.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="swiper-slide">
-                            <div class="tf-icon-box">
-                                <div class="icon-box"><i class="fa-solid fa-truck-fast"></i></div>
-                                <div class="content text-center">
-                                    <h6>Free Shipping</h6>
-                                    <p class="text-secondary">Free standard shipping on all major orders.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="swiper-slide">
-                            <div class="tf-icon-box">
-                                <div class="icon-box"><i class="fa-solid fa-headset"></i></div>
-                                <div class="content text-center">
-                                    <h6>24/7 Support</h6>
-                                    <p class="text-secondary">Dedicated customer support team anytime.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="swiper-slide">
-                            <div class="tf-icon-box">
-                                <div class="icon-box"><i class="fa-solid fa-shield-halved"></i></div>
-                                <div class="content text-center">
-                                    <h6>Secure Payments</h6>
-                                    <p class="text-secondary">Encrypted transactions via Stripe, Razorpay & PayU.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="sw-pagination-iconbox sw-dots type-circle justify-content-center"></div>
-                </div>
-            </div>
-        </section>
-        <!-- /Features -->
-
-        <!-- Section, Badges & Bazaro Deals Area Styles -->
+        <!-- Section, Badges, Bazaro Deals Area & Popular Products Slider Styles -->
         <style>
         @font-face {
             font-family: "Satoshi-Light";
@@ -655,7 +549,7 @@ if (!function_exists('fsh_get_deal_swatches')) {
             transform: translateX(2px);
         }
 
-        /* Product Card Badges (New Arrivals / Popular Products) */
+        /* Product Card Badges (New Arrivals / Flash Sales / Popular Products) */
         .product-badge-group {
             position: absolute;
             top: 16px;
@@ -691,6 +585,65 @@ if (!function_exists('fsh_get_deal_swatches')) {
         @keyframes productFadeIn {
             from { opacity: 0; transform: translateY(12px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* =========================================================
+           Bazaro Best Sellers Slider Styles (.aqf-seller-area / .aq-product-slide-wrap)
+           ========================================================= */
+        .aqf-seller-area.fix {
+            overflow: hidden;
+        }
+        .aq-product-slide-wrap.p-relative {
+            position: relative;
+        }
+        @media (max-width: 575px) {
+            .aq-product-arrow {
+                display: none;
+            }
+        }
+        .aq-product-arrow button {
+            position: absolute;
+            top: 30%;
+            inset-inline-start: -30px;
+            z-index: 10;
+            height: 46px;
+            width: 46px;
+            opacity: 0;
+            visibility: hidden;
+            border-radius: 50%;
+            border: none;
+            outline: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--aq-common-black);
+            background: var(--aq-common-white);
+            box-shadow: 0 1px 2px 0 rgba(1, 15, 28, 0.2);
+            transition: all 0.3s ease-out;
+        }
+        .aq-product-arrow button svg {
+            transform: translate(-1px, -1px);
+        }
+        .aq-product-arrow button.aq-product-next {
+            inset-inline-start: auto;
+            inset-inline-end: -30px;
+        }
+        .aq-product-arrow button.aq-product-next svg {
+            transform: translate(2px, -1px);
+        }
+        .aq-product-arrow button:hover {
+            color: var(--aq-common-white);
+            border-color: var(--aq-common-black);
+            background-color: var(--aq-common-black);
+        }
+        .aq-product-slide-wrap:hover .aq-product-arrow button {
+            opacity: 1;
+            visibility: visible;
+            inset-inline-start: -22px;
+        }
+        .aq-product-slide-wrap:hover .aq-product-arrow button.aq-product-next {
+            inset-inline-start: auto;
+            inset-inline-end: -22px;
         }
 
         /* =========================================================
@@ -736,19 +689,14 @@ if (!function_exists('fsh_get_deal_swatches')) {
         .aqf-deals-area .mr-60 {
             margin-right: 60px;
         }
-        .aqf-deals-area a,
-        .aqf-deals-area button {
+        .aqf-deals-banner-wrap a,
+        .aqf-deals-slider-arrow button {
             color: inherit;
             outline: none;
             border: none;
             background: transparent;
             text-decoration: none;
             transition: all 0.3s ease-out;
-        }
-        .aqf-deals-area ul {
-            margin: 0;
-            padding: 0;
-            list-style: none;
         }
 
         /* Left Banner */
@@ -970,230 +918,5 @@ if (!function_exists('fsh_get_deal_swatches')) {
                 padding: 30px !important;
                 padding-bottom: 0 !important;
             }
-        }
-
-        /* Deals Product Card (.aq-product-item) */
-        .aqf-deals-area .aq-product-thumb {
-            overflow: hidden;
-            aspect-ratio: 3 / 3.8;
-            background: #f5f5f5;
-        }
-        .aqf-deals-area .aq-product-thumb img {
-            height: 100%;
-            width: 100%;
-            object-fit: cover;
-            object-position: center;
-        }
-        .aqf-deals-area .aq-img-hover {
-            position: absolute;
-            inset: 0;
-            opacity: 0;
-            transform: scale(1);
-            transition: opacity 0.3s ease, transform 1s cubic-bezier(0, 0, 0.44, 1.18);
-        }
-        .aqf-deals-area .aq-img-hover-wrap:hover .aq-img-hover {
-            opacity: 1;
-            transform: scale(1.05);
-        }
-        .aqf-deals-area .aq-product-badge {
-            position: absolute;
-            top: 0;
-            inset-inline-start: 0;
-            z-index: 2;
-            margin: 16px;
-            display: flex;
-            gap: 5px;
-            align-items: start;
-            flex-direction: column;
-        }
-        .aqf-deals-area .aq-product-badge span {
-            font-size: 15px;
-            line-height: 1;
-            border-radius: 40px;
-            padding: 6px 13.5px;
-            text-transform: capitalize;
-            color: var(--aq-common-white);
-            background: var(--aq-common-coffee);
-            font-family: var(--aq-ff-satoshi-bold);
-        }
-        .aqf-deals-area .aq-product-badge span.clr-sale {
-            background-color: #DA3F3F;
-            color: var(--aq-common-white);
-        }
-        .aqf-deals-area .aq-product-action {
-            position: absolute;
-            top: 16px;
-            inset-inline-end: 0;
-            z-index: 2;
-            opacity: 0;
-            display: flex;
-            visibility: hidden;
-            flex-direction: column;
-            transition: all 0.3s 0s ease-out;
-        }
-        .aqf-deals-area .aq-product-item:hover .aq-product-action {
-            inset-inline-end: 16px;
-            visibility: visible;
-            opacity: 1;
-        }
-        .aqf-deals-area .aq-product-action-btn {
-            width: 42px;
-            height: 42px;
-            display: grid;
-            text-align: center;
-            font-size: 18px;
-            position: relative;
-            border-radius: 50%;
-            margin-bottom: 6px;
-            place-content: center;
-            transition: all 0.3s ease-out;
-            color: var(--aq-common-black);
-            background-color: var(--aq-common-white);
-            box-shadow: 0 1px 2px 0 rgba(1, 15, 28, 0.2);
-        }
-        @media (max-width: 1399px) {
-            .aqf-deals-area .aq-product-action-btn {
-                width: 38px;
-                height: 38px;
-            }
-        }
-        .aqf-deals-area .aq-product-action-btn:hover {
-            color: var(--aq-common-white);
-            background-color: var(--aq-common-black);
-        }
-
-        /* Tooltips */
-        .aqf-deals-area .aq-tooltip {
-            position: relative;
-        }
-        .aqf-deals-area .aq-tooltip-item {
-            position: absolute;
-            top: 50%;
-            opacity: 0;
-            z-index: 3;
-            inset-inline-end: 100%;
-            font-weight: 500;
-            font-size: 11px;
-            line-height: 1;
-            padding: 6px 7px;
-            border-radius: 4px;
-            width: max-content;
-            visibility: hidden;
-            display: inline-block;
-            color: var(--aq-common-white);
-            font-family: var(--aq-ff-satoshi-bold);
-            background-color: var(--aq-common-black);
-            transform: translateY(-50%) translateX(6px);
-            transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s cubic-bezier(0.71, 1.7, 0.77, 1.24);
-        }
-        .aqf-deals-area .aq-tooltip-item::before {
-            position: absolute;
-            content: "";
-            inset-inline-end: -4px;
-            top: 50%;
-            width: 0;
-            height: 0;
-            border-top: 8px solid transparent;
-            border-bottom: 8px solid transparent;
-            transform: translateY(-50%);
-            border-left: 8px solid var(--aq-common-black);
-        }
-        .aqf-deals-area .aq-tooltip:hover .aq-tooltip-item {
-            visibility: visible;
-            opacity: 1;
-            transform: translateX(-6px) translateY(-50%);
-        }
-        .aqf-deals-area .aq-tooltip-top {
-            position: relative;
-        }
-        .aqf-deals-area .aq-tooltip-top .aq-tooltip-item {
-            top: auto;
-            bottom: 100%;
-            inset-inline-end: auto;
-            inset-inline-start: 50%;
-            transform: translateX(-50%) translateY(6px);
-        }
-        .aqf-deals-area .aq-tooltip-top .aq-tooltip-item::before {
-            inset-inline-end: auto;
-            top: 16px;
-            inset-inline-start: 50%;
-            border-left: 0;
-            transform: translateX(-50%) rotate(-90deg);
-            border-right: 8px solid var(--aq-common-black);
-        }
-        .aqf-deals-area .aq-tooltip-top:hover .aq-tooltip-item {
-            visibility: visible;
-            opacity: 1;
-            transform: translateY(-6px) translateX(-50%);
-        }
-
-        /* Product Rating, Title, Price, Swatches */
-        .aqf-deals-area .aq-product-ratting {
-            margin-bottom: 4px;
-            color: var(--aq-common-black);
-        }
-        .aqf-deals-area .aq-product-title {
-            font-size: 16px;
-            line-height: 1.4;
-            margin-bottom: 8px;
-            color: var(--aq-common-black-light);
-            font-family: var(--aq-ff-satoshi-medium);
-        }
-        .aqf-deals-area .aq-product-title a:hover {
-            color: var(--aq-common-red);
-        }
-        .aqf-deals-area .aq-product-price {
-            margin-bottom: 12px;
-        }
-        .aqf-deals-area .aq-product-price ins {
-            text-decoration: none;
-        }
-        .aqf-deals-area .aq-product-new-price {
-            font-size: 16px;
-            line-height: 1;
-            margin-inline-end: 6px;
-            display: inline-block;
-            transform: translateY(1px);
-            color: var(--aq-common-black);
-            font-family: var(--aq-ff-satoshi-bold);
-        }
-        .aqf-deals-area .aq-product-old-price {
-            font-size: 14px;
-            line-height: 1;
-            color: var(--aq-common-black-light);
-            font-family: var(--aq-ff-satoshi-regular);
-        }
-        .aqf-deals-area .aq-product-color-item {
-            position: relative;
-            height: 21px;
-            width: 21px;
-            margin: 0 1px;
-            cursor: pointer;
-            border-radius: 50%;
-            display: inline-block;
-            transition: all 0.3s ease-out;
-            border: 1px solid rgba(42, 44, 45, 0.1);
-        }
-        .aqf-deals-area .aq-product-color-item:hover,
-        .aqf-deals-area .aq-product-color-item.active {
-            border-color: var(--aq-common-black);
-        }
-        .aqf-deals-area .aq-product-color-item:hover .aq-product-color-value,
-        .aqf-deals-area .aq-product-color-item.active .aq-product-color-value {
-            transform: scale(0.7);
-        }
-        .aqf-deals-area .aq-product-color-item img {
-            visibility: hidden;
-            width: 18px;
-            height: 18px;
-            position: absolute;
-        }
-        .aqf-deals-area .aq-product-color-value {
-            position: relative;
-            height: 100%;
-            width: 100%;
-            display: inline-block;
-            border-radius: 50%;
-            transition: all 0.3s ease-out;
         }
         </style>
