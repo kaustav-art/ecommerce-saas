@@ -915,6 +915,126 @@ if (!function_exists('elt_resolve_img')) {
          color: #E1EEB7 !important;
          transform: rotate(90deg) !important;
       }
+
+      /* Header User Login Button (Matches Grocery Storefront) & After-Login Hover Dropdown (Matches Fashion Storefront) */
+      .elt-site-header .aq-header-right-options > ul {
+         display: inline-flex;
+         align-items: center;
+         margin-bottom: 0;
+      }
+      .elt-site-header .aq-header-right-options .aq-header-top-account-item {
+         gap: 10px;
+         display: flex;
+         align-items: center;
+         transition: opacity 0.2s ease;
+      }
+      .elt-site-header .aq-header-right-options .aq-header-top-account-item .grc-option-style {
+         width: 40px;
+         height: 40px;
+         text-align: center;
+         border-radius: 20px;
+         display: inline-grid;
+         place-content: center;
+         color: #0B0D0E;
+         background: #f4f6f8;
+         border: 1px solid #e2e8f0;
+         transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease !important;
+      }
+      .elt-site-header .aq-header-right-options .aq-header-top-account-item .grc-option-style i {
+         transform: translateY(-1px);
+      }
+      .elt-site-header .aq-header-right-options .aq-header-top-account-item:hover .grc-option-style {
+         background: #0B0D0E !important;
+         border-color: #0B0D0E !important;
+         color: #E1EEB7 !important;
+      }
+      .elt-site-header .aq-header-right-options .aq-header-top-account-item:hover .grc-option-style svg path {
+         stroke: #E1EEB7 !important;
+      }
+      .elt-site-header .aq-header-right-options .aq-header-top-account-content {
+         line-height: 1;
+         text-align: start;
+      }
+      .elt-site-header .aq-header-right-options .aq-header-top-account-content span {
+         font-size: 13px;
+         line-height: 1;
+         font-weight: 500;
+         margin-bottom: 4px;
+         display: inline-block;
+         color: #64748b;
+      }
+      .elt-site-header .aq-header-right-options .aq-header-top-account-content p {
+         font-size: 14.5px;
+         margin: 0;
+         line-height: 1;
+         font-weight: 600;
+         color: #0B0D0E;
+      }
+      .store-action-chevron {
+         font-size: 10px;
+         color: #64748b;
+         margin-left: 4px;
+         transition: transform 0.2s ease, color 0.2s ease;
+      }
+      .store-nav-account:hover .store-action-chevron {
+         transform: rotate(180deg);
+         color: #0B0D0E;
+      }
+      .after-login-drawer-menu {
+         position: absolute;
+         top: calc(100% + 12px);
+         right: 0;
+         width: 255px;
+         background: #ffffff;
+         border-radius: 10px;
+         box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
+         border: 1px solid #e5e7eb;
+         z-index: 1080;
+         opacity: 0;
+         visibility: hidden;
+         pointer-events: none;
+         transform: translateY(8px);
+         transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+         text-align: left;
+      }
+      .store-nav-account::after {
+         content: '';
+         position: absolute;
+         top: 100%;
+         right: 0;
+         width: 100%;
+         height: 16px;
+         display: none;
+      }
+      .store-nav-account:hover::after {
+         display: block;
+      }
+      .store-nav-account:hover > .after-login-drawer-menu,
+      .store-nav-account > .after-login-drawer-menu:hover {
+         opacity: 1 !important;
+         visibility: visible !important;
+         pointer-events: auto !important;
+         transform: translateY(0) !important;
+      }
+      .after-login-drawer-menu .dropdown-item {
+         font-size: 13.5px;
+         font-weight: 500;
+         color: #333333 !important;
+         text-decoration: none !important;
+         transition: background-color 0.15s, color 0.15s, padding-left 0.15s;
+      }
+      .after-login-drawer-menu .dropdown-item:hover {
+         background-color: #f1f5f9;
+         color: #0B0D0E !important;
+         padding-left: 1.25rem !important;
+      }
+      .after-login-drawer-menu .dropdown-item.text-danger {
+         color: #dc3545 !important;
+      }
+      .after-login-drawer-menu .dropdown-item.text-danger:hover {
+         background-color: #fff5f5;
+         color: #dc3545 !important;
+      }
    </style>
 
    <script>
@@ -1159,22 +1279,72 @@ if (!function_exists('elt_resolve_img')) {
                <!-- Right Options -->
                <div class="aq-header-right-options text-end order-2 order-md-3">
                   <ul>
-                     <li class="aq-header-top-account d-none d-md-inline-block">
-                        <?php if (!empty($is_logged_in)): ?>
-                        <a href="<?= site_url('account'); ?>" title="<?= html_escape($current_user['first_name'] ?? 'Account'); ?>">
-                           <i>
-                              <svg xmlns="http://www.w3.org/2000/svg" width="17" height="20" viewBox="0 0 17 20" fill="none">
-                                 <path d="M16.212 18.75C16.212 15.267 12.747 12.45 8.481 12.45C4.215 12.45 0.75 15.267 0.75 18.75M12.9805 5.25C12.9805 7.73528 10.9657 9.75 8.48047 9.75C5.99519 9.75 3.98047 7.73528 3.98047 5.25C3.98047 2.76472 5.99519 0.75 8.48047 0.75C10.9657 0.75 12.9805 2.76472 12.9805 5.25Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                              </svg>
-                           </i>
+                     <li class="aq-header-top-account store-nav-account position-relative d-none d-md-inline-flex">
+                        <?php if (!empty($is_logged_in)):
+                            $u_first = !empty($current_user['first_name']) ? $current_user['first_name'] : 'Member';
+                            $u_name  = trim(($current_user['first_name'] ?? '') . ' ' . ($current_user['last_name'] ?? ''));
+                            if ($u_name === '') $u_name = 'My Account';
+                            $u_email = !empty($current_user['email']) ? $current_user['email'] : ($current_user['phone'] ?? '');
+                        ?>
+                        <a href="<?= site_url('account/profile'); ?>" class="text-decoration-none" title="<?= html_escape($u_name); ?>">
+                           <div class="aq-header-top-account-item">
+                              <span class="grc-option-style d-inline-flex align-items-center justify-content-center">
+                                 <i>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="20" viewBox="0 0 17 20" fill="none">
+                                       <path d="M16.212 18.75C16.212 15.267 12.747 12.45 8.481 12.45C4.215 12.45 0.75 15.267 0.75 18.75M12.9805 5.25C12.9805 7.73528 10.9657 9.75 8.48047 9.75C5.99519 9.75 3.98047 7.73528 3.98047 5.25C3.98047 2.76472 5.99519 0.75 8.48047 0.75C10.9657 0.75 12.9805 2.76472 12.9805 5.25Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                 </i>
+                              </span>
+                              <div class="aq-header-top-account-content text-start">
+                                 <span><?= html_escape($u_first); ?></span>
+                                 <p class="d-flex align-items-center">Account <i class="fa-solid fa-chevron-down store-action-chevron"></i></p>
+                              </div>
+                           </div>
                         </a>
+
+                        <!-- User Account Drawer Menu (Opens on hover) -->
+                        <div class="after-login-drawer-menu shadow-lg">
+                           <div class="drawer-user-header p-3 border-bottom d-flex align-items-center">
+                              <div class="rounded-circle d-flex align-items-center justify-content-center text-white flex-shrink-0 shadow-sm overflow-hidden me-2" style="width: 40px; height: 40px; background: linear-gradient(135deg, #0B0D0E, #334155); font-size: 16px; font-weight: bold;">
+                                 <?= strtoupper(substr($u_first, 0, 1)); ?>
+                              </div>
+                              <div class="overflow-hidden" style="min-width: 0;">
+                                 <div class="text-muted text-uppercase" style="font-size: 10.5px; letter-spacing: 0.5px; font-weight: 600;">Welcome</div>
+                                 <div class="fw-bold text-dark text-truncate" style="font-size: 14px;" title="<?= html_escape($u_name); ?>">
+                                    <?= html_escape($u_name); ?>
+                                 </div>
+                                 <?php if ($u_email !== ''): ?>
+                                 <div class="text-muted small text-truncate" style="font-size: 11.5px;" title="<?= html_escape($u_email); ?>">
+                                    <?= html_escape($u_email); ?>
+                                 </div>
+                                 <?php endif; ?>
+                              </div>
+                           </div>
+                           <div class="py-2">
+                              <a class="dropdown-item py-2 px-3 d-flex align-items-center" href="<?= site_url('account/profile'); ?>"><i class="fa-regular fa-user text-primary me-3" style="width: 16px;"></i>My Profile</a>
+                              <a class="dropdown-item py-2 px-3 d-flex align-items-center" href="<?= site_url('account/orders'); ?>"><i class="fa-solid fa-box-archive text-primary me-3" style="width: 16px;"></i>Orders</a>
+                              <a class="dropdown-item py-2 px-3 d-flex align-items-center" href="<?= site_url('account/address'); ?>"><i class="fa-solid fa-location-dot text-primary me-3" style="width: 16px;"></i>Saved Address</a>
+                              <a class="dropdown-item py-2 px-3 d-flex align-items-center" href="<?= site_url('wishlist'); ?>"><i class="fa-regular fa-heart text-primary me-3" style="width: 16px;"></i>Wishlist</a>
+                              <a class="dropdown-item py-2 px-3 d-flex align-items-center" href="<?= site_url('account/notifications'); ?>"><i class="fa-regular fa-bell text-primary me-3" style="width: 16px;"></i>Notification</a>
+                              <div class="dropdown-divider my-1 border-top"></div>
+                              <a class="dropdown-item py-2 px-3 d-flex align-items-center text-danger fw-semibold" href="<?= site_url('logout'); ?>"><i class="fa-solid fa-arrow-right-from-bracket me-3" style="width: 16px;"></i>Logout</a>
+                           </div>
+                        </div>
                         <?php else: ?>
-                        <a href="#exampleModalToggle" data-bs-toggle="modal" title="Sign In">
-                           <i>
-                              <svg xmlns="http://www.w3.org/2000/svg" width="17" height="20" viewBox="0 0 17 20" fill="none">
-                                 <path d="M16.212 18.75C16.212 15.267 12.747 12.45 8.481 12.45C4.215 12.45 0.75 15.267 0.75 18.75M12.9805 5.25C12.9805 7.73528 10.9657 9.75 8.48047 9.75C5.99519 9.75 3.98047 7.73528 3.98047 5.25C3.98047 2.76472 5.99519 0.75 8.48047 0.75C10.9657 0.75 12.9805 2.76472 12.9805 5.25Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                              </svg>
-                           </i>
+                        <a href="#exampleModalToggle" data-bs-toggle="modal" class="text-decoration-none" title="Sign In">
+                           <div class="aq-header-top-account-item">
+                              <span class="grc-option-style d-inline-flex align-items-center justify-content-center">
+                                 <i>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="20" viewBox="0 0 17 20" fill="none">
+                                       <path d="M16.212 18.75C16.212 15.267 12.747 12.45 8.481 12.45C4.215 12.45 0.75 15.267 0.75 18.75M12.9805 5.25C12.9805 7.73528 10.9657 9.75 8.48047 9.75C5.99519 9.75 3.98047 7.73528 3.98047 5.25C3.98047 2.76472 5.99519 0.75 8.48047 0.75C10.9657 0.75 12.9805 2.76472 12.9805 5.25Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                 </i>
+                              </span>
+                              <div class="aq-header-top-account-content text-start">
+                                 <span>Hello</span>
+                                 <p>Sign In</p>
+                              </div>
+                           </div>
                         </a>
                         <?php endif; ?>
                      </li>

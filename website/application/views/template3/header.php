@@ -845,6 +845,73 @@
       .aq-header-right-options.grc-header-right-option .aq-header-top-account-item:hover {
          opacity: 0.92;
       }
+
+      /* After-Login User Account Hover Dropdown (Matches Fashion Storefront) */
+      .store-action-chevron {
+         font-size: 10px;
+         color: rgba(255, 255, 255, 0.8);
+         margin-left: 4px;
+         transition: transform 0.2s ease, color 0.2s ease;
+      }
+      .store-nav-account:hover .store-action-chevron {
+         transform: rotate(180deg);
+         color: #ffffff;
+      }
+      .after-login-drawer-menu {
+         position: absolute;
+         top: calc(100% + 12px);
+         right: 0;
+         width: 255px;
+         background: #ffffff;
+         border-radius: 10px;
+         box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+         border: 1px solid #e5e7eb;
+         z-index: 1080;
+         opacity: 0;
+         visibility: hidden;
+         pointer-events: none;
+         transform: translateY(8px);
+         transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+         text-align: left;
+      }
+      .store-nav-account::after {
+         content: '';
+         position: absolute;
+         top: 100%;
+         right: 0;
+         width: 100%;
+         height: 16px;
+         display: none;
+      }
+      .store-nav-account:hover::after {
+         display: block;
+      }
+      .store-nav-account:hover > .after-login-drawer-menu,
+      .store-nav-account > .after-login-drawer-menu:hover {
+         opacity: 1 !important;
+         visibility: visible !important;
+         pointer-events: auto !important;
+         transform: translateY(0) !important;
+      }
+      .after-login-drawer-menu .dropdown-item {
+         font-size: 13.5px;
+         font-weight: 500;
+         color: #333333 !important;
+         text-decoration: none !important;
+         transition: background-color 0.15s, color 0.15s, padding-left 0.15s;
+      }
+      .after-login-drawer-menu .dropdown-item:hover {
+         background-color: #f0fdf4;
+         color: #108910 !important;
+         padding-left: 1.25rem !important;
+      }
+      .after-login-drawer-menu .dropdown-item.text-danger {
+         color: #dc3545 !important;
+      }
+      .after-login-drawer-menu .dropdown-item.text-danger:hover {
+         background-color: #fff5f5;
+         color: #dc3545 !important;
+      }
    </style>
 
    <script>
@@ -1113,9 +1180,14 @@
                   <div class="col-lg-3 col-md-4 col-6">
                      <div class="aq-header-right-options grc-header-right-option text-end">
                         <ul>
-                           <li class="aq-header-top-account d-none d-md-inline-flex">
-                              <?php if (!empty($is_logged_in)): ?>
-                              <a href="<?= site_url('account'); ?>" class="text-decoration-none">
+                           <li class="aq-header-top-account store-nav-account position-relative d-none d-md-inline-flex">
+                              <?php if (!empty($is_logged_in)):
+                                  $u_first = !empty($current_user['first_name']) ? $current_user['first_name'] : 'Member';
+                                  $u_name  = trim(($current_user['first_name'] ?? '') . ' ' . ($current_user['last_name'] ?? ''));
+                                  if ($u_name === '') $u_name = 'My Account';
+                                  $u_email = !empty($current_user['email']) ? $current_user['email'] : ($current_user['phone'] ?? '');
+                              ?>
+                              <a href="<?= site_url('account/profile'); ?>" class="text-decoration-none" title="<?= html_escape($u_name); ?>">
                                  <div class="aq-header-top-account-item">
                                     <span class="grc-option-style d-inline-flex align-items-center justify-content-center">
                                        <i>
@@ -1125,11 +1197,40 @@
                                        </i>
                                     </span>
                                     <div class="aq-header-top-account-content text-start">
-                                       <span><?= html_escape($current_user['first_name'] ?? 'Member'); ?></span>
-                                       <p>Account</p>
+                                       <span><?= html_escape($u_first); ?></span>
+                                       <p class="d-flex align-items-center">Account <i class="fa-solid fa-chevron-down store-action-chevron"></i></p>
                                     </div>
                                  </div>
                               </a>
+
+                              <!-- User Account Drawer Menu (Opens on hover) -->
+                              <div class="after-login-drawer-menu shadow-lg">
+                                 <div class="drawer-user-header p-3 border-bottom d-flex align-items-center">
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center text-white flex-shrink-0 shadow-sm overflow-hidden me-2" style="width: 40px; height: 40px; background: linear-gradient(135deg, #108910, #003D29); font-size: 16px; font-weight: bold;">
+                                       <?= strtoupper(substr($u_first, 0, 1)); ?>
+                                    </div>
+                                    <div class="overflow-hidden" style="min-width: 0;">
+                                       <div class="text-muted text-uppercase" style="font-size: 10.5px; letter-spacing: 0.5px; font-weight: 600;">Welcome</div>
+                                       <div class="fw-bold text-dark text-truncate" style="font-size: 14px;" title="<?= html_escape($u_name); ?>">
+                                          <?= html_escape($u_name); ?>
+                                       </div>
+                                       <?php if ($u_email !== ''): ?>
+                                       <div class="text-muted small text-truncate" style="font-size: 11.5px;" title="<?= html_escape($u_email); ?>">
+                                          <?= html_escape($u_email); ?>
+                                       </div>
+                                       <?php endif; ?>
+                                    </div>
+                                 </div>
+                                 <div class="py-2">
+                                    <a class="dropdown-item py-2 px-3 d-flex align-items-center" href="<?= site_url('account/profile'); ?>"><i class="fa-regular fa-user text-primary me-3" style="width: 16px;"></i>My Profile</a>
+                                    <a class="dropdown-item py-2 px-3 d-flex align-items-center" href="<?= site_url('account/orders'); ?>"><i class="fa-solid fa-box-archive text-primary me-3" style="width: 16px;"></i>Orders</a>
+                                    <a class="dropdown-item py-2 px-3 d-flex align-items-center" href="<?= site_url('account/address'); ?>"><i class="fa-solid fa-location-dot text-primary me-3" style="width: 16px;"></i>Saved Address</a>
+                                    <a class="dropdown-item py-2 px-3 d-flex align-items-center" href="<?= site_url('wishlist'); ?>"><i class="fa-regular fa-heart text-primary me-3" style="width: 16px;"></i>Wishlist</a>
+                                    <a class="dropdown-item py-2 px-3 d-flex align-items-center" href="<?= site_url('account/notifications'); ?>"><i class="fa-regular fa-bell text-primary me-3" style="width: 16px;"></i>Notification</a>
+                                    <div class="dropdown-divider my-1 border-top"></div>
+                                    <a class="dropdown-item py-2 px-3 d-flex align-items-center text-danger fw-semibold" href="<?= site_url('logout'); ?>"><i class="fa-solid fa-arrow-right-from-bracket me-3" style="width: 16px;"></i>Logout</a>
+                                 </div>
+                              </div>
                               <?php else: ?>
                               <a href="#exampleModalToggle" data-bs-toggle="modal" class="text-decoration-none">
                                  <div class="aq-header-top-account-item">
