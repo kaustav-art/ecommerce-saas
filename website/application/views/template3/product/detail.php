@@ -1566,7 +1566,7 @@ if (!empty($product['specifications']) && is_array($product['specifications'])) 
          </div>
       </div>
 
-      <!-- Grocery Product Details Tabs (Description, Nutrition, Reviews, FAQ) -->
+      <!-- Grocery Product Details Tabs (Description, Nutrition & Unit Pricing, Customer Reviews) -->
       <div class="product-details-tab pb-90">
          <div class="container container-1630">
             <div class="row">
@@ -1574,75 +1574,71 @@ if (!empty($product['specifications']) && is_array($product['specifications'])) 
                   <div class="product-details-tab-nav">
                      <nav>
                         <div class="product-details-nav nav nav-tab justify-content-center p-relative" id="navPresentationTab" role="tablist">
-                           <button class="nav-links active" id="nav-description-tab" data-bs-toggle="tab" data-bs-target="#nav-description" type="button" role="tab" aria-selected="true">Farm Description &amp; Quality</button>
+                           <button class="nav-links active" id="nav-description-tab" data-bs-toggle="tab" data-bs-target="#nav-description" type="button" role="tab" aria-selected="true">Description</button>
                            <button class="nav-links" id="nav-addInfo-tab" data-bs-toggle="tab" data-bs-target="#nav-addInfo" type="button" role="tab" aria-selected="false">Nutrition &amp; Unit Pricing</button>
                            <button class="nav-links" id="nav-review-tab" data-bs-toggle="tab" data-bs-target="#nav-review" type="button" role="tab" aria-selected="false">Customer Reviews (<?= $review_count; ?>)</button>
-                           <button class="nav-links" id="nav-faq-tab" data-bs-toggle="tab" data-bs-target="#nav-faq" type="button" role="tab" aria-selected="false">Grocery FAQs</button>
                         </div>
                      </nav>
 
                      <div class="tab-content" id="navPresentationTabContent">
-                        <!-- Tab 1: Grocery Description -->
+                        <!-- Tab 1: Description (Same as maanamitaelectronics.com Description tab) -->
                         <div class="tab-pane fade show active" id="nav-description" role="tabpanel">
                            <div class="product-details-tab-item pt-4">
                               <div class="product-details-desc-wrap">
-                                 <h3 class="product-details-desc-title" id="tab-desc-product-title" style="color:#003D29;"><?= html_escape(!empty($initial_variant['title']) ? $initial_variant['title'] : $prod_title); ?></h3>
-                                 <div class="mb-30 text-secondary" style="font-size:15px; line-height:1.75;">
-                                    <?php if (!empty($product['description'])): ?>
-                                       <?= nl2br(html_escape($product['description'])); ?>
-                                    <?php else: ?>
-                                       <?= nl2br(html_escape($short_desc)); ?>
+                                 <?php
+                                    $raw_full_desc = trim((string)($product['description'] ?? ''));
+                                    $plain_full_desc = trim(strip_tags(str_replace('&nbsp;', ' ', $raw_full_desc)));
+                                    $has_full_desc = ($plain_full_desc !== '');
+                                 ?>
+                                 <?php if ($has_full_desc): ?>
+                                    <div class="product-full-description-content" style="font-size: 15px; line-height: 1.75; color: #334155;">
+                                       <?php if (preg_match('/<[a-z][\s\S]*>/i', $raw_full_desc)): ?>
+                                          <?= $raw_full_desc; ?>
+                                       <?php else: ?>
+                                          <p class="mb-0"><?= nl2br(html_escape($raw_full_desc)); ?></p>
+                                       <?php endif; ?>
+                                    </div>
+                                 <?php else: ?>
+                                    <h3 class="product-details-desc-title" id="tab-desc-product-title" style="color:#003D29;"><?= html_escape(!empty($initial_variant['title']) ? $initial_variant['title'] : ($prod_title ?? 'Product Overview')); ?></h3>
+                                    <?php if (!empty($product['short_description'])): ?>
+                                       <p class="mb-30"><?= nl2br(html_escape($product['short_description'])); ?></p>
                                     <?php endif; ?>
-                                 </div>
-                                 <?php if (!empty($raw_hl_list)): ?>
-                                 <div class="row g-3 mt-2">
-                                    <?php foreach ($raw_hl_list as $hl_card):
-                                       $hc_k = trim((string)($hl_card['key'] ?? ($hl_card['name'] ?? '')));
-                                       $hc_v = trim((string)($hl_card['value'] ?? ''));
-                                       if ($hc_k === '' && $hc_v === '') continue;
+                                    <?php
+                                       $fallback_specs = [];
+                                       if (!empty($grc_specifications) && is_array($grc_specifications)) {
+                                          $fallback_specs = array_slice($grc_specifications, 0, 8);
+                                       } elseif (!empty($grc_highlights) && is_array($grc_highlights)) {
+                                          foreach (array_slice($grc_highlights, 0, 8) as $hl) {
+                                             $fallback_specs[] = [
+                                                'name' => $hl['key'] ?? $hl['name'] ?? '',
+                                                'value' => $hl['value'] ?? ''
+                                             ];
+                                          }
+                                       }
+                                       if (empty($fallback_specs)) {
+                                          if (!empty($prod_brand)) {
+                                             $fallback_specs[] = ['name' => 'Brand', 'value' => $prod_brand];
+                                          }
+                                          if (!empty($prod_cat)) {
+                                             $fallback_specs[] = ['name' => 'Category', 'value' => $prod_cat];
+                                          }
+                                          if (!empty($initial_variant['sku'])) {
+                                             $fallback_specs[] = ['name' => 'SKU', 'value' => $initial_variant['sku']];
+                                          }
+                                       }
                                     ?>
-                                    <div class="col-md-3 col-sm-6">
-                                       <div class="p-3 rounded-3 h-100" style="background:#f4fbf6; border:1px solid #d1fae5;">
-                                          <div class="small text-muted mb-1"><?= html_escape($hc_k); ?></div>
-                                          <div class="fw-bold" style="color:#003D29; font-size:16px;"><?= html_escape($hc_v); ?></div>
-                                       </div>
-                                    </div>
-                                    <?php endforeach; ?>
-                                 </div>
-                                 <?php elseif (empty($is_user_project)): ?>
-                                 <div class="row g-4">
-                                    <div class="col-md-4">
-                                       <div class="p-4 rounded-3 h-100" style="background:#f4fbf6; border:1px solid #d1fae5;">
-                                          <h5 class="fw-bold mb-3" style="color:#003D29;"><i class="fa-solid fa-leaf text-success me-2"></i>Why Choose Our Organic Produce</h5>
-                                          <ul class="mb-0 ps-3 text-secondary" style="line-height:1.9;">
-                                             <li>100% Certified Organic &amp; Non-GMO Harvest</li>
-                                             <li>Hand-graded for uniform size and zero bruising</li>
-                                             <li>Transparent per-kg and per-pc unit pricing</li>
-                                             <li>Harvested within 24 hours of dispatch</li>
+                                    <?php if (!empty($fallback_specs)): ?>
+                                       <div class="product-details-desc-list mt-3">
+                                          <h4 class="product-details-desc-list-title">Key Specifications</h4>
+                                          <ul>
+                                             <?php foreach ($fallback_specs as $fspec): ?>
+                                                <?php if (trim((string)($fspec['name'] ?? '')) !== '' || trim((string)($fspec['value'] ?? '')) !== ''): ?>
+                                                   <li><strong><?= html_escape($fspec['name'] ?? ''); ?>:</strong> <?= html_escape($fspec['value'] ?? ''); ?></li>
+                                                <?php endif; ?>
+                                             <?php endforeach; ?>
                                           </ul>
                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                       <div class="p-4 rounded-3 h-100" style="background:#f4fbf6; border:1px solid #d1fae5;">
-                                          <h5 class="fw-bold mb-3" style="color:#003D29;"><i class="fa-solid fa-temperature-arrow-down text-success me-2"></i>Storage &amp; Freshness Tips</h5>
-                                          <ul class="mb-0 ps-3 text-secondary" style="line-height:1.9;">
-                                             <li>Keep refrigerated between 2°C and 4°C in original ventilated pack</li>
-                                             <li>Do not wash until just before eating to prevent moisture spoilage</li>
-                                             <li>Bring to room temperature 15 mins before serving for best flavor</li>
-                                          </ul>
-                                       </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                       <div class="p-4 rounded-3 h-100" style="background:#f4fbf6; border:1px solid #d1fae5;">
-                                          <h5 class="fw-bold mb-3" style="color:#003D29;"><i class="fa-solid fa-utensils text-success me-2"></i>Serving &amp; Culinary Ideas</h5>
-                                          <ul class="mb-0 ps-3 text-secondary" style="line-height:1.9;">
-                                             <li>Enjoy fresh out of the box as a healthy antioxidant snack</li>
-                                             <li>Pair with organic Greek yogurt, oats, or sourdough toast</li>
-                                             <li>Blend into cold-pressed smoothies, salads, or artisan desserts</li>
-                                          </ul>
-                                       </div>
-                                    </div>
-                                 </div>
+                                    <?php endif; ?>
                                  <?php endif; ?>
                               </div>
                            </div>
@@ -1882,53 +1878,17 @@ if (!empty($product['specifications']) && is_array($product['specifications'])) 
                                           <i class="fa-regular fa-comment-dots fs-2 mb-2 text-success"></i>
                                           <p class="mb-0">No customer reviews yet for <strong><?= html_escape($prod_title); ?></strong>.</p>
                                        </div>
-                                    <?php endif; ?>
-                                 </div>
-                              </div>
-                           </div>
-                        </div>
-
-                        <!-- Tab 4: Grocery FAQs -->
-                        <div class="tab-pane fade" id="nav-faq" role="tabpanel">
-                           <div class="product-details-tab-item pt-4">
-                              <div class="aq-faq-wrap">
-                                 <div class="accordion" id="grcFaqAccordion">
-                                    <div class="accordion-items">
-                                       <div class="accordion-header">
-                                          <button class="accordion-buttons" type="button" data-bs-toggle="collapse" data-bs-target="#grcFaq1" aria-expanded="true">
-                                             How is the Per Kg or Per Pc price calculated?
-                                             <span class="aq-faq-icon"></span>
-                                          </button>
-                                       </div>
-                                       <div id="grcFaq1" class="accordion-collapse collapse show" data-bs-parent="#grcFaqAccordion">
-                                          <div class="accordion-body">
-                                             <p>When a product unit is measured by weight (<strong>kg / g</strong>), we divide the pack price by its net weight in kilograms (for example, a 400g pack is 0.40 kg, so Per Kg Price = Pack Price &divide; 0.40). When a product unit is measured by count (<strong>pc / pcs</strong>), we divide the pack price by the number of pieces in the pack (Per Pc Price = Pack Price &divide; Piece Count).</p>
-                                          </div>
-                                       </div>
-                                    </div>
-                                    <div class="accordion-items">
-                                       <div class="accordion-header">
-                                          <button class="accordion-buttons collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#grcFaq2" aria-expanded="false">
-                                             How do you keep fresh produce cold during delivery?
-                                             <span class="aq-faq-icon"></span>
-                                          </button>
-                                       </div>
-                                       <div id="grcFaq2" class="accordion-collapse collapse" data-bs-parent="#grcFaqAccordion">
-                                          <div class="accordion-body">
-                                             <p>All perishable produce is packed in insulated cold-chain totes kept between 2°C and 4°C from our local dark store right to your doorstep.</p>
-                                          </div>
-                                       </div>
-                                    </div>
-                                 </div>
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-            </div>
-         </div>
-      </div>
+                                     <?php endif; ?>
+                                  </div>
+                               </div>
+                            </div>
+                         </div>
+                      </div>
+                   </div>
+                </div>
+             </div>
+          </div>
+       </div>
 
       <!-- Related Grocery Products Carousel / Grid (with Per-Kg & Per-Pc Unit Prices) -->
       <?php if (!empty($related_products)): ?>
