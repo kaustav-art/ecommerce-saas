@@ -98,9 +98,11 @@ class product extends MY_Controller {
             }
         }
 
-        $related_products           = !empty($same_cat_products) ? array_slice($same_cat_products, 0, 8) : array_slice($other_products, 0, 8);
-        $frequently_bought_together = array_slice(array_merge($same_cat_products, $diff_cat_products), 0, 2);
-        $recently_viewed_products   = array_slice(array_merge($same_cat_products, $diff_cat_products), 2, 4);
+        $combined_other             = array_merge($same_cat_products, $diff_cat_products);
+        $related_products           = !empty($same_cat_products) ? array_slice($combined_other, 0, 10) : array_slice($other_products, 0, 10);
+        $frequently_bought_together = array_slice($combined_other, 0, 2);
+        $recent_pool                = count($combined_other) > 5 ? array_merge(array_slice($combined_other, 2), array_slice($combined_other, 0, 2)) : $combined_other;
+        $recently_viewed_products   = array_slice($recent_pool, 0, 10);
 
         $is_in_wishlist = FALSE;
         $prod_id = (int)($product['id'] ?? 0);

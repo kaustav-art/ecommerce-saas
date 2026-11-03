@@ -1278,41 +1278,140 @@ button.lightbox-arrow:hover {
     }
 }
 
-/* Circular Prev / Next Slider Buttons on Product Detail Page (.nav-sw) */
-.nav-sw,
-.nav-next-latest,
-.nav-prev-latest,
-.nav-next-recent,
-.nav-prev-recent {
-    width: 44px !important;
-    height: 44px !important;
-    min-width: 44px !important;
-    max-width: 44px !important;
-    min-height: 44px !important;
-    max-height: 44px !important;
+/* Circular Prev / Next Slider Buttons & Bazaro Popular Products Slider Style (.aqf-seller-area / .aq-product-slide-wrap) */
+.color-slider-arrow,
+button.color-slider-arrow {
+    display: none !important;
+}
+.aqf-seller-area.fix {
+    overflow: visible;
+}
+.aq-product-slide-wrap.p-relative {
+    position: relative;
+}
+@media (max-width: 575px) {
+    .aq-product-arrow {
+        display: none;
+    }
+}
+.aq-product-arrow button,
+.aq-product-arrow button.aq-product-prev,
+.aq-product-arrow button.aq-product-next {
+    position: absolute;
+    top: 38%;
+    transform: translateY(-50%);
+    inset-inline-start: -30px;
+    z-index: 20;
+    height: 46px !important;
+    width: 46px !important;
+    min-width: 46px !important;
+    max-width: 46px !important;
+    min-height: 46px !important;
+    max-height: 46px !important;
     padding: 0 !important;
+    margin: 0 !important;
     gap: 0 !important;
     aspect-ratio: 1 / 1 !important;
     border-radius: 50% !important;
-    background-color: #ffffff !important;
-    color: #181818 !important;
-    border: 1px solid #e5e7eb !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    outline: none !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     line-height: 1 !important;
     flex-shrink: 0 !important;
-    box-shadow: 0 3px 10px rgba(1, 15, 28, 0.14) !important;
-    transition: all 0.25s ease !important;
+    opacity: 0;
+    visibility: hidden;
+    color: #141414 !important;
+    background: #ffffff !important;
+    box-shadow: 0 3px 10px rgba(1, 15, 28, 0.16) !important;
+    transition: all 0.3s ease-out;
 }
-.nav-sw:hover,
-.nav-next-latest:hover,
-.nav-prev-latest:hover,
-.nav-next-recent:hover,
-.nav-prev-recent:hover {
-    background-color: #181818 !important;
+.aq-product-arrow button span {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100%;
+    height: 100%;
+    line-height: 1 !important;
+}
+.aq-product-arrow button svg {
+    display: block;
+    transform: translateX(-1px);
+}
+.aq-product-arrow button.aq-product-next {
+    inset-inline-start: auto;
+    inset-inline-end: -30px;
+}
+.aq-product-arrow button.aq-product-next svg {
+    transform: translateX(1px);
+}
+.aq-product-arrow button:hover {
     color: #ffffff !important;
-    border-color: #181818 !important;
+    border-color: #141414 !important;
+    background-color: #141414 !important;
+}
+.aq-product-slide-wrap:hover .aq-product-arrow button {
+    opacity: 1;
+    visibility: visible;
+    inset-inline-start: -23px;
+}
+.aq-product-slide-wrap:hover .aq-product-arrow button.aq-product-next {
+    inset-inline-start: auto;
+    inset-inline-end: -23px;
+}
+.card-product {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.card-product .card-product-wrapper {
+    aspect-ratio: 3 / 4 !important;
+    width: 100% !important;
+    overflow: hidden !important;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    position: relative;
+}
+.card-product .card-product-wrapper .product-img {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+.card-product .card-product-wrapper .product-img img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block;
+}
+.product-badge-group {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    z-index: 5;
+    pointer-events: none;
+}
+.product-badge {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    padding: 5px 12px;
+    border-radius: 40px;
+    color: #ffffff;
+    background-color: #DA3F3F;
+}
+.product-badge.badge-sale {
+    background-color: #DA3F3F;
+}
+.product-badge.badge-flash-sale {
+    background-color: #DA3F3F;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 </style>
 
@@ -1444,13 +1543,9 @@ button.lightbox-arrow:hover {
                                                             <span class="color-badge-name" id="selected-color-name"><?= ucwords(html_escape($initial_color)); ?></span>
                                                         </div>
 
-                                                        <!-- Horizontal color slider with navigation arrows (color_badge.PNG) -->
+                                                        <!-- Horizontal color slider (without next/prev buttons) -->
                                                         <div class="color-variant-container">
-                                                            <button type="button" class="color-slider-arrow prev" id="color-arrow-prev" onclick="slideColorTrack(-1)" aria-label="Previous Color" style="display: none;">
-                                                                <i class="fa-solid fa-chevron-left"></i>
-                                                            </button>
-                                                            
-                                                            <div class="color-slider-track" id="color-slider-track" onscroll="updateColorSliderArrows()">
+                                                            <div class="color-slider-track" id="color-slider-track">
                                                                 <?php foreach ($color_map as $c_name => $c_info): 
                                                                     $is_active_color = ($c_name === $initial_color);
                                                                     $c_img = !empty($c_info['image']) ? $c_info['image'] : $product['main_image'];
@@ -1464,10 +1559,6 @@ button.lightbox-arrow:hover {
                                                                     </div>
                                                                 <?php endforeach; ?>
                                                             </div>
-
-                                                            <button type="button" class="color-slider-arrow next" id="color-arrow-next" onclick="slideColorTrack(1)" aria-label="Next Color">
-                                                                <i class="fa-solid fa-chevron-right"></i>
-                                                            </button>
                                                         </div>
                                                     <?php else: ?>
                                                         <div class="d-flex align-items-center justify-content-between mb-2">
@@ -2230,9 +2321,9 @@ button.lightbox-arrow:hover {
         </section>
         <!-- /Product_Description_Tabs -->
 
-        <!-- RELATED PRODUCTS & RECENTLY VIEWED TABS -->
+        <!-- RELATED PRODUCTS & RECENTLY VIEWED TABS (Same Popular Products Slider Style as Home Page) -->
         <?php if (!empty($related_products) || !empty($recently_viewed_products)): ?>
-            <section class="flat-spacing border-top">
+            <section class="flat-spacing border-top aqf-seller-area fix">
                 <div class="container flat-animate-tab">
                     <ul class="tab-product justify-content-sm-center nav nav-tabs border-0 mb-4" role="tablist">
                         <?php if (!empty($related_products)): ?>
@@ -2250,8 +2341,24 @@ button.lightbox-arrow:hover {
                     <div class="tab-content">
                         <?php if (!empty($related_products)): ?>
                             <div class="tab-pane active show" id="relatedProductsTab" role="tabpanel">
-                                <div class="position-relative">
-                                    <div dir="ltr" class="swiper tf-sw-latest" data-preview="4" data-tablet="3" data-mobile="2" data-space-lg="30" data-space-md="30" data-space="15" data-pagination="1" data-pagination-md="1" data-pagination-lg="1">
+                                <div class="aq-product-slide-wrap p-relative">
+                                    <div class="aq-product-arrow">
+                                        <button type="button" class="aq-product-prev aq-related-prev" aria-label="Previous slide">
+                                            <span>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="7" height="12" viewBox="0 0 7 12" fill="none">
+                                                    <path d="M5.75 10.75L0.75 5.75L5.75 0.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                            </span>
+                                        </button>
+                                        <button type="button" class="aq-product-next aq-related-next" aria-label="Next slide">
+                                            <span>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="7" height="12" viewBox="0 0 7 12" fill="none">
+                                                    <path d="M0.75 10.75L5.75 5.75L0.75 0.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <div class="swiper aq-product-active aq-related-slider">
                                         <div class="swiper-wrapper">
                                             <?php foreach ($related_products as $rp): ?>
                                                 <div class="swiper-slide">
@@ -2259,13 +2366,6 @@ button.lightbox-arrow:hover {
                                                 </div>
                                             <?php endforeach; ?>
                                         </div>
-                                        <div class="sw-pagination-latest sw-dots type-circle justify-content-center mt-4"></div>
-                                    </div>
-                                    <div class="nav-next-latest nav-sw nav-sw-left d-none d-md-flex position-absolute top-50 start-0 translate-middle-y shadow-sm" style="z-index: 5; margin-left: -16px; cursor: pointer;" title="Previous">
-                                        <i class="fa-solid fa-chevron-left" style="font-size: 13px;"></i>
-                                    </div>
-                                    <div class="nav-prev-latest nav-sw nav-sw-right d-none d-md-flex position-absolute top-50 end-0 translate-middle-y shadow-sm" style="z-index: 5; margin-right: -16px; cursor: pointer;" title="Next">
-                                        <i class="fa-solid fa-chevron-right" style="font-size: 13px;"></i>
                                     </div>
                                 </div>
                             </div>
@@ -2273,8 +2373,24 @@ button.lightbox-arrow:hover {
 
                         <?php if (!empty($recently_viewed_products)): ?>
                             <div class="tab-pane <?= empty($related_products) ? 'active show' : ''; ?>" id="recentlyViewedTab" role="tabpanel">
-                                <div class="position-relative">
-                                    <div dir="ltr" class="swiper tf-sw-recent" data-preview="4" data-tablet="3" data-mobile="2" data-space-lg="30" data-space-md="30" data-space="15" data-pagination="1" data-pagination-md="1" data-pagination-lg="1">
+                                <div class="aq-product-slide-wrap p-relative">
+                                    <div class="aq-product-arrow">
+                                        <button type="button" class="aq-product-prev aq-recent-prev" aria-label="Previous slide">
+                                            <span>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="7" height="12" viewBox="0 0 7 12" fill="none">
+                                                    <path d="M5.75 10.75L0.75 5.75L5.75 0.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                            </span>
+                                        </button>
+                                        <button type="button" class="aq-product-next aq-recent-next" aria-label="Next slide">
+                                            <span>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="7" height="12" viewBox="0 0 7 12" fill="none">
+                                                    <path d="M0.75 10.75L5.75 5.75L0.75 0.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <div class="swiper aq-product-active aq-recent-slider">
                                         <div class="swiper-wrapper">
                                             <?php foreach ($recently_viewed_products as $rvp): ?>
                                                 <div class="swiper-slide">
@@ -2282,13 +2398,6 @@ button.lightbox-arrow:hover {
                                                 </div>
                                             <?php endforeach; ?>
                                         </div>
-                                        <div class="sw-pagination-recent sw-dots type-circle justify-content-center mt-4"></div>
-                                    </div>
-                                    <div class="nav-next-recent nav-sw nav-sw-left d-none d-md-flex position-absolute top-50 start-0 translate-middle-y shadow-sm" style="z-index: 5; margin-left: -16px; cursor: pointer;" title="Previous">
-                                        <i class="fa-solid fa-chevron-left" style="font-size: 13px;"></i>
-                                    </div>
-                                    <div class="nav-prev-recent nav-sw nav-sw-right d-none d-md-flex position-absolute top-50 end-0 translate-middle-y shadow-sm" style="z-index: 5; margin-right: -16px; cursor: pointer;" title="Next">
-                                        <i class="fa-solid fa-chevron-right" style="font-size: 13px;"></i>
                                     </div>
                                 </div>
                             </div>
@@ -3557,16 +3666,84 @@ window.toggleSeeMoreSpecs = function(e) {
     }
 };
 
-// Update Swiper sliders when switching tabs
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof jQuery !== 'undefined') {
-        jQuery('a[data-bs-toggle="tab"]').on('shown.bs.tab', function () {
-            document.querySelectorAll('.tf-sw-latest, .tf-sw-recent').forEach(function(el) {
-                if (el.swiper) {
-                    el.swiper.update();
+// Initialize Related Products & Recently Viewed Sliders (Same as Home Popular Products Slider)
+(function() {
+    function initDetailPopularStyleSliders() {
+        var sliderConfigs = [
+            { sel: '.aq-related-slider', prev: '.aq-related-prev', next: '.aq-related-next' },
+            { sel: '.aq-recent-slider',  prev: '.aq-recent-prev',  next: '.aq-recent-next' }
+        ];
+        sliderConfigs.forEach(function(cfg) {
+            var el = document.querySelector(cfg.sel);
+            if (el && typeof Swiper !== 'undefined' && !el.swiper) {
+                new Swiper(cfg.sel, {
+                    slidesPerView: 5,
+                    loop: true,
+                    autoplay: true,
+                    spaceBetween: 30,
+                    speed: 1000,
+                    observer: true,
+                    observeParents: true,
+                    navigation: {
+                        prevEl: cfg.prev,
+                        nextEl: cfg.next,
+                    },
+                    breakpoints: {
+                        1400: { slidesPerView: 5, spaceBetween: 30 },
+                        1200: { slidesPerView: 5, spaceBetween: 24 },
+                        992:  { slidesPerView: 4, spaceBetween: 20 },
+                        768:  { slidesPerView: 3, spaceBetween: 15 },
+                        576:  { slidesPerView: 2, spaceBetween: 15 },
+                        0:    { slidesPerView: 2, spaceBetween: 12 }
+                    }
+                });
+            }
+        });
+    }
+
+    if (!window._fshColorSwatchBound) {
+        window._fshColorSwatchBound = true;
+        ['click', 'mouseover'].forEach(function(evtType) {
+            document.addEventListener(evtType, function(e) {
+                var swatch = e.target.closest('.card-product .color-swatch');
+                if (!swatch) return;
+                var card = swatch.closest('.card-product');
+                var swatchImg = swatch.querySelector('img');
+                if (card && swatchImg) {
+                    var newSrc = swatchImg.getAttribute('src') || swatchImg.getAttribute('data-src');
+                    var prodImg = card.querySelector('.img-product');
+                    if (prodImg && newSrc) {
+                        prodImg.setAttribute('src', newSrc);
+                        prodImg.setAttribute('data-src', newSrc);
+                    }
                 }
+                if (swatch.parentElement) {
+                    swatch.parentElement.querySelectorAll('.color-swatch.active').forEach(function(sib) {
+                        sib.classList.remove('active');
+                    });
+                }
+                swatch.classList.add('active');
             });
         });
     }
-});
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initDetailPopularStyleSliders);
+    } else {
+        initDetailPopularStyleSliders();
+    }
+    window.addEventListener('load', initDetailPopularStyleSliders);
+
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof jQuery !== 'undefined') {
+            jQuery('a[data-bs-toggle="tab"]').on('shown.bs.tab', function () {
+                document.querySelectorAll('.aq-related-slider, .aq-recent-slider').forEach(function(el) {
+                    if (el.swiper) {
+                        el.swiper.update();
+                    }
+                });
+            });
+        }
+    });
+})();
 </script>
