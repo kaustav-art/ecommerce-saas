@@ -152,8 +152,9 @@
                                 $cat_img = !empty($root_c['image']) 
                                     ? base_url('assets/images/' . $root_c['image']) 
                                     : base_url('assets/images/' . $fallback_circle);
+                                $has_subs = !empty($root_c['children']);
                         ?>
-                            <div class="store-cat-item" data-cat-id="<?= $root_c['id']; ?>">
+                            <div class="store-cat-item <?= $has_subs ? 'has-subcategories' : ''; ?>" data-cat-id="<?= $root_c['id']; ?>">
                                 <a href="<?= site_url('shop/' . $root_c['slug']); ?>" class="store-cat-card">
                                     <div class="store-cat-thumb-outer">
                                         <img src="<?= $cat_img; ?>" 
@@ -163,6 +164,9 @@
                                     </div>
                                     <div class="store-cat-name-row">
                                         <span class="store-cat-name-text"><?= html_escape($root_c['name']); ?></span>
+                                        <?php if ($has_subs): ?>
+                                            <i class="fa-solid fa-chevron-down store-cat-arrow-icon"></i>
+                                        <?php endif; ?>
                                     </div>
                                 </a>
                             </div>
@@ -176,6 +180,44 @@
                     <button type="button" class="store-cat-slide-btn store-cat-slide-next" id="catSlideNext" aria-label="Next categories">
                         <i class="fa-solid fa-chevron-right"></i>
                     </button>
+
+                    <!-- Multi-Column Category Drawers (Matching category_drawer.png) -->
+                    <div class="store-cat-drawers-container" id="catDrawersContainer">
+                        <?php 
+                        if (!empty($header_categories)): 
+                            foreach ($header_categories as $root_c): 
+                                if (!empty($root_c['children'])):
+                        ?>
+                            <div class="store-cat-drawer shadow-lg" id="catDrawer-<?= $root_c['id']; ?>" data-cat-id="<?= $root_c['id']; ?>">
+                                <div class="store-cat-drawer-inner">
+                                    <?php foreach ($root_c['children'] as $sub_c): 
+                                        $sub_children = $sub_c['children'] ?? [];
+                                    ?>
+                                        <div class="store-drawer-col">
+                                            <a href="<?= site_url('shop/' . $sub_c['slug']); ?>" class="store-drawer-col-title">
+                                                <?= html_escape($sub_c['name']); ?>
+                                            </a>
+                                            <?php if (!empty($sub_children)): ?>
+                                                <ul class="store-drawer-list">
+                                                    <?php foreach ($sub_children as $child_c): ?>
+                                                        <li class="store-drawer-item">
+                                                            <a href="<?= site_url('shop/' . $child_c['slug']); ?>" class="store-drawer-link">
+                                                                <?= html_escape($child_c['name']); ?>
+                                                            </a>
+                                                        </li>
+                                                    <?php endforeach; ?>
+                                                </ul>
+                                            <?php endif; ?>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        <?php 
+                                endif;
+                            endforeach; 
+                        endif; 
+                        ?>
+                    </div>
                 </div>
             </div>
             <?php endif; ?>
@@ -493,23 +535,27 @@
             position: absolute;
             top: 0;
             bottom: 0;
-            height: 100%;
-            width: 34px;
-            background: #ffffff;
+            height: 100% !important;
+            width: 34px !important;
+            min-width: 34px !important;
+            max-width: 34px !important;
+            border-radius: 0 !important;
+            background: #ffffff !important;
             border: 1px solid #ebebeb;
             z-index: 1030;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
             cursor: pointer;
-            color: #444444;
-            font-size: 13px;
+            color: #444444 !important;
+            font-size: 13px !important;
             transition: background-color 0.2s, color 0.2s, box-shadow 0.2s, opacity 0.2s;
-            padding: 0;
+            padding: 0 !important;
+            gap: 0 !important;
         }
         .store-cat-slide-btn:hover {
-            background-color: #fafafa;
-            color: #5428e0;
+            background-color: #fafafa !important;
+            color: #5428e0 !important;
         }
         .store-cat-slide-prev {
             left: 0;

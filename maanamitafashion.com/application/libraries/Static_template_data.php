@@ -157,7 +157,7 @@ class Static_template_data {
 
         // 3. Categories (all_categories, root_categories, category_tree) with recursive descendant rollup
         $catStmt = $pdo->prepare("SELECT c.*, (SELECT COUNT(*) FROM `products` p WHERE p.category_id = c.id AND p.tenant_id = c.tenant_id AND p.status = 'published') AS direct_product_count
-            FROM `categories` c WHERE c.tenant_id = ? AND c.status = 'active' ORDER BY c.is_featured DESC, c.sort_order DESC, c.id DESC");
+            FROM `categories` c WHERE c.tenant_id = ? AND c.status = 'active' ORDER BY c.sort_order ASC, c.name ASC");
         $catStmt->execute([$tenantId]);
         $rawCats = $catStmt->fetchAll();
 
