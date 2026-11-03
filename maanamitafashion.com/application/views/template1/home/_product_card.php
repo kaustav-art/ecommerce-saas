@@ -24,11 +24,11 @@ $hover_img = !empty($p['gallery_images_decoded'][0]) ? $p['gallery_images_decode
         <!-- Discount / Flash Sale Tag -->
         <?php if (!empty($p['is_flash_sale']) || $pct > 0): ?>
             <div class="product-badge-group">
-                <?php if (!empty($p['is_flash_sale'])): ?>
-                    <span class="product-badge badge-flash-sale">SALE</span>
-                <?php endif; ?>
                 <?php if ($pct > 0): ?>
                     <span class="product-badge badge-sale">-<?= $pct; ?>%</span>
+                <?php endif; ?>
+                <?php if (!empty($p['is_flash_sale'])): ?>
+                    <span class="product-badge badge-flash-sale">SALE</span>
                 <?php endif; ?>
             </div>
         <?php endif; ?>
