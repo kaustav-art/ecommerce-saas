@@ -157,9 +157,6 @@ $modal_store_name = html_escape($site_name ?? ($store_settings['site_name'] ?? '
                               <input class="aq-form-checkbox form-check-input" id="remeber" type="checkbox" checked>
                               <label class="aq-form-checkbox-label small text-muted" for="remeber">Keep me signed in</label>
                            </div>
-                           <div class="aq-login-forgot">
-                              <span class="small text-success fw-semibold"><i class="fa-solid fa-shield-halved me-1"></i>Instant OTP Verify</span>
-                           </div>
                         </div>
                         <div class="aq-login-bottom-wrap mb-30" style="margin-bottom: 22px;">
                            <button type="submit" id="btn-send-otp" class="aq-login-btn w-100">Continue with OTP</button>

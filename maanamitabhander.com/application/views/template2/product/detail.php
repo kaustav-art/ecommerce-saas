@@ -331,6 +331,9 @@ if (!empty($initial_variant)) {
 .tf-product-info-wrap {
     font-family: inherit;
 }
+.slider-nav-2.nav-fixed-track .slick-track {
+    transform: translate3d(0px, 0px, 0px) !important;
+}
 .product-variant-loader-overlay {
     position: absolute;
     top: 0;
@@ -938,8 +941,8 @@ if (!empty($initial_variant)) {
               $elt_gallery_urls[] = base_url('assets/images/' . $clean_g);
           }
       }
-      while (count($elt_gallery_urls) < 4) {
-          $elt_gallery_urls[] = $elt_gallery_urls[0] ?? base_url('assets/images/products/electronics/elec-p-1.jpg');
+      if (empty($elt_gallery_urls)) {
+          $elt_gallery_urls[] = base_url('assets/images/products/electronics/elec-p-1.jpg');
       }
       ?>
       <div class="aq-product-details-thumbnails-style pb-120">
@@ -2166,9 +2169,8 @@ if (!empty($initial_variant)) {
             if (u) urls.push(u);
         });
         if (urls.length === 0) return;
-        while (urls.length < 4) {
-            urls = urls.concat(urls);
-        }
+
+        var isNav2Scrollable = urls.length > 5;
 
         var forHtml = '';
         var navHtml = '';
@@ -2189,14 +2191,21 @@ if (!empty($initial_variant)) {
             var $nav = $('.slider-nav-2');
 
             if ($for.length && $nav.length) {
+                $for.off('beforeChange.nav2FixedSync');
                 if ($for.hasClass('slick-initialized')) {
                     $for.slick('unslick');
                 }
                 if ($nav.hasClass('slick-initialized')) {
                     $nav.slick('unslick');
                 }
-                $for.siblings('.product-slider-arrow').remove();
+                $for.siblings('.product-slider-arrow').empty();
                 $nav.siblings('.product-slider-arrow').remove();
+
+                if (!isNav2Scrollable) {
+                    $nav.addClass('nav-fixed-track');
+                } else {
+                    $nav.removeClass('nav-fixed-track');
+                }
 
                 $for.html(forHtml);
                 $nav.html(navHtml);
@@ -2204,40 +2213,35 @@ if (!empty($initial_variant)) {
                 $for.slick({
                     slidesToShow: 1,
                     slidesToScroll: 1,
-                    arrows: false,
-                    fade: true,
-                    asNavFor: '.slider-nav-2'
+                    arrows: true,
+                    fade: false,
+                    infinite: true,
+                    autoplay: true,
+                    asNavFor: '.slider-nav, .slider-nav-2',
+                    appendArrows: '.product-slider-arrow',
+                    prevArrow: '<button type="button" class="slick-prev"><svg xmlns="http://www.w3.org/2000/svg" width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M5.75 10.75L0.75 5.75L5.75 0.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>',
+                    nextArrow: '<button type="button" class="slick-next"><svg xmlns="http://www.w3.org/2000/svg" width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M0.75 10.75L5.75 5.75L0.75 0.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'
                 });
 
                 $nav.slick({
                     slidesToShow: 5,
                     slidesToScroll: 1,
+                    infinite: isNav2Scrollable,
                     asNavFor: '.slider-for',
-                    arrows: false,
-                    dots: false,
                     centerMode: false,
-                    focusOnSelect: true,
-                    prevArrow: '<button type="button" class="product-slider-prev product-slider-arrow"><i class="fa-regular fa-angle-left"></i></button>',
-                    nextArrow: '<button type="button" class="product-slider-next product-slider-arrow"><i class="fa-regular fa-angle-right"></i></button>',
-                    appendArrows: $(".product-slider-nav-2").parent(),
-                    responsive: [
-                        {
-                            breakpoint: 1400,
-                            settings: { slidesToShow: 4 }
-                        },
-                        {
-                            breakpoint: 1200,
-                            settings: { slidesToShow: 3 }
-                        },
-                        {
-                            breakpoint: 992,
-                            settings: { slidesToShow: 4 }
-                        },
-                        {
-                            breakpoint: 500,
-                            settings: { slidesToShow: 3 }
-                        }
-                    ]
+                    dots: false,
+                    arrows: false,
+                    autoplay: isNav2Scrollable,
+                    draggable: isNav2Scrollable,
+                    swipe: isNav2Scrollable,
+                    focusOnSelect: true
+                });
+
+                $for.on('beforeChange.nav2FixedSync', function(event, slick, currentSlide, nextSlide) {
+                    if ($nav.hasClass('nav-fixed-track')) {
+                        $nav.find('.slick-slide').removeClass('slick-current');
+                        $nav.find('.slick-slide[data-slick-index="' + nextSlide + '"]').addClass('slick-current');
+                    }
                 });
 
                 if ($.fn.magnificPopup) {
