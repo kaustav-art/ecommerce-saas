@@ -349,7 +349,7 @@ if (!empty($initial_variant)) {
     transform: scale(1.03);
 }
 
-/* Floating Action Buttons on 2nd Image */
+/* Floating Action Buttons on 2nd Image (Wishlist & Fullscreen - Perfect Circles) */
 .grid-floating-actions {
     position: absolute;
     top: 10px;
@@ -359,30 +359,50 @@ if (!empty($initial_variant)) {
     gap: 8px;
     z-index: 10;
 }
-.grid-action-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: #ffffff;
-    border: 1px solid #d1d5db;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #181818;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+.grid-action-btn,
+button.grid-action-btn {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    max-width: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    gap: 0 !important;
+    aspect-ratio: 1 / 1 !important;
+    border-radius: 50% !important;
+    background: #ffffff !important;
+    border: 1px solid #d1d5db !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+    flex-shrink: 0 !important;
+    color: #181818 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
     cursor: pointer;
     transition: all 0.2s ease;
 }
-.grid-action-btn:hover {
-    background: #181818;
-    color: #ffffff;
-    border-color: #181818;
+.grid-action-btn i {
+    font-size: 15px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.grid-action-btn:hover,
+button.grid-action-btn:hover {
+    background: #181818 !important;
+    color: #ffffff !important;
+    border-color: #181818 !important;
     transform: translateY(-2px);
 }
-.grid-action-btn.active {
-    background: #dc3545;
-    color: #ffffff;
-    border-color: #dc3545;
+.grid-action-btn.active,
+button.grid-action-btn.active {
+    background: #dc3545 !important;
+    color: #ffffff !important;
+    border-color: #dc3545 !important;
 }
 
 /* 1px border for desktop Add to cart button */
@@ -572,34 +592,45 @@ if (!empty($initial_variant)) {
 }
 
 /* Circular floating navigation arrows (as shown in color_badge.PNG) */
-.color-slider-arrow {
+.color-slider-arrow,
+button.color-slider-arrow {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.92);
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    gap: 0 !important;
+    aspect-ratio: 1 / 1 !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.95) !important;
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
     cursor: pointer;
     z-index: 5;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16) !important;
     transition: all 0.2s ease;
-    color: #1a1a1a;
-    font-size: 13px;
-    padding: 0;
-    line-height: 1;
+    color: #1a1a1a !important;
+    font-size: 13px !important;
+    line-height: 1 !important;
 }
 
-.color-slider-arrow:hover {
-    background: #ffffff;
-    color: #000000;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+.color-slider-arrow:hover,
+button.color-slider-arrow:hover {
+    background: #181818 !important;
+    color: #ffffff !important;
+    border-color: #181818 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22) !important;
     transform: translateY(-50%) scale(1.05);
 }
 
@@ -682,29 +713,50 @@ if (!empty($initial_variant)) {
     object-fit: contain;
     border-radius: 6px;
 }
-.lightbox-arrow {
+.lightbox-arrow,
+button.lightbox-arrow {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-    border: none;
-    color: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
+    width: 46px !important;
+    height: 46px !important;
+    min-width: 46px !important;
+    max-width: 46px !important;
+    min-height: 46px !important;
+    max-height: 46px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    gap: 0 !important;
+    aspect-ratio: 1 / 1 !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.22) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: #ffffff !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+    flex-shrink: 0 !important;
+    font-size: 17px !important;
     cursor: pointer;
-    transition: background 0.2s ease;
+    transition: all 0.2s ease;
     z-index: 10;
 }
-.lightbox-arrow:hover {
-    background: rgba(255, 255, 255, 0.4);
+.lightbox-arrow:hover,
+button.lightbox-arrow:hover {
+    background: #ffffff !important;
+    color: #141414 !important;
+    border-color: #ffffff !important;
 }
 .lightbox-arrow.prev { left: 20px; }
 .lightbox-arrow.next { right: 20px; }
+.modal-header .btn-close {
+    padding: 0.5rem !important;
+    width: 1em !important;
+    height: 1em !important;
+    min-width: 0 !important;
+    border-radius: 0.25rem !important;
+}
 .lightbox-thumbs-strip {
     display: flex;
     gap: 8px;
@@ -827,21 +879,31 @@ if (!empty($initial_variant)) {
         gap: 10px !important;
         z-index: 20 !important;
     }
-    .mobile-floating-btn {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: #ffffff;
-        border: 1px solid #d1d5db;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #1e2022;
-        font-size: 16px;
+    .mobile-floating-btn,
+    button.mobile-floating-btn {
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px !important;
+        max-width: 40px !important;
+        min-height: 40px !important;
+        max-height: 40px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        gap: 0 !important;
+        aspect-ratio: 1 / 1 !important;
+        border-radius: 50% !important;
+        background: #ffffff !important;
+        border: 1px solid #d1d5db !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14) !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        line-height: 1 !important;
+        flex-shrink: 0 !important;
+        color: #1e2022 !important;
+        font-size: 16px !important;
         cursor: pointer;
         transition: transform 0.15s ease, background 0.15s ease;
-        padding: 0;
         outline: none;
     }
     .mobile-floating-btn:active {
@@ -1214,6 +1276,43 @@ if (!empty($initial_variant)) {
     .tf-product-info-list .tf-product-info-choose-option {
         gap: 12px !important;
     }
+}
+
+/* Circular Prev / Next Slider Buttons on Product Detail Page (.nav-sw) */
+.nav-sw,
+.nav-next-latest,
+.nav-prev-latest,
+.nav-next-recent,
+.nav-prev-recent {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+    padding: 0 !important;
+    gap: 0 !important;
+    aspect-ratio: 1 / 1 !important;
+    border-radius: 50% !important;
+    background-color: #ffffff !important;
+    color: #181818 !important;
+    border: 1px solid #e5e7eb !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+    flex-shrink: 0 !important;
+    box-shadow: 0 3px 10px rgba(1, 15, 28, 0.14) !important;
+    transition: all 0.25s ease !important;
+}
+.nav-sw:hover,
+.nav-next-latest:hover,
+.nav-prev-latest:hover,
+.nav-next-recent:hover,
+.nav-prev-recent:hover {
+    background-color: #181818 !important;
+    color: #ffffff !important;
+    border-color: #181818 !important;
 }
 </style>
 

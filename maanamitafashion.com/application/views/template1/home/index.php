@@ -73,7 +73,7 @@ $deals_list    = (!empty($flash_sale) && (!empty($flash_sale_products) || !empty
                         <h3 class="fsh-section-title mb-0">New Arrivals</h3>
                     </div>
                     <a href="<?= site_url('shop'); ?>" class="fsh-see-all-link">
-                        <span>See all Products</span>
+                        <span>See all</span>
                         <i class="fa-solid fa-arrow-right ms-1"></i>
                     </a>
                 </div>
@@ -164,9 +164,6 @@ $deals_list    = (!empty($flash_sale) && (!empty($flash_sale_products) || !empty
                              <h4 class="aq-section-title fs-44 aq-text-white mb-20"><?= $fs_banner_heading_html; ?></h4>
                              <span>Up to <?= $fs_max_disc; ?>%</span>
                           </div>
-                          <div class="aqf-deals-banner-btn">
-                             <a class="aq-btn-black blur-bg w-100 text-center" href="<?= site_url('shop'); ?>">Shop Collection</a>
-                          </div>
                        </div>
                     </div>
                     <div class="col-xl-7 col-lg-6">
@@ -235,7 +232,7 @@ $deals_list    = (!empty($flash_sale) && (!empty($flash_sale_products) || !empty
                         <h3 class="fsh-section-title mb-0">Popular Products</h3>
                     </div>
                     <a href="<?= site_url('shop?filter=popular'); ?>" class="fsh-see-all-link">
-                        <span>See all Products</span>
+                        <span>See all</span>
                         <i class="fa-solid fa-arrow-right ms-1"></i>
                     </a>
                 </div>
@@ -398,43 +395,43 @@ $deals_list    = (!empty($flash_sale) && (!empty($flash_sale_products) || !empty
                         slidesPerView: 3,
                         loop: true,
                         autoplay: true,
-                        spaceBetween: 10,
+                        spaceBetween: 18,
                         speed: 1000,
                         navigation: {
                             prevEl: '.aqf-deals-prev',
                             nextEl: '.aqf-deals-next',
                         },
                         breakpoints: {
-                            1400: { slidesPerView: 3 },
-                            1200: { slidesPerView: 2 },
-                            992:  { slidesPerView: 2 },
-                            768:  { slidesPerView: 2 },
-                            576:  { slidesPerView: 2 },
-                            0:    { slidesPerView: 1 }
+                            1400: { slidesPerView: 3, spaceBetween: 18 },
+                            1200: { slidesPerView: 3, spaceBetween: 15 },
+                            992:  { slidesPerView: 2, spaceBetween: 15 },
+                            768:  { slidesPerView: 2, spaceBetween: 15 },
+                            576:  { slidesPerView: 2, spaceBetween: 15 },
+                            0:    { slidesPerView: 1, spaceBetween: 12 }
                         }
                     });
                 }
 
-                // 3. Popular Products Swiper Slider (.aq-product-active) - Bazaro Best Sellers style
+                // 3. Popular Products Swiper Slider (.aq-product-active) - 5 products in a row
                 var popularSliderEl = document.querySelector('.aq-product-active');
                 if (popularSliderEl && typeof Swiper !== 'undefined' && !popularSliderEl.swiper) {
                     new Swiper('.aq-product-active', {
-                        slidesPerView: 4,
+                        slidesPerView: 5,
                         loop: true,
                         autoplay: true,
-                        spaceBetween: 25,
+                        spaceBetween: 30,
                         speed: 1000,
                         navigation: {
                             prevEl: '.aq-product-prev',
                             nextEl: '.aq-product-next',
                         },
                         breakpoints: {
-                            1400: { slidesPerView: 4 },
-                            1200: { slidesPerView: 3 },
-                            992:  { slidesPerView: 3 },
-                            768:  { slidesPerView: 2 },
-                            576:  { slidesPerView: 2 },
-                            100:  { slidesPerView: 1 }
+                            1400: { slidesPerView: 5, spaceBetween: 30 },
+                            1200: { slidesPerView: 5, spaceBetween: 24 },
+                            992:  { slidesPerView: 4, spaceBetween: 20 },
+                            768:  { slidesPerView: 3, spaceBetween: 15 },
+                            576:  { slidesPerView: 2, spaceBetween: 15 },
+                            0:    { slidesPerView: 2, spaceBetween: 12 }
                         }
                     });
                 }
@@ -527,8 +524,8 @@ $deals_list    = (!empty($flash_sale) && (!empty($flash_sale_products) || !empty
 
         /* Section Headings */
         .fsh-section-title {
-            font-size: 28px;
-            font-weight: 700;
+            font-size: 30px;
+            /* font-weight: 700; */
             color: #111827;
             letter-spacing: -0.4px;
         }
@@ -587,11 +584,37 @@ $deals_list    = (!empty($flash_sale) && (!empty($flash_sale_products) || !empty
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* Uniform Product Card Size across New Arrivals, Flash Sales & Popular Products */
+        .card-product {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-product .card-product-wrapper {
+            aspect-ratio: 3 / 4 !important;
+            width: 100% !important;
+            overflow: hidden !important;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            position: relative;
+        }
+        .card-product .card-product-wrapper .product-img {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+        }
+        .card-product .card-product-wrapper .product-img img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            display: block;
+        }
+
         /* =========================================================
            Bazaro Best Sellers Slider Styles (.aqf-seller-area / .aq-product-slide-wrap)
            ========================================================= */
         .aqf-seller-area.fix {
-            overflow: hidden;
+            overflow: visible;
         }
         .aq-product-slide-wrap.p-relative {
             position: relative;
@@ -601,49 +624,71 @@ $deals_list    = (!empty($flash_sale) && (!empty($flash_sale_products) || !empty
                 display: none;
             }
         }
-        .aq-product-arrow button {
+        .aq-product-arrow button,
+        .aq-product-arrow button.aq-product-prev,
+        .aq-product-arrow button.aq-product-next {
             position: absolute;
-            top: 30%;
+            top: 38%;
+            transform: translateY(-50%);
             inset-inline-start: -30px;
-            z-index: 10;
-            height: 46px;
-            width: 46px;
+            z-index: 20;
+            height: 46px !important;
+            width: 46px !important;
+            min-width: 46px !important;
+            max-width: 46px !important;
+            min-height: 46px !important;
+            max-height: 46px !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            gap: 0 !important;
+            aspect-ratio: 1 / 1 !important;
+            border-radius: 50% !important;
+            border: 1px solid rgba(0, 0, 0, 0.08) !important;
+            outline: none !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            line-height: 1 !important;
+            flex-shrink: 0 !important;
             opacity: 0;
             visibility: hidden;
-            border-radius: 50%;
-            border: none;
-            outline: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--aq-common-black);
-            background: var(--aq-common-white);
-            box-shadow: 0 1px 2px 0 rgba(1, 15, 28, 0.2);
+            color: var(--aq-common-black) !important;
+            background: var(--aq-common-white) !important;
+            box-shadow: 0 3px 10px rgba(1, 15, 28, 0.16) !important;
             transition: all 0.3s ease-out;
         }
+        .aq-product-arrow button span {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 100%;
+            height: 100%;
+            line-height: 1 !important;
+        }
         .aq-product-arrow button svg {
-            transform: translate(-1px, -1px);
+            display: block;
+            transform: translateX(-1px);
         }
         .aq-product-arrow button.aq-product-next {
             inset-inline-start: auto;
             inset-inline-end: -30px;
         }
         .aq-product-arrow button.aq-product-next svg {
-            transform: translate(2px, -1px);
+            transform: translateX(1px);
         }
         .aq-product-arrow button:hover {
-            color: var(--aq-common-white);
-            border-color: var(--aq-common-black);
-            background-color: var(--aq-common-black);
+            color: var(--aq-common-white) !important;
+            border-color: var(--aq-common-black) !important;
+            background-color: var(--aq-common-black) !important;
         }
         .aq-product-slide-wrap:hover .aq-product-arrow button {
             opacity: 1;
             visibility: visible;
-            inset-inline-start: -22px;
+            inset-inline-start: -23px;
         }
         .aq-product-slide-wrap:hover .aq-product-arrow button.aq-product-next {
             inset-inline-start: auto;
-            inset-inline-end: -22px;
+            inset-inline-end: -23px;
         }
 
         /* =========================================================
@@ -887,36 +932,41 @@ $deals_list    = (!empty($flash_sale) && (!empty($flash_sale_products) || !empty
             }
         }
         .aqf-deals-slider-arrow button {
-            color: var(--aq-common-black);
-            padding: 4px;
+            color: var(--aq-common-black) !important;
+            background: transparent !important;
+            padding: 4px !important;
+            width: auto !important;
+            height: auto !important;
+            min-width: 0 !important;
+            border-radius: 0 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 0 !important;
         }
         .aqf-deals-slider-arrow button:hover {
-            color: var(--aq-common-red);
+            color: var(--aq-common-red) !important;
         }
 
-        /* Deals Slider Main & Active Container */
-        .aqf-deals-slider-active {
-            margin-inline-end: -244px;
+        /* Deals Slider Main & Active Container - Keep 3 cards equal in width (~230px) to 5-per-row cards */
+        .aqf-deals-slider-main {
+            padding-right: 20px;
         }
-        @media only screen and (min-width: 1200px) and (max-width: 1399px),
-               only screen and (min-width: 992px) and (max-width: 1199px),
-               only screen and (min-width: 768px) and (max-width: 991px),
-               (max-width: 767px) {
-            .aqf-deals-slider-active {
-                margin-inline-end: 0;
-            }
+        .aqf-deals-slider-active {
+            margin-inline-end: 0 !important;
         }
         @media only screen and (min-width: 1200px) and (max-width: 1399px) {
             .aqf-deals-slider-main {
                 padding-top: 50px !important;
                 padding-bottom: 30px !important;
+                padding-right: 15px !important;
             }
         }
         @media only screen and (min-width: 768px) and (max-width: 991px),
                (max-width: 767px) {
             .aqf-deals-slider-main {
                 padding: 30px !important;
-                padding-bottom: 0 !important;
+                padding-bottom: 20px !important;
             }
         }
         </style>
