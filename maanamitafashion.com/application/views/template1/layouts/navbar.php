@@ -530,51 +530,60 @@
             display: none;
         }
 
-        /* Slide Arrow Buttons (Matching navbar.PNG & category_drawer.png) */
+        /* Slide Arrow Buttons */
         .store-cat-slide-btn {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            height: 100% !important;
+            position: absolute !important;
+            top: 50% !important;
+            bottom: auto !important;
+            transform: translateY(-50%) !important;
+            height: 34px !important;
             width: 34px !important;
             min-width: 34px !important;
             max-width: 34px !important;
-            border-radius: 0 !important;
+            min-height: 34px !important;
+            max-height: 34px !important;
+            aspect-ratio: 1 / 1 !important;
+            border-radius: 50% !important;
             background: #ffffff !important;
-            border: 1px solid #ebebeb;
+            border: 1px solid #e5e7eb !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
             z-index: 1030;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
             cursor: pointer;
-            color: #444444 !important;
-            font-size: 13px !important;
-            transition: background-color 0.2s, color 0.2s, box-shadow 0.2s, opacity 0.2s;
+            color: #111827 !important;
+            font-size: 12px !important;
+            line-height: 1 !important;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
             padding: 0 !important;
+            margin: 0 !important;
             gap: 0 !important;
+            flex-shrink: 0 !important;
+        }
+        .store-cat-slide-btn i {
+            font-size: 12px !important;
+            line-height: 1 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
         }
         .store-cat-slide-btn:hover {
-            background-color: #fafafa !important;
-            color: #5428e0 !important;
+            background-color: #111827 !important;
+            border-color: #111827 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18) !important;
         }
         .store-cat-slide-prev {
-            left: 0;
-            border-top: none;
-            border-bottom: none;
-            border-left: none;
-            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
+            left: 4px !important;
         }
         .store-cat-slide-next {
-            right: 0;
-            border-top: none;
-            border-bottom: none;
-            border-right: none;
-            box-shadow: -2px 0 8px rgba(0, 0, 0, 0.08);
+            right: 4px !important;
         }
         .store-cat-slide-btn.disabled,
         .store-cat-slide-btn[disabled] {
-            opacity: 0;
-            pointer-events: none;
+            opacity: 0 !important;
+            pointer-events: none !important;
         }
 
         /* Category Item */
@@ -585,6 +594,8 @@
             align-items: center;
             position: relative;
             cursor: pointer;
+            width: 96px;
+            max-width: 96px;
         }
         .store-cat-card {
             display: flex;
@@ -593,6 +604,9 @@
             text-decoration: none;
             color: inherit;
             text-align: center;
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
         }
 
         /* Circular Thumbnail with Tan/Gold Ring */
@@ -630,18 +644,30 @@
             justify-content: center;
             gap: 4px;
             margin-top: 6px;
-            max-width: 105px;
+            width: 100%;
+            max-width: 96px;
+            min-width: 0;
         }
         .store-cat-name-text {
+            display: block;
             font-size: 12.5px;
             font-weight: 600;
             color: #212121;
-            line-height: 1.2;
+            line-height: 1.3;
             text-align: center;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            max-width: 100%;
+            min-width: 0;
             transition: color 0.15s ease;
         }
         .store-cat-arrow-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             font-size: 9px;
+            line-height: 1;
             color: #444444;
             transition: transform 0.2s ease, color 0.2s ease;
             flex-shrink: 0;
@@ -877,11 +903,20 @@
                 padding: 10px 8px 8px !important;
             }
             .store-cat-item {
-                min-width: 76px;
+                width: 80px !important;
+                min-width: 80px !important;
+                max-width: 80px !important;
                 padding: 0 4px;
             }
             .store-cat-name-row {
-                max-width: 80px !important;
+                max-width: 72px !important;
+                width: 100% !important;
+            }
+            .store-cat-name-text {
+                font-size: 11.5px !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
             }
             .store-cat-slide-btn {
                 display: none !important;

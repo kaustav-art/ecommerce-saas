@@ -412,18 +412,24 @@
             }
             .product-badge {
                 display: inline-block;
-                font-size: 12px;
-                font-weight: 500;
-                line-height: 1.1;
+                font-size: 13px;
+                font-weight: 700;
+                line-height: 1;
                 padding: 5px 12px;
-                border-radius: 99px;
+                border-radius: 40px;
                 text-transform: uppercase;
                 letter-spacing: 0.3px;
                 color: #ffffff;
+                background-color: #DA3F3F;
                 box-shadow: 0 1px 3px rgba(0,0,0,0.12);
             }
             .product-badge.badge-sale {
-                background-color: #F03E3E;
+                background-color: #DA3F3F;
+            }
+            .product-badge.badge-flash-sale {
+                background-color: #DA3F3F;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
             }
             .card-product .card-product-wrapper {
                 aspect-ratio: 3 / 4 !important;

@@ -20,12 +20,13 @@
                         <!-- Right Actions (Login / User Account, Wishlist & Cart) -->
                         <div class="store-actions-col flex-shrink-0 d-flex align-items-center gap-3 gap-md-4 order-2 order-md-3">
                             
-                            <!-- User Account (Always shows After-Login Dropdown Menu in Template Mode) -->
+                            <!-- User Account / Login -->
                             <div class="store-nav-account position-relative">
-                                <?php
-                                    $u_first = $current_user['first_name'] ?? 'Alex';
-                                    $u_name  = trim(($current_user['first_name'] ?? 'Alex') . ' ' . ($current_user['last_name'] ?? 'Morgan'));
-                                    $u_email = $current_user['email'] ?? 'alex.morgan@example.com';
+                                <?php if (!empty($is_logged_in)):
+                                    $u_first = !empty($current_user['first_name']) ? $current_user['first_name'] : 'Account';
+                                    $u_name  = trim(($current_user['first_name'] ?? '') . ' ' . ($current_user['last_name'] ?? ''));
+                                    if ($u_name === '') $u_name = 'My Account';
+                                    $u_email = !empty($current_user['email']) ? $current_user['email'] : ($current_user['phone'] ?? '');
                                 ?>
                                 <a href="<?= site_url('account/profile'); ?>" class="store-nav-action-link d-flex align-items-center text-decoration-none" title="<?= html_escape($u_name); ?>">
                                     <i class="fa-regular fa-circle-user store-action-icon"></i>
@@ -44,9 +45,11 @@
                                             <div class="fw-bold text-dark text-truncate" style="font-size: 14px;" title="<?= html_escape($u_name); ?>">
                                                 <?= html_escape($u_name); ?>
                                             </div>
+                                            <?php if ($u_email !== ''): ?>
                                             <div class="text-muted small text-truncate" style="font-size: 11.5px;" title="<?= html_escape($u_email); ?>">
                                                 <?= html_escape($u_email); ?>
                                             </div>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                     <div class="py-2">
@@ -55,12 +58,21 @@
                                         <a class="dropdown-item py-2 px-3 d-flex align-items-center" href="<?= site_url('account/address'); ?>"><i class="fa-solid fa-location-dot text-primary me-3" style="width: 16px;"></i>Saved Address</a>
                                         <a class="dropdown-item py-2 px-3 d-flex align-items-center" href="<?= site_url('wishlist'); ?>"><i class="fa-regular fa-heart text-primary me-3" style="width: 16px;"></i>Wishlist</a>
                                         <a class="dropdown-item py-2 px-3 d-flex align-items-center" href="<?= site_url('account/notifications'); ?>"><i class="fa-regular fa-bell text-primary me-3" style="width: 16px;"></i>Notification</a>
+                                        <div class="dropdown-divider my-1"></div>
+                                        <a class="dropdown-item py-2 px-3 d-flex align-items-center text-danger fw-semibold" href="<?= site_url('logout'); ?>"><i class="fa-solid fa-arrow-right-from-bracket me-3" style="width: 16px;"></i>Logout</a>
                                     </div>
                                 </div>
+                                <?php else: ?>
+                                <a href="#exampleModalToggle" data-bs-toggle="modal" class="store-nav-action-link d-flex align-items-center text-decoration-none" title="Sign In">
+                                    <i class="fa-regular fa-circle-user store-action-icon"></i>
+                                    <span class="store-action-text d-none d-md-inline">Sign In</span>
+                                </a>
+                                <?php endif; ?>
                             </div>
 
                             <!-- Wishlist -->
                             <div class="store-nav-wishlist">
+                                <?php if (!empty($is_logged_in)): ?>
                                 <a href="<?= site_url('wishlist'); ?>" class="store-nav-action-link d-flex align-items-center text-decoration-none position-relative" title="Wishlist">
                                     <i class="fa-regular fa-heart store-action-icon"></i>
                                     <span class="store-action-text d-none d-md-inline">Wishlist</span>
@@ -68,6 +80,12 @@
                                         <span class="store-cart-badge" id="wishlist-counter"><?= $wishlist_count; ?></span>
                                     <?php endif; ?>
                                 </a>
+                                <?php else: ?>
+                                <a href="#exampleModalToggle" data-bs-toggle="modal" data-redirect-to="<?= site_url('wishlist'); ?>" data-login-message="Please sign in to view your wishlist." class="store-nav-action-link d-flex align-items-center text-decoration-none position-relative" title="Wishlist">
+                                    <i class="fa-regular fa-heart store-action-icon"></i>
+                                    <span class="store-action-text d-none d-md-inline">Wishlist</span>
+                                </a>
+                                <?php endif; ?>
                             </div>
 
                             <!-- Cart -->
@@ -134,8 +152,9 @@
                                 $cat_img = !empty($root_c['image']) 
                                     ? base_url('assets/images/' . $root_c['image']) 
                                     : base_url('assets/images/' . $fallback_circle);
+                                $has_subs = !empty($root_c['children']);
                         ?>
-                            <div class="store-cat-item" data-cat-id="<?= $root_c['id']; ?>">
+                            <div class="store-cat-item <?= $has_subs ? 'has-subcategories' : ''; ?>" data-cat-id="<?= $root_c['id']; ?>">
                                 <a href="<?= site_url('shop/' . $root_c['slug']); ?>" class="store-cat-card">
                                     <div class="store-cat-thumb-outer">
                                         <img src="<?= $cat_img; ?>" 
@@ -145,6 +164,9 @@
                                     </div>
                                     <div class="store-cat-name-row">
                                         <span class="store-cat-name-text"><?= html_escape($root_c['name']); ?></span>
+                                        <?php if ($has_subs): ?>
+                                            <i class="fa-solid fa-chevron-down store-cat-arrow-icon"></i>
+                                        <?php endif; ?>
                                     </div>
                                 </a>
                             </div>
@@ -158,6 +180,44 @@
                     <button type="button" class="store-cat-slide-btn store-cat-slide-next" id="catSlideNext" aria-label="Next categories">
                         <i class="fa-solid fa-chevron-right"></i>
                     </button>
+
+                    <!-- Multi-Column Category Drawers (Matching category_drawer.png) -->
+                    <div class="store-cat-drawers-container" id="catDrawersContainer">
+                        <?php 
+                        if (!empty($header_categories)): 
+                            foreach ($header_categories as $root_c): 
+                                if (!empty($root_c['children'])):
+                        ?>
+                            <div class="store-cat-drawer shadow-lg" id="catDrawer-<?= $root_c['id']; ?>" data-cat-id="<?= $root_c['id']; ?>">
+                                <div class="store-cat-drawer-inner">
+                                    <?php foreach ($root_c['children'] as $sub_c): 
+                                        $sub_children = $sub_c['children'] ?? [];
+                                    ?>
+                                        <div class="store-drawer-col">
+                                            <a href="<?= site_url('shop/' . $sub_c['slug']); ?>" class="store-drawer-col-title">
+                                                <?= html_escape($sub_c['name']); ?>
+                                            </a>
+                                            <?php if (!empty($sub_children)): ?>
+                                                <ul class="store-drawer-list">
+                                                    <?php foreach ($sub_children as $child_c): ?>
+                                                        <li class="store-drawer-item">
+                                                            <a href="<?= site_url('shop/' . $child_c['slug']); ?>" class="store-drawer-link">
+                                                                <?= html_escape($child_c['name']); ?>
+                                                            </a>
+                                                        </li>
+                                                    <?php endforeach; ?>
+                                                </ul>
+                                            <?php endif; ?>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+                        <?php 
+                                endif;
+                            endforeach; 
+                        endif; 
+                        ?>
+                    </div>
                 </div>
             </div>
             <?php endif; ?>
@@ -470,47 +530,60 @@
             display: none;
         }
 
-        /* Slide Arrow Buttons (Matching navbar.PNG & category_drawer.png) */
+        /* Slide Arrow Buttons */
         .store-cat-slide-btn {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            height: 100%;
-            width: 34px;
-            background: #ffffff;
-            border: 1px solid #ebebeb;
+            position: absolute !important;
+            top: 50% !important;
+            bottom: auto !important;
+            transform: translateY(-50%) !important;
+            height: 34px !important;
+            width: 34px !important;
+            min-width: 34px !important;
+            max-width: 34px !important;
+            min-height: 34px !important;
+            max-height: 34px !important;
+            aspect-ratio: 1 / 1 !important;
+            border-radius: 50% !important;
+            background: #ffffff !important;
+            border: 1px solid #e5e7eb !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
             z-index: 1030;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
             cursor: pointer;
-            color: #444444;
-            font-size: 13px;
-            transition: background-color 0.2s, color 0.2s, box-shadow 0.2s, opacity 0.2s;
-            padding: 0;
+            color: #111827 !important;
+            font-size: 12px !important;
+            line-height: 1 !important;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+            padding: 0 !important;
+            margin: 0 !important;
+            gap: 0 !important;
+            flex-shrink: 0 !important;
+        }
+        .store-cat-slide-btn i {
+            font-size: 12px !important;
+            line-height: 1 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
         }
         .store-cat-slide-btn:hover {
-            background-color: #fafafa;
-            color: #5428e0;
+            background-color: #111827 !important;
+            border-color: #111827 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18) !important;
         }
         .store-cat-slide-prev {
-            left: 0;
-            border-top: none;
-            border-bottom: none;
-            border-left: none;
-            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
+            left: 4px !important;
         }
         .store-cat-slide-next {
-            right: 0;
-            border-top: none;
-            border-bottom: none;
-            border-right: none;
-            box-shadow: -2px 0 8px rgba(0, 0, 0, 0.08);
+            right: 4px !important;
         }
         .store-cat-slide-btn.disabled,
         .store-cat-slide-btn[disabled] {
-            opacity: 0;
-            pointer-events: none;
+            opacity: 0 !important;
+            pointer-events: none !important;
         }
 
         /* Category Item */
@@ -521,6 +594,8 @@
             align-items: center;
             position: relative;
             cursor: pointer;
+            width: 96px;
+            max-width: 96px;
         }
         .store-cat-card {
             display: flex;
@@ -529,6 +604,9 @@
             text-decoration: none;
             color: inherit;
             text-align: center;
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
         }
 
         /* Circular Thumbnail with Tan/Gold Ring */
@@ -566,18 +644,30 @@
             justify-content: center;
             gap: 4px;
             margin-top: 6px;
-            max-width: 105px;
+            width: 100%;
+            max-width: 96px;
+            min-width: 0;
         }
         .store-cat-name-text {
+            display: block;
             font-size: 12.5px;
             font-weight: 600;
             color: #212121;
-            line-height: 1.2;
+            line-height: 1.3;
             text-align: center;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            max-width: 100%;
+            min-width: 0;
             transition: color 0.15s ease;
         }
         .store-cat-arrow-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             font-size: 9px;
+            line-height: 1;
             color: #444444;
             transition: transform 0.2s ease, color 0.2s ease;
             flex-shrink: 0;
@@ -801,12 +891,32 @@
                 font-weight: 400 !important;
             }
 
+            /* Hide page-title / breadcrumb hero banners in mobile view */
+            .page-title,
+            .tf-page-title {
+                display: none !important;
+            }
+
             /* Category slider mobile view */
             .store-cat-track {
                 gap: 0px !important;
+                padding: 10px 8px 8px !important;
+            }
+            .store-cat-item {
+                width: 80px !important;
+                min-width: 80px !important;
+                max-width: 80px !important;
+                padding: 0 4px;
             }
             .store-cat-name-row {
-                max-width: 80px !important;
+                max-width: 72px !important;
+                width: 100% !important;
+            }
+            .store-cat-name-text {
+                font-size: 11.5px !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
             }
             .store-cat-slide-btn {
                 display: none !important;
