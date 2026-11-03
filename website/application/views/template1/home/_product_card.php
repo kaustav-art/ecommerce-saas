@@ -1,10 +1,10 @@
 <?php
-$pct = 0;
-if (!empty($p['sale_price']) && !empty($p['price']) && $p['sale_price'] < $p['price']) {
+$pct = !empty($p['total_discount_percent']) ? (int)$p['total_discount_percent'] : 0;
+if ($pct <= 0 && !empty($p['sale_price']) && !empty($p['price']) && $p['sale_price'] < $p['price']) {
     $pct = round((($p['price'] - $p['sale_price']) / $p['price']) * 100);
 }
 $curr = $currency_symbol ?? '$';
-$hover_img = !empty($p['gallery_images_decoded'][0]) ? $p['gallery_images_decoded'][0] : $p['main_image'];
+$hover_img = !empty($p['gallery_images_decoded'][0]) ? $p['gallery_images_decoded'][0] : (!empty($p['hover_image']) ? $p['hover_image'] : $p['main_image']);
 ?>
 <div class="card-product animate-fade-in">
     <div class="card-product-wrapper">
@@ -21,10 +21,15 @@ $hover_img = !empty($p['gallery_images_decoded'][0]) ? $p['gallery_images_decode
                  onerror="this.src='<?= base_url('assets/images/products/womens/women-2.jpg'); ?>'">
         </a>
 
-        <!-- Discount / On Sale Tag Only (New and Best Seller tags removed) -->
-        <?php if ($pct > 0): ?>
+        <!-- Discount / Flash Sale Tag -->
+        <?php if (!empty($p['is_flash_sale']) || $pct > 0): ?>
             <div class="product-badge-group">
-                <span class="product-badge badge-sale">-<?= $pct; ?>%</span>
+                <?php if (!empty($p['is_flash_sale'])): ?>
+                    <span class="product-badge badge-flash-sale">SALE</span>
+                <?php endif; ?>
+                <?php if ($pct > 0): ?>
+                    <span class="product-badge badge-sale">-<?= $pct; ?>%</span>
+                <?php endif; ?>
             </div>
         <?php endif; ?>
 
