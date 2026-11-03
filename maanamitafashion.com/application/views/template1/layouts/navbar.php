@@ -865,9 +865,20 @@
                 font-weight: 400 !important;
             }
 
+            /* Hide page-title / breadcrumb hero banners in mobile view */
+            .page-title,
+            .tf-page-title {
+                display: none !important;
+            }
+
             /* Category slider mobile view */
             .store-cat-track {
                 gap: 0px !important;
+                padding: 10px 8px 8px !important;
+            }
+            .store-cat-item {
+                min-width: 76px;
+                padding: 0 4px;
             }
             .store-cat-name-row {
                 max-width: 80px !important;

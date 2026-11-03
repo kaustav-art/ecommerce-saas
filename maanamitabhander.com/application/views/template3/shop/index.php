@@ -383,9 +383,67 @@ if (!function_exists('grc_shop_unit_calc')) {
       width: 170px;
       flex-shrink: 0;
    }
+   .grc-mobile-filter-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 38px;
+      padding: 0 14px !important;
+      border-radius: 8px !important;
+      border: 1px solid #d1e2d6 !important;
+      background: #ffffff !important;
+      color: #003D29 !important;
+      font-size: 13px !important;
+      font-weight: 700 !important;
+      width: auto !important;
+      cursor: pointer;
+   }
+   .grc-filter-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 35, 22, 0.45);
+      z-index: 1055;
+   }
+   .grc-filter-backdrop.is-open {
+      display: block;
+   }
+   @media (max-width: 991.98px) {
+      #grcFilterCardDrawer {
+         position: fixed;
+         top: 0;
+         left: 0;
+         bottom: 0;
+         width: 300px;
+         max-width: 85vw;
+         z-index: 1060;
+         border-radius: 0 16px 16px 0;
+         overflow-y: auto;
+         transform: translateX(-105%);
+         transition: transform 0.25s ease;
+         margin: 0 !important;
+         position: fixed !important;
+      }
+      #grcFilterCardDrawer.is-open {
+         transform: translateX(0);
+      }
+   }
    @media (max-width: 767.98px) {
-      .grc-shop-hero-title {
-         font-size: 26px;
+      .grc-shop-hero {
+         display: none !important;
+      }
+      .grc-shop-section {
+         padding: 14px 0 50px !important;
+      }
+      .grc-control-bar {
+         padding: 10px 12px !important;
+         margin-bottom: 14px !important;
+      }
+      #grcShopProductsGrid .aq-product-item.aq-product-main {
+         padding: 10px !important;
+      }
+      #grcShopProductsGrid .aq-product-thumb img.aq-product-img-hover {
+         height: 155px !important;
       }
       #grcShopProductsGrid.is-list-view .aq-product-item.aq-product-main {
          flex-direction: column;
@@ -399,8 +457,8 @@ if (!function_exists('grc_shop_unit_calc')) {
 </style>
 
 <main>
-   <!-- 1. Forest Green Grocery Category Hero Banner -->
-   <section class="grc-shop-hero">
+   <!-- 1. Forest Green Grocery Category Hero Banner (Desktop only, hidden on mobile) -->
+   <section class="grc-shop-hero d-none d-md-block">
       <div class="container position-relative" style="z-index:2;">
          <div class="d-flex flex-wrap align-items-end justify-content-between gap-3">
             <div>
@@ -437,14 +495,20 @@ if (!function_exists('grc_shop_unit_calc')) {
 
             <!-- Left Sidebar: Grocery Filters -->
             <div class="col-xl-3 col-lg-4">
-               <div class="grc-filter-card">
+               <div class="grc-filter-backdrop" id="grcFilterBackdrop" onclick="window.toggleGrcMobileFilter(false)"></div>
+               <div class="grc-filter-card" id="grcFilterCardDrawer">
                   <div class="d-flex align-items-center justify-content-between pb-3 mb-3 border-bottom">
                      <span class="fw-bold d-flex align-items-center gap-2" style="font-size:15px; color:#003D29;">
                         <i class="fa-solid fa-sliders text-success"></i> Grocery Filters
                      </span>
-                     <button type="button" id="grcResetFiltersBtn" class="btn btn-sm p-0 border-0 text-danger fw-semibold" style="font-size:12.5px;" onclick="resetGrcAisleFilters()">
-                        Reset All
-                     </button>
+                     <div class="d-flex align-items-center gap-2">
+                        <button type="button" id="grcResetFiltersBtn" class="btn btn-sm p-0 border-0 text-danger fw-semibold" style="font-size:12.5px; width:auto; height:auto;" onclick="resetGrcAisleFilters()">
+                           Reset All
+                        </button>
+                        <button type="button" class="d-lg-none btn btn-sm p-0 border-0 text-dark ms-2" style="width:auto; height:auto;" onclick="window.toggleGrcMobileFilter(false)" aria-label="Close filters">
+                           <i class="fa-solid fa-xmark fs-5"></i>
+                        </button>
+                     </div>
                   </div>
 
                   <!-- Departments Filter (Dynamic Categories from Template 3) -->
@@ -564,6 +628,10 @@ if (!function_exists('grc_shop_unit_calc')) {
 
                <!-- Top Control Bar -->
                <div class="grc-control-bar">
+                  <button type="button" class="grc-mobile-filter-btn d-lg-none" onclick="window.toggleGrcMobileFilter(true)">
+                     <i class="fa-solid fa-sliders text-success"></i>
+                     <span>Filters</span>
+                  </button>
                   <div class="d-flex align-items-center gap-2 ms-auto">
                      <!-- Grid / List View Switcher -->
                      <div class="d-none d-md-flex align-items-center gap-1 me-1">
@@ -591,7 +659,7 @@ if (!function_exists('grc_shop_unit_calc')) {
 
                <!-- Products Grid (Exact Home Page Product Card Structure) -->
                <div class="grc-product-style">
-                  <div class="row g-3 row-cols-xl-3 row-cols-md-2 row-cols-sm-2 row-cols-1" id="grcShopProductsGrid">
+                  <div class="row g-2 g-md-3 row-cols-xl-3 row-cols-md-2 row-cols-2" id="grcShopProductsGrid">
                      <?php $this->load->view('template3/shop/partials/_product_items', [
                         'shop_products'     => $shop_products,
                         'user_wishlist_ids' => $user_wishlist_ids ?? [],
@@ -635,6 +703,20 @@ if (!function_exists('grc_shop_unit_calc')) {
 
 <script>
 (function() {
+    window.toggleGrcMobileFilter = function(open) {
+        var drawer = document.getElementById('grcFilterCardDrawer');
+        var backdrop = document.getElementById('grcFilterBackdrop');
+        if (!drawer || !backdrop) return;
+        if (open) {
+            drawer.classList.add('is-open');
+            backdrop.classList.add('is-open');
+            document.body.style.overflow = 'hidden';
+        } else {
+            drawer.classList.remove('is-open');
+            backdrop.classList.remove('is-open');
+            document.body.style.overflow = '';
+        }
+    };
     window.selectGrcPriceChip = function(btn, maxP) {
         document.querySelectorAll('.grc-price-chip').forEach(function(c) {
             c.classList.remove('is-active');

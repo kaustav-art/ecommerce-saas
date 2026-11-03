@@ -728,8 +728,37 @@ if (!empty($initial_variant)) {
     border-color: #181818;
 }
 
-/* Mobile Action Buttons */
+/* Mobile Responsive Layout & Action Buttons */
+@media (max-width: 991.98px) {
+    .tf-product-info-wrap.ml-30 {
+        margin-left: 0 !important;
+        margin-top: 20px;
+    }
+    .aq-product-details-thumbnails-style .product-details-slider-wrap {
+        position: static !important;
+    }
+    .aq-product-details-thumbnails-style.pb-120 {
+        padding-top: 14px;
+        padding-bottom: 45px !important;
+    }
+}
 @media (max-width: 767.98px) {
+    .pd-breadcrumb-area {
+        display: none !important;
+    }
+    #display-product-title {
+        font-size: 20px !important;
+    }
+    .product-slider-for-img {
+        height: 290px !important;
+    }
+    .product-slider-nav-img,
+    .product-slider-nav-2 .product-slider-nav-img {
+        height: 76px !important;
+    }
+    .specs-grid-layout {
+        grid-template-columns: 1fr;
+    }
     .mobile-bottom-action-bar-attached {
         display: flex;
         gap: 10px;
@@ -914,8 +943,8 @@ if (!empty($initial_variant)) {
 
    <main>
 
-      <!-- breadcrumb area start -->
-      <div class="pd-breadcrumb-area">
+      <!-- breadcrumb area start (Desktop only, hidden on mobile) -->
+      <div class="pd-breadcrumb-area d-none d-md-block">
          <div class="container">
             <div class="row">
                <div class="col-xl-8">
@@ -954,8 +983,8 @@ if (!empty($initial_variant)) {
       <div class="aq-product-details-thumbnails-style pb-120">
          <div class="container">
             <div class="row">
-               <div class="col-lg-6 order-lg-1 order-2">
-                  <div class="product-details-slider-wrap sticky-top" style="top: 100px; z-index: 10;">
+               <div class="col-lg-6">
+                  <div class="product-details-slider-wrap">
                      <div class="product-slider-main-wrap p-relative mb-10">
                         <div class="product-slider-main slider-for p-relative">
                            <?php foreach ($elt_gallery_urls as $g_url): ?>
@@ -977,7 +1006,7 @@ if (!empty($initial_variant)) {
                      </div>
                   </div>
                </div>
-               <div class="col-lg-6 order-lg-2 order-1">
+               <div class="col-lg-6">
                   <div class="tf-product-info-wrap position-relative ml-30">
                      <!-- Variant Loader Overlay -->
                      <div id="product-variant-loader" class="product-variant-loader-overlay" style="display: none;">

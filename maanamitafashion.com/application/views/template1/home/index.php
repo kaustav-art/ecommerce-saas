@@ -407,7 +407,7 @@ $deals_list    = (!empty($flash_sale) && (!empty($flash_sale_products) || !empty
                             992:  { slidesPerView: 2, spaceBetween: 15 },
                             768:  { slidesPerView: 2, spaceBetween: 15 },
                             576:  { slidesPerView: 2, spaceBetween: 15 },
-                            0:    { slidesPerView: 1, spaceBetween: 12 }
+                            0:    { slidesPerView: 2, spaceBetween: 12 }
                         }
                     });
                 }
@@ -962,11 +962,29 @@ $deals_list    = (!empty($flash_sale) && (!empty($flash_sale_products) || !empty
                 padding-right: 15px !important;
             }
         }
-        @media only screen and (min-width: 768px) and (max-width: 991px),
-               (max-width: 767px) {
+        @media only screen and (min-width: 768px) and (max-width: 991px) {
             .aqf-deals-slider-main {
                 padding: 30px !important;
                 padding-bottom: 20px !important;
+            }
+        }
+        @media (max-width: 767.98px) {
+            .fsh-section-title {
+                font-size: 22px;
+            }
+            .product-badge-group {
+                top: 10px;
+                left: 10px;
+            }
+            .product-badge {
+                font-size: 10px;
+                padding: 4px 9px;
+            }
+            .aqf-deals-slider-main {
+                padding: 20px 12px 16px !important;
+            }
+            .aqf-deals-slider-arrow {
+                margin-right: 0 !important;
             }
         }
         </style>

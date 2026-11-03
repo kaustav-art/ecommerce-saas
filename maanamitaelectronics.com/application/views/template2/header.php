@@ -506,6 +506,14 @@ if (!function_exists('elt_resolve_img')) {
       .tf-page-title .breadcrumbs a:hover {
          color: #E1EEB7 !important;
       }
+      @media (max-width: 767.98px) {
+         .page-title,
+         .tf-page-title,
+         .elt-shop-hero,
+         .pd-breadcrumb-area {
+            display: none !important;
+         }
+      }
 
       /* Unified Product Card Fixed Height, White Background, Two-Line Title & Contain Image */
       .aq-product-item.aq-product-main {

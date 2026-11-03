@@ -356,6 +356,14 @@
       .tf-page-title .breadcrumbs a:hover {
          color: #86efac !important;
       }
+      @media (max-width: 767.98px) {
+         .page-title,
+         .tf-page-title,
+         .grc-shop-hero,
+         .pd-breadcrumb-area {
+            display: none !important;
+         }
+      }
       /* Alert Close Button Normalization */
       .alert {
          position: relative;

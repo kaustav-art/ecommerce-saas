@@ -578,9 +578,76 @@ if (!empty($is_user_project)) {
    #eltProductsGrid.is-list-view .aq-product-item.aq-product-main .aq-product-new-price {
       font-size: 18px;
    }
+   .elt-mobile-filter-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 38px;
+      padding: 0 14px !important;
+      border-radius: 8px !important;
+      border: 1px solid #e2e8f0 !important;
+      background: #ffffff !important;
+      color: #0B0D0E !important;
+      font-size: 13px !important;
+      font-weight: 700 !important;
+      width: auto !important;
+      cursor: pointer;
+   }
+   .elt-filter-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(11, 13, 14, 0.45);
+      z-index: 1055;
+   }
+   .elt-filter-backdrop.is-open {
+      display: block;
+   }
+   @media (max-width: 991.98px) {
+      #eltFilterCardDrawer {
+         position: fixed;
+         top: 0;
+         left: 0;
+         bottom: 0;
+         width: 300px;
+         max-width: 85vw;
+         z-index: 1060;
+         border-radius: 0 16px 16px 0;
+         overflow-y: auto;
+         transform: translateX(-105%);
+         transition: transform 0.25s ease;
+         margin: 0 !important;
+      }
+      #eltFilterCardDrawer.is-open {
+         transform: translateX(0);
+      }
+   }
    @media (max-width: 767.98px) {
-      .elt-shop-hero-title {
-         font-size: 26px;
+      .elt-shop-hero {
+         display: none !important;
+      }
+      .elt-shop-section {
+         padding: 14px 0 50px !important;
+      }
+      .elt-control-bar {
+         padding: 10px 12px !important;
+         margin-bottom: 14px !important;
+      }
+      #eltProductsGrid .aq-product-item.aq-product-main {
+         height: 330px;
+         padding: 8px;
+         margin-bottom: 4px !important;
+      }
+      #eltProductsGrid .aq-product-item.aq-product-main .aq-product-thumb {
+         height: 165px;
+         flex: 0 0 165px;
+         padding: 6px;
+      }
+      #eltProductsGrid .aq-product-item .aq-product-title {
+         font-size: 13px;
+         line-height: 18px;
+         height: 36px;
+         min-height: 36px;
       }
       #eltProductsGrid.is-list-view .aq-product-item.aq-product-main,
       #eltProductsGrid.is-list-view .elt-shop-card {
@@ -599,8 +666,8 @@ if (!empty($is_user_project)) {
 </style>
 
 <main>
-   <!-- 1. Dark Carbon Electronics Category Hero Banner -->
-   <section class="elt-shop-hero">
+   <!-- 1. Dark Carbon Electronics Category Hero Banner (Desktop only, hidden on mobile) -->
+   <section class="elt-shop-hero d-none d-md-block">
       <div class="container position-relative" style="z-index:2;">
          <div class="d-flex flex-wrap align-items-end justify-content-between gap-3">
             <div>
@@ -626,14 +693,20 @@ if (!empty($is_user_project)) {
 
             <!-- Left Sidebar: Tech Spec Filters -->
             <div class="col-xl-3 col-lg-4">
-               <div class="elt-filter-card">
+               <div class="elt-filter-backdrop" id="eltFilterBackdrop" onclick="window.toggleEltMobileFilter(false)"></div>
+               <div class="elt-filter-card" id="eltFilterCardDrawer">
                   <div class="d-flex align-items-center justify-content-between pb-3 mb-3 border-bottom">
                      <span class="fw-bold text-dark d-flex align-items-center gap-2" style="font-size:15px;">
                         <i class="fa-solid fa-sliders"></i> Tech Filters
                      </span>
-                     <button type="button" id="eltResetFiltersBtn" class="btn btn-sm p-0 border-0 text-danger fw-semibold" style="font-size:12.5px;">
-                        Reset All
-                     </button>
+                     <div class="d-flex align-items-center gap-2">
+                        <button type="button" id="eltResetFiltersBtn" class="btn btn-sm p-0 border-0 text-danger fw-semibold" style="font-size:12.5px; width:auto; height:auto;">
+                           Reset All
+                        </button>
+                        <button type="button" class="d-lg-none btn btn-sm p-0 border-0 text-dark ms-2" style="width:auto; height:auto;" onclick="window.toggleEltMobileFilter(false)" aria-label="Close filters">
+                           <i class="fa-solid fa-xmark fs-5"></i>
+                        </button>
+                     </div>
                   </div>
 
                   <!-- Department Filter -->
@@ -729,6 +802,10 @@ if (!empty($is_user_project)) {
 
                <!-- Top Control Bar -->
                <div class="elt-control-bar">
+                  <button type="button" class="elt-mobile-filter-btn d-lg-none" onclick="window.toggleEltMobileFilter(true)">
+                     <i class="fa-solid fa-sliders"></i>
+                     <span>Filters</span>
+                  </button>
                   <div class="d-flex align-items-center gap-2 ms-auto">
                      <!-- Grid / List View Switcher -->
                      <div class="d-none d-md-flex align-items-center gap-1 me-1">
@@ -755,7 +832,7 @@ if (!empty($is_user_project)) {
                </div>
 
                <!-- Products Grid -->
-               <div class="row g-3 row-cols-xl-3 row-cols-md-2 row-cols-1" id="eltProductsGrid">
+               <div class="row g-2 g-md-3 row-cols-xl-3 row-cols-md-2 row-cols-2" id="eltProductsGrid">
                   <?php
                   $spec_pairs = [
                      ['Bluetooth 5.3', '40h Battery'],
@@ -883,6 +960,20 @@ if (!empty($is_user_project)) {
 </main>
 
 <script>
+window.toggleEltMobileFilter = function(open) {
+   var drawer = document.getElementById('eltFilterCardDrawer');
+   var backdrop = document.getElementById('eltFilterBackdrop');
+   if (!drawer || !backdrop) return;
+   if (open) {
+      drawer.classList.add('is-open');
+      backdrop.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+   } else {
+      drawer.classList.remove('is-open');
+      backdrop.classList.remove('is-open');
+      document.body.style.overflow = '';
+   }
+};
 document.addEventListener('DOMContentLoaded', function() {
    var grid          = document.getElementById('eltProductsGrid');
    var cols          = Array.from(document.querySelectorAll('.elt-product-col'));

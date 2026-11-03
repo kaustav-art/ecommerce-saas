@@ -1,5 +1,5 @@
-        <!-- page-title -->
-        <div class="page-title" style="background-image: url('<?= base_url('assets/images/section/page-title.jpg'); ?>');">
+        <!-- page-title (Desktop only, hidden on mobile) -->
+        <div class="page-title d-none d-md-block" style="background-image: url('<?= base_url('assets/images/section/page-title.jpg'); ?>');">
             <div class="container-full">
                 <div class="row">
                     <div class="col-12 text-center">
@@ -398,11 +398,11 @@
                 }
             }
 
-            /* Product Badge Styles (Same as Home Page) */
+            /* Product Badge & Uniform Card Styles (Same as Home Page) */
             .product-badge-group {
                 position: absolute;
-                top: 10px;
-                left: 10px;
+                top: 16px;
+                left: 16px;
                 display: flex;
                 flex-direction: column;
                 align-items: flex-start;
@@ -412,18 +412,65 @@
             }
             .product-badge {
                 display: inline-block;
-                font-size: 10px;
-                font-weight: 700;
+                font-size: 12px;
+                font-weight: 500;
                 line-height: 1.1;
-                padding: 3px 7px;
-                border-radius: 3px;
+                padding: 5px 12px;
+                border-radius: 99px;
                 text-transform: uppercase;
                 letter-spacing: 0.3px;
                 color: #ffffff;
                 box-shadow: 0 1px 3px rgba(0,0,0,0.12);
             }
             .product-badge.badge-sale {
-                background-color: #ef4444;
+                background-color: #F03E3E;
+            }
+            .card-product .card-product-wrapper {
+                aspect-ratio: 3 / 4 !important;
+                width: 100% !important;
+                overflow: hidden;
+            }
+            .card-product .card-product-wrapper .product-img {
+                display: block;
+                width: 100% !important;
+                height: 100% !important;
+            }
+            .card-product .card-product-wrapper .product-img img {
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: cover !important;
+                display: block;
+            }
+
+            /* Mobile View Enhancements */
+            @media (max-width: 767.98px) {
+                .page-title {
+                    display: none !important;
+                }
+                .flat-spacing {
+                    padding-top: 12px !important;
+                    padding-bottom: 32px !important;
+                }
+                .tf-shop-control {
+                    margin-bottom: 14px !important;
+                    align-items: center;
+                }
+                #filterShop.tf-btn-filter {
+                    padding: 8px 14px !important;
+                    border-radius: 6px !important;
+                    font-size: 13px !important;
+                    line-height: 1.2 !important;
+                    width: auto !important;
+                    height: auto !important;
+                }
+                .product-badge-group {
+                    top: 10px;
+                    left: 10px;
+                }
+                .product-badge {
+                    font-size: 10px;
+                    padding: 4px 9px;
+                }
             }
         </style>
 
@@ -967,6 +1014,33 @@
                     clearAllFilters();
                 }
             });
+
+            // Delegated Color Swatch Hover/Click Preview for all .card-product (including AJAX-loaded cards)
+            if (!window._fshColorSwatchBound) {
+                window._fshColorSwatchBound = true;
+                ['click', 'mouseover'].forEach(function(evtType) {
+                    document.addEventListener(evtType, function(e) {
+                        var swatch = e.target.closest('.card-product .color-swatch');
+                        if (!swatch) return;
+                        var card = swatch.closest('.card-product');
+                        var swatchImg = swatch.querySelector('img');
+                        if (card && swatchImg) {
+                            var newSrc = swatchImg.getAttribute('src') || swatchImg.getAttribute('data-src');
+                            var prodImg = card.querySelector('.img-product');
+                            if (prodImg && newSrc) {
+                                prodImg.setAttribute('src', newSrc);
+                                prodImg.setAttribute('data-src', newSrc);
+                            }
+                        }
+                        if (swatch.parentElement) {
+                            swatch.parentElement.querySelectorAll('.color-swatch.active').forEach(function(sib) {
+                                sib.classList.remove('active');
+                            });
+                        }
+                        swatch.classList.add('active');
+                    });
+                });
+            }
 
             // Browser back/forward navigation
             window.addEventListener('popstate', function() {
