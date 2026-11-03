@@ -109,12 +109,12 @@ class auth extends MY_Controller {
             }
         }
 
-        redirect($redirect_to);
+        redirect('home?login=1&redirect=' . urlencode($redirect_to));
     }
 
     public function register()
     {
-        redirect('home');
+        redirect('home?login=1');
     }
 
     public function logout()

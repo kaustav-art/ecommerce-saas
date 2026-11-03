@@ -956,6 +956,23 @@ $modal_store_name = html_escape($site_name ?? ($store_settings['site_name'] ?? '
                 window.openLoginModal(redir, msg);
             }
         });
+
+        // Auto-open login modal when redirected from a protected page (?login=1&redirect=...)
+        if (!window.IS_USER_LOGGED_IN && (window.location.search.indexOf('login=1') !== -1 || window.location.search.indexOf('auth=required') !== -1)) {
+            if (window.location.pathname.indexOf('/cart') === -1) {
+                var urlParams = new URLSearchParams(window.location.search);
+                var redirectParam = urlParams.get('redirect') || window.location.href;
+                var msgParam = urlParams.get('msg') || '';
+                setTimeout(function() {
+                    if (typeof window.openLoginModal === 'function') {
+                        window.openLoginModal(redirectParam, msgParam);
+                        if (window.history && window.history.replaceState) {
+                            window.history.replaceState({}, document.title, window.location.pathname);
+                        }
+                    }
+                }, 300);
+            }
+        }
     });
 })();
 </script>

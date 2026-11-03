@@ -118,6 +118,28 @@ class account extends MY_Controller {
     }
 
     /**
+     * Enforce customer authentication for account pages in user-taken tenant stores.
+     */
+    protected function _require_account_login($custom_redirect = null)
+    {
+        if (!$this->is_logged_in() || empty($this->current_user['id'])) {
+            if ($this->input->is_ajax_request()) {
+                $this->json_response([
+                    'success'       => false,
+                    'status'        => 'error',
+                    'require_login' => true,
+                    'message'       => 'Please sign in first to access your account.'
+                ], 401);
+                return;
+            }
+            $target = $custom_redirect ? site_url(ltrim((string) $custom_redirect, '/')) : current_url();
+            $this->session->set_userdata('redirect_url', $target);
+            redirect('home?login=1&redirect=' . urlencode($target));
+            exit;
+        }
+    }
+
+    /**
      * Resolve active user from session/DB when logged in, or fallback to demo user
      */
     protected function _get_account_user()
@@ -131,16 +153,18 @@ class account extends MY_Controller {
             }
             return $this->current_user;
         }
-        return Static_template_data::get('user');
+        return $this->is_user_project ? [] : Static_template_data::get('user');
     }
 
     public function index()
     {
+        $this->_require_account_login('account/profile');
         redirect('account/profile');
     }
 
     public function profile()
     {
+        $this->_require_account_login('account/profile');
         $user    = $this->_get_account_user();
         $user_id = !empty($this->current_user['id']) ? (int) $this->current_user['id'] : (!empty($user['id']) ? (int) $user['id'] : 0);
         $tid     = (int) $this->tenant_id;
@@ -238,10 +262,11 @@ class account extends MY_Controller {
 
     public function orders()
     {
+        $this->_require_account_login('account/orders');
         $user       = $this->_get_account_user();
         $user_id    = !empty($this->current_user['id']) ? (int) $this->current_user['id'] : (!empty($user['id']) ? (int) $user['id'] : 0);
         $all_orders = Static_template_data::get('orders') ?: [];
-        $orders     = $all_orders;
+        $orders     = $this->is_user_project ? [] : $all_orders;
 
         if ($this->is_logged_in() && $user_id > 0) {
             $user_orders = array_values(array_filter($all_orders, function($o) use ($user_id, $user) {
@@ -253,7 +278,7 @@ class account extends MY_Controller {
                 }
                 return false;
             }));
-            if (!empty($user_orders)) {
+            if ($this->is_user_project || !empty($user_orders)) {
                 $orders = $user_orders;
             }
         }
@@ -271,6 +296,7 @@ class account extends MY_Controller {
 
     public function order_detail($order_number = 'ORD-2026-88412')
     {
+        $this->_require_account_login();
         $user    = $this->_get_account_user();
         $user_id = !empty($this->current_user['id']) ? (int) $this->current_user['id'] : (!empty($user['id']) ? (int) $user['id'] : 0);
         $order   = $this->_get_order_by_number($order_number);
@@ -310,6 +336,7 @@ class account extends MY_Controller {
 
     public function rate_review($order_number = 'ORD-2026-88412', $product_id = null)
     {
+        $this->_require_account_login();
         $user    = $this->_get_account_user();
         $user_id = !empty($this->current_user['id']) ? (int) $this->current_user['id'] : (!empty($user['id']) ? (int) $user['id'] : 0);
         $order   = $this->_get_order_by_number($order_number);
@@ -488,6 +515,7 @@ class account extends MY_Controller {
 
     public function quick_rate()
     {
+        $this->_require_account_login();
         $user         = $this->_get_account_user();
         $user_id      = !empty($this->current_user['id']) ? (int) $this->current_user['id'] : (!empty($user['id']) ? (int) $user['id'] : 0);
         $tid          = (int) $this->tenant_id;
@@ -552,6 +580,7 @@ class account extends MY_Controller {
 
     public function cancel_order($order_number = 'ORD-2026-88412')
     {
+        $this->_require_account_login();
         $user    = $this->_get_account_user();
         $user_id = !empty($this->current_user['id']) ? (int) $this->current_user['id'] : NULL;
         $result  = $this->order_model->cancel_order($order_number, $user_id);
@@ -567,6 +596,7 @@ class account extends MY_Controller {
 
     public function invoice($order_number = 'ORD-2026-88412')
     {
+        $this->_require_account_login();
         $order = $this->_get_order_by_number($order_number);
         $data = [
             'title'          => 'Invoice #' . $order['order_number'],
@@ -578,6 +608,7 @@ class account extends MY_Controller {
 
     public function returns()
     {
+        $this->_require_account_login('account/returns');
         $user    = $this->_get_account_user();
         $user_id = !empty($this->current_user['id']) ? (int) $this->current_user['id'] : (!empty($user['id']) ? (int) $user['id'] : 0);
         $returns = ($user_id > 0 && $this->db->table_exists('order_returns'))
@@ -597,6 +628,7 @@ class account extends MY_Controller {
 
     public function request_return($order_number = 'ORD-2026-88412')
     {
+        $this->_require_account_login();
         $user    = $this->_get_account_user();
         $user_id = !empty($this->current_user['id']) ? (int) $this->current_user['id'] : (!empty($user['id']) ? (int) $user['id'] : 0);
         $order   = $this->_get_order_by_number($order_number);
@@ -624,6 +656,7 @@ class account extends MY_Controller {
 
     public function address()
     {
+        $this->_require_account_login('account/address');
         $user    = $this->_get_account_user();
         $user_id = !empty($this->current_user['id']) ? (int) $this->current_user['id'] : (!empty($user['id']) ? (int) $user['id'] : 0);
 
@@ -725,13 +758,14 @@ class account extends MY_Controller {
 
     public function get_address_ajax($id = 1)
     {
+        $this->_require_account_login();
         $user    = $this->_get_account_user();
         $user_id = !empty($this->current_user['id']) ? (int) $this->current_user['id'] : (!empty($user['id']) ? (int) $user['id'] : 0);
         $matched = NULL;
         if ($user_id > 0) {
             $matched = $this->user_model->get_address_by_id((int) $id, $user_id);
         }
-        if (!$matched) {
+        if (!$matched && !$this->is_user_project) {
             $addresses = Static_template_data::get('addresses');
             $matched   = $addresses[0] ?? NULL;
             foreach ($addresses as $addr) {
@@ -746,6 +780,7 @@ class account extends MY_Controller {
 
     public function delete_address($id = 1)
     {
+        $this->_require_account_login();
         $user    = $this->_get_account_user();
         $user_id = !empty($this->current_user['id']) ? (int) $this->current_user['id'] : (!empty($user['id']) ? (int) $user['id'] : 0);
         if ($user_id > 0 && (int) $id > 0) {
@@ -759,11 +794,7 @@ class account extends MY_Controller {
 
     public function wishlist()
     {
-        if (!$this->is_logged_in() || empty($this->current_user['id'])) {
-            $this->session->set_flashdata('error', 'Please login first to view your wishlist.');
-            redirect('auth/login?redirect=' . urlencode('wishlist'));
-            return;
-        }
+        $this->_require_account_login('wishlist');
 
         $user     = $this->_get_account_user();
         $this->load->model('wishlist_model');
@@ -873,6 +904,7 @@ class account extends MY_Controller {
 
     public function notifications()
     {
+        $this->_require_account_login('account/notifications');
         $user          = $this->_get_account_user();
         $notifications = Static_template_data::get('notifications');
 

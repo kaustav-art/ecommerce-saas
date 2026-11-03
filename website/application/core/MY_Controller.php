@@ -448,14 +448,16 @@ class MY_Controller extends CI_Controller {
         if (!$this->is_user_project) {
             return TRUE;
         }
-        return (bool) $this->session->userdata('user_logged_in');
+        $user_tid = (int) $this->session->userdata('user_tenant_id');
+        return (bool) ($this->session->userdata('user_logged_in') && $user_tid === (int) $this->tenant_id && !empty($this->current_user['id']));
     }
 
     public function require_login()
     {
         if (!$this->is_logged_in()) {
-            $this->session->set_userdata('redirect_url', current_url());
-            redirect('home');
+            $target = current_url();
+            $this->session->set_userdata('redirect_url', $target);
+            redirect('home?login=1&redirect=' . urlencode($target));
         }
         return TRUE;
     }
