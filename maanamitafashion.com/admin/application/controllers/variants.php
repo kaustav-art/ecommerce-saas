@@ -436,6 +436,13 @@ class variants extends MY_Controller {
             $size_stocks           = $this->input->post('size_stock') ?: [];
             $size_sale_prices      = $this->input->post('size_sale_price') ?: [];
             $selected_sizes        = is_array($size_vals) ? array_filter($size_vals) : (!empty($size_vals) ? [$size_vals] : []);
+            $clean_attr_vals       = is_array($attr_vals) ? array_filter($attr_vals) : [];
+
+            if (empty($clean_attr_vals) && empty($selected_sizes)) {
+                $this->session->set_flashdata('error', 'Please select at least one attribute in "Assign Attributes" (e.g. Color, Material, or ' . html_escape($size_attr_name) . ') before saving the variant.');
+                redirect($id ? ('variants/edit/' . $product_id . '/' . $id) : ('variants/add/' . $product_id));
+                return;
+            }
 
             if (!empty($group_variant_ids)) {
                 // --- EDIT GROUPED VARIANT (MULTIPLE SIZES) ---

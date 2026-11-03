@@ -123,6 +123,15 @@
                           <a class="dropdown-item" href="<?= site_url('inventory/adjust?product_id=' . $p['id']); ?>">
                             <i class="fa-solid fa-arrows-rotate me-1 text-warning"></i> Adjust Stock
                           </a>
+                          <?php if (($p['status'] ?? 'published') === 'published'): ?>
+                            <a class="dropdown-item" href="<?= site_url('products/toggle_status/' . $p['id'] . '?status=draft'); ?>">
+                              <i class="fa-solid fa-eye-slash me-1 text-secondary"></i> Set as Draft
+                            </a>
+                          <?php else: ?>
+                            <a class="dropdown-item" href="<?= site_url('products/toggle_status/' . $p['id'] . '?status=published'); ?>">
+                              <i class="fa-solid fa-circle-check me-1 text-success"></i> Set as Published
+                            </a>
+                          <?php endif; ?>
                         <?php endif; ?>
                         <a class="dropdown-item" href="<?= admin_storefront_url('product/' . $p['slug']); ?>" target="_blank">
                           <i class="fa-solid fa-arrow-up-right-from-square me-1 text-secondary"></i> View Live

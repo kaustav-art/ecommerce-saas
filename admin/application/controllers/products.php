@@ -650,6 +650,33 @@ class products extends MY_Controller {
         $this->render('products/edit', $data);
     }
 
+    public function toggle_status($id)
+    {
+        $this->require_permission('products.manage');
+        $product = $this->product_model->get_by_id($id);
+        if (!$product) {
+            $this->session->set_flashdata('error', 'Product not found.');
+            redirect('products');
+            return;
+        }
+
+        $requested_status = $this->input->get_post('status', TRUE);
+        if (in_array($requested_status, ['published', 'draft'], true)) {
+            $new_status = $requested_status;
+        } else {
+            $new_status = (($product['status'] ?? 'published') === 'published') ? 'draft' : 'published';
+        }
+
+        $this->product_model->update($id, [
+            'status'     => $new_status,
+            'updated_at' => date('Y-m-d H:i:s')
+        ]);
+
+        $this->session->set_flashdata('success', 'Product status updated to ' . ucfirst($new_status) . '.');
+        $referer = $this->input->server('HTTP_REFERER');
+        redirect($referer ?: 'products');
+    }
+
     public function delete($id)
     {
         $this->require_permission('products.delete');

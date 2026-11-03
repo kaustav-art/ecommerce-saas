@@ -318,14 +318,21 @@
         </div>
 
         <!-- Assign Attributes Card -->
-        <div class="card mb-4">
-          <div class="card-header">
-            <h5 class="card-title mb-0 d-flex align-items-center text-dark">
-              <i class="fa-solid fa-tags text-primary me-2"></i> Assign Attributes
-            </h5>
-            <small class="text-muted">Assign attributes (Color, <?= html_escape($multi_name); ?>, Material, etc.) and manage individual stock per <?= strtolower(html_escape($multi_name)); ?>.</small>
+        <div class="card mb-4" id="assign_attributes_card">
+          <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+              <h5 class="card-title mb-0 d-flex align-items-center text-dark">
+                <i class="fa-solid fa-tags text-primary me-2"></i> Assign Attributes <span class="text-danger ms-1">*</span>
+              </h5>
+              <small class="text-muted">Assign at least one attribute (Color, <?= html_escape($multi_name); ?>, Material, etc.) and manage individual stock per <?= strtolower(html_escape($multi_name)); ?>.</small>
+            </div>
+            <span class="badge bg-label-danger small">At Least 1 Attribute Required</span>
           </div>
           <div class="card-body">
+            <div id="assign_attr_error" class="alert alert-danger py-2 px-3 mb-3 small align-items-center" style="display: none;">
+              <i class="fa-solid fa-circle-exclamation me-2"></i>
+              <span>Please select at least one attribute (e.g. Color, Material, or <?= html_escape($multi_name); ?>) before saving this variant.</span>
+            </div>
             <?php if (!empty($attributes)): ?>
               <div class="row">
 
@@ -906,6 +913,7 @@ function updateSizeSelectionInfo() {
   }
 
   updateSkuPreview();
+  clearAssignAttrError();
 }
 
 // Render dynamic Stock by Size table
@@ -1087,6 +1095,7 @@ function onNonSizeAttrChange(selectEl, slug) {
     }
   }
   updateSkuPreview();
+  clearAssignAttrError();
 }
 
 function updateSkuPreview() {
@@ -1216,10 +1225,47 @@ function escapeHtml(text) {
     .replace(/'/g, "&#039;");
 }
 
+function hasAnyAssignedAttributeSelected() {
+  var hasSingle = false;
+  document.querySelectorAll('select[name^="attr_vals["]').forEach(function(sel) {
+    if (sel.value && sel.value.trim() !== '') {
+      hasSingle = true;
+    }
+  });
+  var hasMulti = document.querySelectorAll('.size-chip-checkbox:checked').length > 0;
+  return hasSingle || hasMulti;
+}
+
+function clearAssignAttrError() {
+  if (hasAnyAssignedAttributeSelected()) {
+    var errEl = document.getElementById('assign_attr_error');
+    var cardEl = document.getElementById('assign_attributes_card');
+    if (errEl) errEl.style.display = 'none';
+    if (cardEl) cardEl.classList.remove('border-danger');
+  }
+}
+
 // On page load: initialize sizes table & SKU preview if any pre-selected
 document.addEventListener('DOMContentLoaded', function() {
   updateSizeSelectionInfo();
   renderVarSizeStockInputs(presetSizesMap);
   updateSkuPreview();
+
+  var variantForm = document.getElementById('variantForm');
+  if (variantForm) {
+    variantForm.addEventListener('submit', function(e) {
+      if (!hasAnyAssignedAttributeSelected()) {
+        e.preventDefault();
+        var errEl = document.getElementById('assign_attr_error');
+        var cardEl = document.getElementById('assign_attributes_card');
+        if (errEl) errEl.style.display = 'flex';
+        if (cardEl) {
+          cardEl.classList.add('border-danger');
+          cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return false;
+      }
+    });
+  }
 });
 </script>
