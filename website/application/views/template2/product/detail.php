@@ -1075,6 +1075,8 @@ if (!empty($initial_variant)) {
                                           $in_stock = true;
                                           if (!empty($color_map[$initial_color]['sizes'][$s_name])) {
                                              $in_stock = ($color_map[$initial_color]['sizes'][$s_name]['stock'] > 0);
+                                          } elseif (empty($initial_color) && isset($size_variant_map[$s_name])) {
+                                             $in_stock = ($size_variant_map[$s_name]['stock'] > 0);
                                           }
                                        ?>
                                           <button type="button" 
@@ -2271,12 +2273,12 @@ if (!empty($initial_variant)) {
     function updateSizeAvailability() {
         if (!hasSize) return;
         var chips = document.querySelectorAll('#size-chips-wrapper .variant-size-chip');
-        var colorSizes = (colorMap[selectedColor] && colorMap[selectedColor].sizes) ? colorMap[selectedColor].sizes : {};
+        var colorSizes = (selectedColor && colorMap[selectedColor] && colorMap[selectedColor].sizes) ? colorMap[selectedColor].sizes : {};
         var firstInStockSize = '';
 
         chips.forEach(function(ch) {
             var s = ch.getAttribute('data-size');
-            var sizeData = colorSizes[s];
+            var sizeData = colorSizes[s] || (!selectedColor && sizeVariantMap && sizeVariantMap[s] ? sizeVariantMap[s] : null);
             var inStock = sizeData ? (sizeData.stock > 0) : true;
             if (!inStock) {
                 ch.classList.add('is-out-of-stock');
@@ -2288,7 +2290,7 @@ if (!empty($initial_variant)) {
             }
         });
 
-        var currentSizeData = colorSizes[selectedSize];
+        var currentSizeData = colorSizes[selectedSize] || (!selectedColor && sizeVariantMap && sizeVariantMap[selectedSize] ? sizeVariantMap[selectedSize] : null);
         if (currentSizeData && currentSizeData.stock <= 0 && firstInStockSize) {
             chips.forEach(function(ch) {
                 if (ch.getAttribute('data-size') === firstInStockSize) {
@@ -2405,7 +2407,8 @@ if (!empty($initial_variant)) {
 
     window.selectSize = function(sizeName, chipEl) {
         if (chipEl && chipEl.classList.contains('is-out-of-stock')) {
-            alert(multiAttrName + ' ' + sizeName + ' is currently out of stock for ' + (colorAttrName || 'color').toLowerCase() + ' ' + selectedColor + '.');
+            var colorMsg = selectedColor ? (' for ' + (colorAttrName || 'color').toLowerCase() + ' ' + selectedColor) : '';
+            alert(multiAttrName + ' ' + sizeName + ' is currently out of stock' + colorMsg + '.');
             return;
         }
         showVariantLoader();

@@ -1430,10 +1430,12 @@ if (!empty($initial_variant)) {
                                                             $s_name = $s_val['value'];
                                                             $is_active_size = ($s_name === $initial_size);
                                                             
-                                                            // Check stock for initial color
+                                                            // Check stock for initial color or size variant map
                                                             $in_stock = true;
                                                             if (!empty($color_map[$initial_color]['sizes'][$s_name])) {
                                                                 $in_stock = ($color_map[$initial_color]['sizes'][$s_name]['stock'] > 0);
+                                                            } elseif (empty($initial_color) && isset($size_variant_map[$s_name])) {
+                                                                $in_stock = ($size_variant_map[$s_name]['stock'] > 0);
                                                             }
                                                         ?>
                                                             <button type="button" 
@@ -2893,7 +2895,8 @@ if (!empty($initial_variant)) {
     window.selectSize = function(sizeName, chipEl) {
         // If out of stock, warn user or prompt
         if (chipEl && chipEl.classList.contains('is-out-of-stock')) {
-            alert(multiAttrName + ' ' + sizeName + ' is currently out of stock for color ' + selectedColor + '. You can select another option or color.');
+            var colorMsg = selectedColor ? (' for color ' + selectedColor) : '';
+            alert(multiAttrName + ' ' + sizeName + ' is currently out of stock' + colorMsg + '. You can select another option.');
             return;
         }
 
@@ -2928,18 +2931,18 @@ if (!empty($initial_variant)) {
         });
     };
 
-    // 6. UPDATE SIZE / STORAGE AVAILABILITY BASED ON SELECTED COLOR
+    // 6. UPDATE SIZE / STORAGE AVAILABILITY BASED ON SELECTED COLOR OR SIZE VARIANT MAP
     function updateSizeAvailability() {
         if (!hasSize) return;
 
         var chips = document.querySelectorAll('.variant-size-chip');
-        var colorSizes = (colorMap[selectedColor] && colorMap[selectedColor].sizes) ? colorMap[selectedColor].sizes : {};
+        var colorSizes = (selectedColor && colorMap[selectedColor] && colorMap[selectedColor].sizes) ? colorMap[selectedColor].sizes : {};
 
         var firstInStockSize = '';
 
         chips.forEach(function(ch) {
             var s = ch.getAttribute('data-size');
-            var sizeData = colorSizes[s];
+            var sizeData = colorSizes[s] || (!selectedColor && sizeVariantMap && sizeVariantMap[s] ? sizeVariantMap[s] : null);
             var inStock = sizeData ? (sizeData.stock > 0) : true;
 
             if (!inStock) {
@@ -2952,8 +2955,8 @@ if (!empty($initial_variant)) {
             }
         });
 
-        // If currently selected size is out of stock for new color, auto-switch to first in-stock size
-        var currentSizeData = colorSizes[selectedSize];
+        // If currently selected size is out of stock, auto-switch to first in-stock size
+        var currentSizeData = colorSizes[selectedSize] || (!selectedColor && sizeVariantMap && sizeVariantMap[selectedSize] ? sizeVariantMap[selectedSize] : null);
         if (currentSizeData && currentSizeData.stock <= 0 && firstInStockSize) {
             chips.forEach(function(ch) {
                 if (ch.getAttribute('data-size') === firstInStockSize) {
