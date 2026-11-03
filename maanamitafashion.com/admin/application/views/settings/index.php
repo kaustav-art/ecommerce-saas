@@ -56,37 +56,20 @@
           $current_symbol   = $settings['currency_symbol'] ?? '$';
 
           $currency_options = [
-            ['code' => 'USD', 'symbol' => '$',   'name' => 'USD - US Dollar ($)'],
-            ['code' => 'EUR', 'symbol' => '€',   'name' => 'EUR - Euro (€)'],
-            ['code' => 'GBP', 'symbol' => '£',   'name' => 'GBP - British Pound (£)'],
-            ['code' => 'INR', 'symbol' => '₹',   'name' => 'INR - Indian Rupee (₹)'],
-            ['code' => 'CAD', 'symbol' => 'CA$', 'name' => 'CAD - Canadian Dollar (CA$)'],
-            ['code' => 'AUD', 'symbol' => 'AU$', 'name' => 'AUD - Australian Dollar (AU$)'],
-            ['code' => 'JPY', 'symbol' => '¥',   'name' => 'JPY - Japanese Yen (¥)'],
-            ['code' => 'CNY', 'symbol' => '¥',   'name' => 'CNY - Chinese Yuan (¥)'],
-            ['code' => 'AED', 'symbol' => 'AED', 'name' => 'AED - UAE Dirham (AED)'],
-            ['code' => 'SAR', 'symbol' => 'SAR', 'name' => 'SAR - Saudi Riyal (SAR)'],
-            ['code' => 'SGD', 'symbol' => 'S$',  'name' => 'SGD - Singapore Dollar (S$)'],
-            ['code' => 'CHF', 'symbol' => 'CHF', 'name' => 'CHF - Swiss Franc (CHF)'],
-            ['code' => 'NZD', 'symbol' => 'NZ$', 'name' => 'NZD - New Zealand Dollar (NZ$)'],
-            ['code' => 'MYR', 'symbol' => 'RM',  'name' => 'MYR - Malaysian Ringgit (RM)'],
-            ['code' => 'THB', 'symbol' => '฿',   'name' => 'THB - Thai Baht (฿)'],
-            ['code' => 'PHP', 'symbol' => '₱',   'name' => 'PHP - Philippine Peso (₱)'],
-            ['code' => 'IDR', 'symbol' => 'Rp',  'name' => 'IDR - Indonesian Rupiah (Rp)'],
-            ['code' => 'PKR', 'symbol' => '₨',   'name' => 'PKR - Pakistani Rupee (₨)'],
-            ['code' => 'BDT', 'symbol' => '৳',   'name' => 'BDT - Bangladeshi Taka (৳)'],
-            ['code' => 'BRL', 'symbol' => 'R$',  'name' => 'BRL - Brazilian Real (R$)'],
-            ['code' => 'ZAR', 'symbol' => 'R',   'name' => 'ZAR - South African Rand (R)'],
-            ['code' => 'KRW', 'symbol' => '₩',   'name' => 'KRW - South Korean Won (₩)'],
-            ['code' => 'TRY', 'symbol' => '₺',   'name' => 'TRY - Turkish Lira (₺)'],
-            ['code' => 'MXN', 'symbol' => 'MX$', 'name' => 'MXN - Mexican Peso (MX$)'],
-            ['code' => 'EGP', 'symbol' => 'EGP', 'name' => 'EGP - Egyptian Pound (EGP)'],
-            ['code' => 'NGN', 'symbol' => '₦',   'name' => 'NGN - Nigerian Naira (₦)'],
-            ['code' => 'KES', 'symbol' => 'KSh', 'name' => 'KES - Kenyan Shilling (KSh)'],
-            ['code' => 'QAR', 'symbol' => 'QAR', 'name' => 'QAR - Qatari Riyal (QAR)'],
-            ['code' => 'KWD', 'symbol' => 'KWD', 'name' => 'KWD - Kuwaiti Dinar (KWD)'],
-            ['code' => 'OMR', 'symbol' => 'OMR', 'name' => 'OMR - Omani Rial (OMR)']
+            ['code' => 'USD', 'symbol' => '$',    'name' => 'USD ($) — US Dollar'],
+            ['code' => 'INR', 'symbol' => '₹',    'name' => 'INR (₹) — Indian Rupee'],
+            ['code' => 'EUR', 'symbol' => '€',    'name' => 'EUR (€) — Euro'],
+            ['code' => 'GBP', 'symbol' => '£',    'name' => 'GBP (£) — British Pound'],
+            ['code' => 'AED', 'symbol' => 'AED ', 'name' => 'AED — UAE Dirham']
           ];
+
+          $selected_currency_code = strtoupper($current_currency);
+          foreach ($currency_options as $cur_opt) {
+            if (trim((string)$current_symbol) === trim($cur_opt['symbol'])) {
+              $selected_currency_code = $cur_opt['code'];
+              break;
+            }
+          }
         ?>
         <div class="card">
           <div class="card-header border-bottom">
@@ -152,7 +135,7 @@
                   <label class="form-label fw-semibold">Store Currency <span class="text-danger">*</span></label>
                   <select class="form-select" id="currency_code" name="currency_code" required>
                     <?php foreach ($currency_options as $cur): ?>
-                      <option value="<?= $cur['code']; ?>" data-symbol="<?= html_escape($cur['symbol']); ?>" <?= (strtoupper($current_currency) === $cur['code']) ? 'selected' : ''; ?>>
+                      <option value="<?= $cur['code']; ?>" data-symbol="<?= html_escape($cur['symbol']); ?>" <?= ($selected_currency_code === $cur['code']) ? 'selected' : ''; ?>>
                         <?= html_escape($cur['name']); ?>
                       </option>
                     <?php endforeach; ?>
