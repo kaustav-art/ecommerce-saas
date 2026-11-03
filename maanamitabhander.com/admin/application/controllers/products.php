@@ -269,15 +269,18 @@ class products extends MY_Controller {
                             $v_sale_price = (isset($multi_sale_prices[$m_vid]) && $multi_sale_prices[$m_vid] !== '') ? (float) $multi_sale_prices[$m_vid] : $insert_data['sale_price'];
 
                             $v_data = [
-                                'product_id'     => $new_id,
-                                'title'          => $v_title,
-                                'sku'            => $v_sku,
-                                'price'          => $insert_data['price'],
-                                'sale_price'     => $v_sale_price,
-                                'stock_quantity' => $v_stock,
-                                'stock_status'   => $v_status,
-                                'image'          => $main_image,
-                                'gallery_images' => json_encode($gallery_images)
+                                'product_id'            => $new_id,
+                                'title'                 => $v_title,
+                                'sku'                   => $v_sku,
+                                'price'                 => $insert_data['price'],
+                                'sale_price'            => $v_sale_price,
+                                'stock_quantity'        => $v_stock,
+                                'max_purchase_quantity' => $insert_data['max_purchase_quantity'],
+                                'stock_status'          => $v_status,
+                                'image'                 => $main_image,
+                                'gallery_images'        => json_encode($gallery_images),
+                                'highlights'            => $insert_data['highlights'],
+                                'specifications'        => !empty($specs) ? json_encode($specs) : NULL
                             ];
 
                             $v_attrs = $attr_vals;
@@ -296,15 +299,18 @@ class products extends MY_Controller {
                     } elseif (!empty($attr_vals) || !empty($attr_multi)) {
                         // Single variant for products with single attributes only
                         $v_data = [
-                            'product_id'     => $new_id,
-                            'title'          => $base_var_title,
-                            'sku'            => $base_var_sku,
-                            'price'          => $insert_data['price'],
-                            'sale_price'     => $insert_data['sale_price'],
-                            'stock_quantity' => $insert_data['stock_quantity'],
-                            'stock_status'   => $insert_data['stock_status'],
-                            'image'          => $main_image,
-                            'gallery_images' => json_encode($gallery_images)
+                            'product_id'            => $new_id,
+                            'title'                 => $base_var_title,
+                            'sku'                   => $base_var_sku,
+                            'price'                 => $insert_data['price'],
+                            'sale_price'            => $insert_data['sale_price'],
+                            'stock_quantity'        => $insert_data['stock_quantity'],
+                            'max_purchase_quantity' => $insert_data['max_purchase_quantity'],
+                            'stock_status'          => $insert_data['stock_status'],
+                            'image'                 => $main_image,
+                            'gallery_images'        => json_encode($gallery_images),
+                            'highlights'            => $insert_data['highlights'],
+                            'specifications'        => !empty($specs) ? json_encode($specs) : NULL
                         ];
                         $v_attrs = $attr_vals;
                         if (!empty($attr_multi)) {
@@ -385,6 +391,54 @@ class products extends MY_Controller {
                 $final_gallery = array_merge((array) $existing_gallery, $new_gallery);
                 $final_gallery = array_values(array_unique(array_filter($final_gallery)));
 
+                // Check if Attributes / Variants are assigned during Edit Product (when converting Simple -> Variable)
+                $active_multi_attr_id = $this->input->post('active_multi_attr_id') ? (int) $this->input->post('active_multi_attr_id') : null;
+                $multi_vals           = (array) $this->input->post('multi_vals');
+                $multi_vals           = array_values(array_filter($multi_vals));
+                $multi_stocks         = (array) $this->input->post('multi_stock');
+                $multi_sale_prices    = (array) $this->input->post('multi_sale_price');
+
+                $size_vals        = $this->input->post('size_vals');
+                $selected_sizes   = is_array($size_vals) ? array_filter($size_vals) : (!empty($size_vals) ? [$size_vals] : []);
+                $size_stocks      = (array) $this->input->post('size_stock');
+                $size_sale_prices = (array) $this->input->post('size_sale_price');
+
+                $attr_vals        = array_filter((array) $this->input->post('attr_vals'));
+                $raw_attr_multi   = $this->input->post('attr_multi') ?: [];
+                $attr_multi       = [];
+                if (is_array($raw_attr_multi)) {
+                    foreach ($raw_attr_multi as $a_id => $v_list) {
+                        $clean_v_list = is_array($v_list) ? array_filter($v_list) : [];
+                        if (!empty($clean_v_list)) {
+                            $attr_multi[(int) $a_id] = array_values($clean_v_list);
+                        }
+                    }
+                }
+
+                $has_variants = (!empty($multi_vals) || !empty($selected_sizes) || !empty($attr_vals) || !empty($attr_multi));
+                $existing_variants_count = $this->db->where('product_id', (int) $id)->count_all_results('product_variants');
+
+                $product_type = ($has_variants || $existing_variants_count > 0)
+                    ? 'variable'
+                    : ($this->input->post('product_type', TRUE) ?: 'simple');
+
+                $updated_stock = (int) $this->input->post('stock_quantity');
+                if ($has_variants && $existing_variants_count === 0) {
+                    if (!empty($multi_vals)) {
+                        $sum_multi_stock = 0;
+                        foreach ($multi_vals as $m_vid) {
+                            $sum_multi_stock += isset($multi_stocks[$m_vid]) && $multi_stocks[$m_vid] !== '' ? max(0, (int) $multi_stocks[$m_vid]) : 10;
+                        }
+                        $updated_stock = $sum_multi_stock;
+                    } elseif (!empty($selected_sizes)) {
+                        $sum_size_stock = 0;
+                        foreach ($selected_sizes as $s_id) {
+                            $sum_size_stock += isset($size_stocks[$s_id]) && $size_stocks[$s_id] !== '' ? max(0, (int) $size_stocks[$s_id]) : 10;
+                        }
+                        $updated_stock = $sum_size_stock;
+                    }
+                }
+
                 // Highlights processing
                 $highlights = [];
                 if ($this->input->post('enable_highlights')) {
@@ -402,15 +456,15 @@ class products extends MY_Controller {
                 $update_data = [
                     'category_id'         => (int) $this->input->post('category_id'),
                     'brand_id'            => $this->input->post('brand_id') ? (int) $this->input->post('brand_id') : NULL,
-                    'product_type'        => $this->input->post('product_type', TRUE) ?: 'simple',
+                    'product_type'        => $product_type,
                     'title'               => $this->input->post('title', TRUE),
                     'price'               => (float) $this->input->post('price'),
                     'sale_price'          => $this->input->post('sale_price') ? (float) $this->input->post('sale_price') : NULL,
                     'tax_rate'            => (float) $this->input->post('tax_rate'),
-                    'stock_quantity'      => (int) $this->input->post('stock_quantity'),
+                    'stock_quantity'      => $updated_stock,
                     'low_stock_threshold' => (int) $this->input->post('low_stock_threshold') ?: 5,
                     'max_purchase_quantity' => $this->input->post('max_purchase_quantity') ? max(1, (int) $this->input->post('max_purchase_quantity')) : 5,
-                    'stock_status'        => $this->input->post('stock_quantity') > 0 ? 'in_stock' : 'out_of_stock',
+                    'stock_status'        => $updated_stock > 0 ? 'in_stock' : 'out_of_stock',
                     'short_description'   => $this->input->post('short_description', TRUE),
                     'description'         => $this->input->post('description'),
                     'highlights'          => !empty($highlights) ? json_encode($highlights) : NULL,
@@ -439,6 +493,141 @@ class products extends MY_Controller {
                     }
                 }
                 $this->product_model->save_specifications($id, $specs);
+
+                // If attributes/variants were newly assigned on a simple product, create the variants now
+                if ($has_variants && $existing_variants_count === 0) {
+                    $all_attributes = $this->attribute_model->get_all();
+                    $val_by_id      = [];
+                    $size_attr_id   = null;
+                    $color_name     = '';
+
+                    foreach ($all_attributes as $attr) {
+                        $is_size = (strcasecmp($attr['slug'], 'size') === 0 || strcasecmp($attr['name'], 'size') === 0);
+                        if ($is_size) {
+                            $size_attr_id = (int) $attr['id'];
+                        }
+                        if (!empty($attr['values'])) {
+                            foreach ($attr['values'] as $val) {
+                                $val_by_id[$val['id']] = $val['value'];
+                            }
+                        }
+                        if (isset($attr_vals[$attr['id']])) {
+                            $selected_val_id = $attr_vals[$attr['id']];
+                            if (!empty($attr['values'])) {
+                                foreach ($attr['values'] as $val) {
+                                    if ($val['id'] == $selected_val_id && (strcasecmp($attr['slug'], 'color') === 0 || strcasecmp($attr['name'], 'color') === 0)) {
+                                        $color_name = $val['value'];
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (empty($active_multi_attr_id) && !empty($selected_sizes) && $size_attr_id) {
+                        $active_multi_attr_id = $size_attr_id;
+                        $multi_vals           = array_values($selected_sizes);
+                        $multi_stocks         = $size_stocks;
+                        $multi_sale_prices    = $size_sale_prices;
+                    }
+
+                    // Save assigned attributes to product_attributes
+                    $assigned_attrs = array_keys($attr_vals);
+                    if (!empty($active_multi_attr_id)) {
+                        $assigned_attrs[] = (int) $active_multi_attr_id;
+                    }
+                    if (!empty($attr_multi)) {
+                        foreach (array_keys($attr_multi) as $m_aid) {
+                            $assigned_attrs[] = (int) $m_aid;
+                        }
+                    }
+                    $assigned_attrs = array_unique(array_filter($assigned_attrs));
+                    $this->attribute_model->save_product_attributes($id, $assigned_attrs);
+
+                    $base_var_title = $update_data['title'];
+                    if (!empty($color_name)) {
+                        $base_var_title .= ' - ' . $color_name;
+                    }
+                    $base_var_sku = $product['sku'];
+
+                    $created_var_count = 0;
+                    if (!empty($multi_vals) && !empty($active_multi_attr_id)) {
+                        foreach ($multi_vals as $m_vid) {
+                            $val_name = $val_by_id[$m_vid] ?? '';
+                            $v_sku = $base_var_sku;
+                            if (!empty($val_name)) {
+                                $clean_opt = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $val_name));
+                                if (!empty($clean_opt) && !preg_match('/-' . preg_quote($clean_opt, '/') . '$/i', $v_sku)) {
+                                    $v_sku .= '-' . $clean_opt;
+                                }
+                            }
+                            $v_title = $base_var_title;
+                            if (!empty($val_name) && !preg_match('/\/\s*' . preg_quote($val_name, '/') . '$/i', $v_title)) {
+                                $v_title .= ' / ' . $val_name;
+                            }
+
+                            $v_stock  = isset($multi_stocks[$m_vid]) && $multi_stocks[$m_vid] !== '' ? max(0, (int) $multi_stocks[$m_vid]) : 10;
+                            $v_status = $v_stock > 0 ? 'in_stock' : 'out_of_stock';
+                            $v_sale_price = (isset($multi_sale_prices[$m_vid]) && $multi_sale_prices[$m_vid] !== '') ? (float) $multi_sale_prices[$m_vid] : $update_data['sale_price'];
+
+                            $v_data = [
+                                'product_id'            => (int) $id,
+                                'title'                 => $v_title,
+                                'sku'                   => $v_sku,
+                                'price'                 => $update_data['price'],
+                                'sale_price'            => $v_sale_price,
+                                'stock_quantity'        => $v_stock,
+                                'max_purchase_quantity' => $update_data['max_purchase_quantity'],
+                                'stock_status'          => $v_status,
+                                'image'                 => $main_image,
+                                'gallery_images'        => json_encode($final_gallery),
+                                'highlights'            => $update_data['highlights'],
+                                'specifications'        => !empty($specs) ? json_encode($specs) : NULL
+                            ];
+
+                            $v_attrs = $attr_vals;
+                            $v_attrs[$active_multi_attr_id] = $m_vid;
+                            if (!empty($attr_multi)) {
+                                foreach ($attr_multi as $m_aid => $m_vids) {
+                                    if ($m_aid != $active_multi_attr_id) {
+                                        $v_attrs[$m_aid] = $m_vids;
+                                    }
+                                }
+                            }
+
+                            $this->variant_model->create($v_data, $v_attrs);
+                            $created_var_count++;
+                        }
+                    } elseif (!empty($attr_vals) || !empty($attr_multi)) {
+                        $v_data = [
+                            'product_id'            => (int) $id,
+                            'title'                 => $base_var_title,
+                            'sku'                   => $base_var_sku,
+                            'price'                 => $update_data['price'],
+                            'sale_price'            => $update_data['sale_price'],
+                            'stock_quantity'        => $update_data['stock_quantity'],
+                            'max_purchase_quantity' => $update_data['max_purchase_quantity'],
+                            'stock_status'          => $update_data['stock_status'],
+                            'image'                 => $main_image,
+                            'gallery_images'        => json_encode($final_gallery),
+                            'highlights'            => $update_data['highlights'],
+                            'specifications'        => !empty($specs) ? json_encode($specs) : NULL
+                        ];
+                        $v_attrs = $attr_vals;
+                        if (!empty($attr_multi)) {
+                            foreach ($attr_multi as $m_aid => $m_vids) {
+                                $v_attrs[$m_aid] = $m_vids;
+                            }
+                        }
+                        $this->variant_model->create($v_data, $v_attrs);
+                        $created_var_count++;
+                    }
+
+                    $this->variant_model->sync_product_stock($id);
+
+                    $this->session->set_flashdata('success', 'Product updated and ' . $created_var_count . ' variant(s) created for assigned attributes!');
+                    redirect('variants/product/' . $id);
+                    return;
+                }
 
                 $this->session->set_flashdata('success', 'Product updated successfully!');
                 redirect('products');

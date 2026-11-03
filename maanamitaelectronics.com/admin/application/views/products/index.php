@@ -65,7 +65,7 @@
                         <h6 class="mb-0 text-truncate" style="max-width: 280px;"><?= html_escape($p['title']); ?></h6>
                         <small class="text-muted"><?= html_escape($p['brand_name'] ?? 'Generic'); ?></small>
                         <div class="mt-1">
-                          <?php if (($p['product_type'] ?? 'simple') === 'variable'): ?>
+                          <?php if (($p['product_type'] ?? 'simple') === 'variable' && (int) ($p['variants_count'] ?? 0) > 0): ?>
                             <a href="<?= site_url('variants/product/' . $p['id']); ?>" class="badge bg-label-primary text-decoration-none">
                               <i class="fa-solid fa-code-fork me-1"></i><?= $p['variants_count']; ?> Variants
                             </a>
@@ -115,9 +115,11 @@
                           <a class="dropdown-item" href="<?= site_url('products/edit/' . $p['id']); ?>">
                             <i class="fa-solid fa-pen-to-square me-1 text-primary"></i> Edit
                           </a>
-                          <a class="dropdown-item" href="<?= site_url('variants/product/' . $p['id']); ?>">
-                            <i class="fa-solid fa-code-fork me-1 text-info"></i> Manage Variants (<?= $p['variants_count']; ?>)
-                          </a>
+                          <?php if (($p['product_type'] ?? 'simple') === 'variable' && (int) ($p['variants_count'] ?? 0) > 0): ?>
+                            <a class="dropdown-item" href="<?= site_url('variants/product/' . $p['id']); ?>">
+                              <i class="fa-solid fa-code-fork me-1 text-info"></i> Manage Variants (<?= $p['variants_count']; ?>)
+                            </a>
+                          <?php endif; ?>
                           <a class="dropdown-item" href="<?= site_url('inventory/adjust?product_id=' . $p['id']); ?>">
                             <i class="fa-solid fa-arrows-rotate me-1 text-warning"></i> Adjust Stock
                           </a>

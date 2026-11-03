@@ -143,6 +143,11 @@ class variant_model extends CI_Model {
                 'product_type'   => 'variable'
             ]);
             return $total_stock;
+        } else {
+            $this->db->where('id', $product_id)->update('products', [
+                'product_type' => 'simple'
+            ]);
+            $this->db->where('product_id', $product_id)->delete('product_attributes');
         }
         return null;
     }
