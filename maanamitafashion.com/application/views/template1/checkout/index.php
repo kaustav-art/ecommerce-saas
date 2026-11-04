@@ -291,7 +291,7 @@
 
                                             <!-- Rating (5 Stars) -->
                                             <?php 
-                                                $item_rating = isset($item['rating']) && (float)$item['rating'] > 0 ? (float)$item['rating'] : 5.0;
+                                                $item_rating = isset($item['rating']) && (float)$item['rating'] > 0 ? (float)$item['rating'] : 0.0;
                                                 $item_reviews = isset($item['reviews_count']) ? (int)$item['reviews_count'] : 0;
                                                 $r_score = round($item_rating * 2) / 2;
                                             ?>

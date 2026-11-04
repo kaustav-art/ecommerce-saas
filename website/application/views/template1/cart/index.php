@@ -352,7 +352,7 @@
 
                                             <!-- Rating (5 Stars) -->
                                             <?php 
-                                                $item_rating = isset($item['rating']) && (float)$item['rating'] > 0 ? (float)$item['rating'] : 5.0;
+                                                $item_rating = isset($item['rating']) && (float)$item['rating'] > 0 ? (float)$item['rating'] : 0.0;
                                                 $item_reviews = isset($item['reviews_count']) ? (int)$item['reviews_count'] : 0;
                                                 $r_score = round($item_rating * 2) / 2;
                                             ?>
@@ -538,7 +538,7 @@
                                 <div class="flex-grow-1 d-flex flex-column">
                                     <div class="d-flex align-items-center gap-1 mb-1">
                                         <span class="badge bg-success text-white px-1 rounded" style="font-size: 10px;">
-                                            <?= number_format($rvp['rating'] ?? 4.2, 1); ?> ★
+                                            <?= number_format((float)($rvp['rating'] ?? 0), 1); ?> ★
                                         </span>
                                     </div>
                                     <a href="<?= site_url('product/' . $rvp['slug']); ?>" class="text-dark fw-semibold text-truncate d-block mb-1 text-decoration-none" style="font-size: 13px;" title="<?= html_escape($rvp['title']); ?>">
