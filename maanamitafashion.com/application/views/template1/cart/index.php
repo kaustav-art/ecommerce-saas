@@ -389,7 +389,6 @@
 
                                     <!-- Dispatch Note Row -->
                                     <div class="p-2 px-3 rounded-2 bg-light d-flex align-items-center gap-2 mt-3 mb-3 text-secondary small border" style="font-size: 12px; line-height: 1.35;">
-                                        <i class="fa-solid fa-truck-fast text-primary fs-6"></i>
                                         <span><?= !empty($cart_summary['shipping_dispatch_note']) ? html_escape($cart_summary['shipping_dispatch_note']) : 'Dispatched within 24-48 hours with courier tracking.'; ?></span>
                                     </div>
 

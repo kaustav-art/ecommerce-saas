@@ -328,14 +328,7 @@
 
                                     <!-- Dispatch Note Row (Same as cart page) -->
                                     <div class="p-2 px-3 rounded-2 bg-light d-flex align-items-center gap-2 mt-3 mb-3 text-secondary small border" style="font-size: 12px; line-height: 1.35;">
-                                        <i class="fa-solid fa-truck-fast text-primary fs-6"></i>
                                         <span><?= !empty($cart_summary['shipping_dispatch_note']) ? html_escape($cart_summary['shipping_dispatch_note']) : 'Dispatched within 24-48 hours with courier tracking.'; ?></span>
-                                    </div>
-
-                                    <!-- Cancellation Policy Strip (Matching IMG_20260922_115257.jpeg) -->
-                                    <div class="rounded-2 p-2 px-3 mt-2 d-flex align-items-baseline gap-2 small border" style="background-color: #fffbeb; border-color: #fef3c7 !important; font-size: 12px; color: #92400e;">
-                                        <i class="fa-solid fa-circle-info"></i>
-                                        <span style="line-height: normal;">Cancellation is allowed up to 24 hours after placing the order.</span>
                                     </div>
                                 </div>
                                 <?php endforeach; ?>
