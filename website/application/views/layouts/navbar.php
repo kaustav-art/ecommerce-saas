@@ -76,9 +76,7 @@
                                 <a href="<?= site_url('wishlist'); ?>" class="store-nav-action-link d-flex align-items-center text-decoration-none position-relative" title="Wishlist">
                                     <i class="fa-regular fa-heart store-action-icon"></i>
                                     <span class="store-action-text d-none d-md-inline">Wishlist</span>
-                                    <?php if (!empty($wishlist_count) && $wishlist_count > 0): ?>
-                                        <span class="store-cart-badge" id="wishlist-counter"><?= $wishlist_count; ?></span>
-                                    <?php endif; ?>
+                                    <span class="store-cart-badge wishlist-count" id="wishlist-counter" style="<?= (!empty($wishlist_count) && $wishlist_count > 0) ? '' : 'display:none;'; ?>"><?= (int)($wishlist_count ?? 0); ?></span>
                                 </a>
                                 <?php else: ?>
                                 <a href="#exampleModalToggle" data-bs-toggle="modal" data-redirect-to="<?= site_url('wishlist'); ?>" data-login-message="Please sign in to view your wishlist." class="store-nav-action-link d-flex align-items-center text-decoration-none position-relative" title="Wishlist">

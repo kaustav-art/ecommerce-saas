@@ -83,10 +83,17 @@ if (!empty($p['variants']) && is_array($p['variants'])) {
             </div>
         <?php endif; ?>
 
+        <?php
+        $is_p_wish = !empty($user_wishlist_ids) && in_array((int)$p['id'], $user_wishlist_ids, true);
+        ?>
         <div class="list-product-btn">
-            <a href="<?= site_url('wishlist/toggle/' . $p['id']); ?>" class="box-icon wishlist btn-icon-action" title="Wishlist">
-                <i class="fa-regular fa-heart"></i>
-                <span class="tooltip">Wishlist</span>
+            <a href="<?= site_url('wishlist/toggle/' . $p['id']); ?>" 
+               class="box-icon wishlist btn-icon-action <?= $is_p_wish ? 'active in-wishlist' : ''; ?>" 
+               data-product-id="<?= (int)$p['id']; ?>"
+               onclick="event.preventDefault(); toggleProductWishlist(<?= (int)$p['id']; ?>, this);"
+               title="<?= $is_p_wish ? 'Remove from Wishlist' : 'Add to Wishlist'; ?>">
+                <i class="fa-<?= $is_p_wish ? 'solid' : 'regular'; ?> fa-heart <?= $is_p_wish ? 'text-danger' : ''; ?>"></i>
+                <span class="tooltip"><?= $is_p_wish ? 'Remove' : 'Wishlist'; ?></span>
             </a>
         </div>
         <div class="list-btn-main">

@@ -13,12 +13,15 @@
         <!-- /Page Title -->
 
         <!-- Flash messages -->
-        <?php if ($this->session->flashdata('success')): ?>
+        <?php 
+        $cart_flash_success = $this->session->flashdata('success');
+        if (!empty($cart_flash_success) && stripos($cart_flash_success, 'Item added to your shopping cart') === false): 
+        ?>
             <div class="container mt-3" style="max-width: 1240px;">
                 <div class="alert alert-success alert-dismissible fade show rounded-2 py-2 d-flex align-items-center justify-content-between" role="alert">
                     <div class="d-flex align-items-center">
                         <i class="fa-solid fa-circle-check me-2 fs-5 text-success"></i>
-                        <span><?= $this->session->flashdata('success'); ?></span>
+                        <span><?= $cart_flash_success; ?></span>
                     </div>
                     <button type="button" class="btn-close-alert" onclick="this.closest('.alert').remove();" aria-label="Close">
                         <i class="fa-solid fa-xmark"></i>
@@ -43,6 +46,77 @@
 
         <style>
         /* Cart Page Styles */
+        /* Swiper Sliders for Cart (Same as Product Detail) */
+        .aq-product-slide-wrap {
+            position: relative;
+        }
+        .aq-product-arrow button,
+        .aq-product-arrow button.aq-product-prev,
+        .aq-product-arrow button.aq-product-next {
+            position: absolute;
+            top: 40%;
+            transform: translateY(-50%);
+            inset-inline-start: -20px;
+            z-index: 20;
+            height: 42px !important;
+            width: 42px !important;
+            min-width: 42px !important;
+            max-width: 42px !important;
+            min-height: 42px !important;
+            max-height: 42px !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border-radius: 50% !important;
+            border: 1px solid rgba(0, 0, 0, 0.08) !important;
+            outline: none !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            opacity: 0;
+            visibility: hidden;
+            color: #141414 !important;
+            background: #ffffff !important;
+            box-shadow: 0 3px 10px rgba(1, 15, 28, 0.16) !important;
+            transition: all 0.3s ease-out;
+            cursor: pointer;
+        }
+        .aq-product-arrow button span {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 100%;
+            height: 100%;
+        }
+        .aq-product-arrow button svg {
+            display: block;
+            transform: translateX(-1px);
+        }
+        .aq-product-arrow button.aq-product-next {
+            inset-inline-start: auto;
+            inset-inline-end: -20px;
+        }
+        .aq-product-arrow button.aq-product-next svg {
+            transform: translateX(1px);
+        }
+        .aq-product-arrow button:hover {
+            color: #ffffff !important;
+            border-color: #141414 !important;
+            background-color: #141414 !important;
+        }
+        .aq-product-slide-wrap:hover .aq-product-arrow button {
+            opacity: 1;
+            visibility: visible;
+            inset-inline-start: -15px;
+        }
+        .aq-product-slide-wrap:hover .aq-product-arrow button.aq-product-next {
+            inset-inline-start: auto;
+            inset-inline-end: -15px;
+        }
+        @media (max-width: 768px) {
+            .aq-product-arrow {
+                display: none !important;
+            }
+        }
         .btn-close-alert {
             background: transparent !important;
             border: none !important;
@@ -277,7 +351,8 @@
                         <?php 
                             $disp_name = trim(($active_address['first_name'] ?? '') . ' ' . ($active_address['last_name'] ?? ''));
                             $disp_pin  = $active_address['postcode'] ?? '';
-                            $disp_tag  = !empty($active_address['company']) ? strtoupper($active_address['company']) : 'HOME';
+                            $raw_tag   = !empty($active_address['company']) ? $active_address['company'] : (!empty($active_address['address_type']) ? $active_address['address_type'] : 'HOME');
+                            $disp_tag  = (strtoupper(trim((string)$raw_tag)) === 'WORK') ? 'WORK' : 'HOME';
                             $disp_addr = implode(', ', array_filter([$active_address['address_1'] ?? '', $active_address['address_2'] ?? '', $active_address['city'] ?? '', $active_address['state'] ?? '']));
                             $disp_phone = !empty($active_address['phone']) ? $active_address['phone'] : ($current_user['phone'] ?? '');
                         ?>
@@ -286,11 +361,11 @@
                             <div class="cart-address-card p-3 p-sm-4 bg-white border shadow-sm" style="background-color: #ffffff !important; border-radius: 16px; border-color: #e5e7eb !important;">
                                 <div class="d-flex align-items-center justify-content-between mb-2">
                                     <div class="d-flex align-items-center gap-2 min-w-0" id="cart-address-header-box" style="cursor: pointer;" onclick="handleAddressAction()">
-                                        <i class="fa-solid fa-house text-dark flex-shrink-0" style="font-size: 16px;"></i>
+                                        <i class="fa-solid <?= ($disp_tag === 'WORK') ? 'fa-briefcase' : 'fa-house'; ?> text-dark flex-shrink-0" id="display-address-icon" style="font-size: 16px;"></i>
                                         <strong class="fw-bold text-dark text-truncate" id="display-address-name" style="font-size: 17px;">
                                             <?= html_escape($disp_name ?: (!empty($is_logged_in) ? 'Select Address' : 'Sign In to Select Address')); ?>
                                         </strong>
-                                        <span class="badge bg-light text-secondary border text-uppercase d-none" id="display-address-tag"><?= html_escape($disp_tag); ?></span>
+                                        <span class="badge text-uppercase fw-bold <?= empty($disp_name) ? 'd-none' : ''; ?>" id="display-address-tag" style="background-color: #f0f0f0; color: #555555; font-size: 11px; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.5px; border: 1px solid #e0e0e0;"><?= html_escape($disp_tag); ?></span>
                                     </div>
                                     <button type="button" class="btn btn-link p-0 text-decoration-none fw-bold flex-shrink-0 ms-2" id="btn-address-action" style="color: #1a73e8; font-size: 16px; cursor: pointer;" onclick="handleAddressAction(); event.stopPropagation();">
                                         <?= !empty($is_logged_in) ? 'Change' : 'Sign In'; ?>
@@ -518,55 +593,44 @@
                 </div>
 
                 <!-- Recently Viewed Products Section -->
+                <!-- Recently Viewed Products Section Slider -->
                 <?php if (!empty($recently_viewed_products)): ?>
                 <div class="cart-recently-viewed-section mt-4 pt-2">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <h5 class="fw-bold text-dark m-0" style="font-size: 18px;">Recently Viewed</h5>
                     </div>
-                    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">
-                        <?php foreach ($recently_viewed_products as $rvp): 
-                            $rvp_price = !empty($rvp['sale_price']) ? (float) $rvp['sale_price'] : (float) $rvp['price'];
-                            $rvp_reg   = !empty($rvp['price']) ? (float) $rvp['price'] : round($rvp_price * 1.3, 2);
-                            $rvp_img   = !empty($rvp['main_image']) ? (strpos($rvp['main_image'], 'http') === 0 ? $rvp['main_image'] : base_url('assets/images/' . $rvp['main_image'])) : base_url('assets/images/products/womens/women-1.jpg');
-                            $in_cart   = isset($cart_items[$rvp['id']]);
-                        ?>
-                        <div class="col">
-                            <div class="card h-100 border rounded-3 p-2 bg-white cart-rec-card d-flex flex-column">
-                                <a href="<?= site_url('product/' . $rvp['slug']); ?>" class="d-block mb-2 text-center overflow-hidden rounded bg-light" style="aspect-ratio: 1/1;">
-                                    <img src="<?= $rvp_img; ?>" alt="<?= html_escape($rvp['title']); ?>" class="w-100 h-100 object-fit-contain" onerror="this.src='<?= base_url('assets/images/products/womens/women-1.jpg'); ?>'">
-                                </a>
-                                <div class="flex-grow-1 d-flex flex-column">
-                                    <div class="d-flex align-items-center gap-1 mb-1">
-                                        <span class="badge bg-success text-white px-1 rounded" style="font-size: 10px;">
-                                            <?= number_format((float)($rvp['rating'] ?? 0), 1); ?> ★
-                                        </span>
+                    <div class="aq-product-slide-wrap p-relative">
+                        <div class="aq-product-arrow">
+                            <button type="button" class="aq-product-prev aq-cart-recent-prev" aria-label="Previous slide">
+                                <span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="7" height="12" viewBox="0 0 7 12" fill="none">
+                                        <path d="M5.75 10.75L0.75 5.75L5.75 0.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </span>
+                            </button>
+                            <button type="button" class="aq-product-next aq-cart-recent-next" aria-label="Next slide">
+                                <span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="7" height="12" viewBox="0 0 7 12" fill="none">
+                                        <path d="M0.75 10.75L5.75 5.75L0.75 0.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </span>
+                            </button>
+                        </div>
+                        <div class="swiper aq-product-active aq-cart-recent-slider">
+                            <div class="swiper-wrapper">
+                                <?php foreach ($recently_viewed_products as $rvp): ?>
+                                    <div class="swiper-slide">
+                                        <?php $this->load->view('template1/home/_product_card', ['p' => $rvp, 'currency_symbol' => $currency_symbol ?? '$']); ?>
                                     </div>
-                                    <a href="<?= site_url('product/' . $rvp['slug']); ?>" class="text-dark fw-semibold text-truncate d-block mb-1 text-decoration-none" style="font-size: 13px;" title="<?= html_escape($rvp['title']); ?>">
-                                        <?= html_escape($rvp['title']); ?>
-                                    </a>
-                                    <div class="d-flex align-items-center gap-1 mb-2">
-                                        <?php if ($rvp_reg > $rvp_price): ?>
-                                            <span class="text-muted text-decoration-line-through" style="font-size: 11px;"><?= $currency_symbol . number_format($rvp_reg, 2); ?></span>
-                                        <?php endif; ?>
-                                        <span class="fw-bold text-dark" style="font-size: 14px;"><?= $currency_symbol . number_format($rvp_price, 2); ?></span>
-                                    </div>
-                                    <form action="<?= site_url('cart/add'); ?>" method="POST" class="mt-auto">
-                                        <input type="hidden" name="product_id" value="<?= $rvp['id']; ?>">
-                                        <input type="hidden" name="quantity" value="1">
-                                        <button type="submit" class="btn btn-sm w-100 btn-cart-secondary-action">
-                                            <?= $in_cart ? 'Add More to cart' : 'Add to cart'; ?>
-                                        </button>
-                                    </form>
-                                </div>
+                                <?php endforeach; ?>
                             </div>
                         </div>
-                        <?php endforeach; ?>
                     </div>
                 </div>
                 <?php endif; ?>
 
-                <!-- Your Wishlist Products (Shown ONLY if user is logged in) -->
-                <?php if (!empty($is_logged_in) && !empty($wishlist_items)): ?>
+                <!-- Your Wishlist Products Section Slider -->
+                <?php if (!empty($wishlist_items)): ?>
                 <div class="cart-wishlist-section mt-4 pt-2">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <h5 class="fw-bold text-dark m-0 d-flex align-items-center gap-1" style="font-size: 18px;">
@@ -576,41 +640,32 @@
                             View all <i class="fa-solid fa-arrow-right ms-1"></i>
                         </a>
                     </div>
-                    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">
-                        <?php foreach ($wishlist_items as $w_item): 
-                            $w_price = !empty($w_item['sale_price']) ? (float) $w_item['sale_price'] : (float) $w_item['price'];
-                            $w_reg   = !empty($w_item['price']) ? (float) $w_item['price'] : round($w_price * 1.3, 2);
-                            $w_img   = !empty($w_item['main_image']) ? (strpos($w_item['main_image'], 'http') === 0 ? $w_item['main_image'] : base_url('assets/images/' . $w_item['main_image'])) : base_url('assets/images/products/womens/women-1.jpg');
-                        ?>
-                        <div class="col">
-                            <div class="card h-100 border rounded-3 p-2 bg-white cart-rec-card d-flex flex-column">
-                                <a href="<?= site_url('product/' . $w_item['slug']); ?>" class="d-block mb-2 text-center overflow-hidden rounded bg-light" style="aspect-ratio: 1/1;">
-                                    <img src="<?= $w_img; ?>" alt="<?= html_escape($w_item['title']); ?>" class="w-100 h-100 object-fit-contain" onerror="this.src='<?= base_url('assets/images/products/womens/women-1.jpg'); ?>'">
-                                </a>
-                                <div class="flex-grow-1 d-flex flex-column">
-                                    <div class="d-flex align-items-center gap-1 mb-1">
-                                        <span class="badge bg-success text-white px-1 rounded" style="font-size: 10px;">4.3 ★</span>
+                    <div class="aq-product-slide-wrap p-relative">
+                        <div class="aq-product-arrow">
+                            <button type="button" class="aq-product-prev aq-cart-wishlist-prev" aria-label="Previous slide">
+                                <span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="7" height="12" viewBox="0 0 7 12" fill="none">
+                                        <path d="M5.75 10.75L0.75 5.75L5.75 0.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </span>
+                            </button>
+                            <button type="button" class="aq-product-next aq-cart-wishlist-next" aria-label="Next slide">
+                                <span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="7" height="12" viewBox="0 0 7 12" fill="none">
+                                        <path d="M0.75 10.75L5.75 5.75L0.75 0.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </span>
+                            </button>
+                        </div>
+                        <div class="swiper aq-product-active aq-cart-wishlist-slider">
+                            <div class="swiper-wrapper">
+                                <?php foreach ($wishlist_items as $w_item): ?>
+                                    <div class="swiper-slide">
+                                        <?php $this->load->view('template1/home/_product_card', ['p' => $w_item, 'currency_symbol' => $currency_symbol ?? '$']); ?>
                                     </div>
-                                    <a href="<?= site_url('product/' . $w_item['slug']); ?>" class="text-dark fw-semibold text-truncate d-block mb-1 text-decoration-none" style="font-size: 13px;" title="<?= html_escape($w_item['title']); ?>">
-                                        <?= html_escape($w_item['title']); ?>
-                                    </a>
-                                    <div class="d-flex align-items-center gap-1 mb-2">
-                                        <?php if ($w_reg > $w_price): ?>
-                                            <span class="text-muted text-decoration-line-through" style="font-size: 11px;"><?= $currency_symbol . number_format($w_reg, 2); ?></span>
-                                        <?php endif; ?>
-                                        <span class="fw-bold text-dark" style="font-size: 14px;"><?= $currency_symbol . number_format($w_price, 2); ?></span>
-                                    </div>
-                                    <form action="<?= site_url('cart/add'); ?>" method="POST" class="mt-auto">
-                                        <input type="hidden" name="product_id" value="<?= $w_item['id']; ?>">
-                                        <input type="hidden" name="quantity" value="1">
-                                        <button type="submit" class="btn btn-sm w-100 rounded-pill fw-semibold py-1" style="font-size: 12px; border: 1px solid #2874f0; color: #2874f0; background: #ffffff;">
-                                            Move to cart
-                                        </button>
-                                    </form>
-                                </div>
+                                <?php endforeach; ?>
                             </div>
                         </div>
-                        <?php endforeach; ?>
                     </div>
                 </div>
                 <?php endif; ?>
@@ -904,15 +959,6 @@
                 event.stopPropagation();
             }
 
-            if (!window.IS_USER_LOGGED_IN) {
-                if (typeof window.openLoginModal === 'function') {
-                    window.openLoginModal('<?= site_url("cart"); ?>', 'Please sign in to save items to your wishlist.');
-                } else {
-                    window.location.href = '<?= site_url("login"); ?>';
-                }
-                return;
-            }
-
             var row = document.getElementById('cart-row-' + cartKey);
             if (row) {
                 row.style.opacity = '0.4';
@@ -934,25 +980,8 @@
             .then(function(res) { return res.json(); })
             .then(function(data) {
                 if (data.success) {
-                    if (row) row.remove();
-                    showCartToast('Item moved to your wishlist!', 'success');
-                    applySummaryUpdate(data.cart_summary, data.cart_count);
-
-                    var badges = document.querySelectorAll('.cart-count, .cart-badge');
-                    badges.forEach(function(b) { b.textContent = data.cart_count || 0; });
-
-                    if (!data.cart_count || data.cart_count === 0) {
-                        var cartWrapper = document.getElementById('cart-content-wrapper');
-                        var emptyWrapper = document.getElementById('cart-empty-wrapper');
-                        if (cartWrapper) cartWrapper.classList.add('d-none');
-                        if (emptyWrapper) emptyWrapper.classList.remove('d-none');
-                        var fixedBar = document.getElementById('mobile-cart-fixed-bar');
-                        if (fixedBar) fixedBar.remove();
-                    }
-
-                    if (window.renderSideCart) {
-                        window.renderSideCart(data.cart_items, data.cart_summary);
-                    }
+                    // Keep same reload page behavior in move to wishlist from cart page
+                    window.location.reload();
                 } else if (data.require_login) {
                     if (row) {
                         row.style.opacity = '1';
@@ -1116,4 +1145,46 @@
                 }, 350);
             });
         }
-        </script>
+        
+        // 7. INITIALIZE RECENTLY VIEWED & WISHLIST SLIDERS (Matches Product Detail Page Slider)
+        function initCartSliders() {
+            var sliderConfigs = [
+                { sel: '.aq-cart-recent-slider',   prev: '.aq-cart-recent-prev',   next: '.aq-cart-recent-next' },
+                { sel: '.aq-cart-wishlist-slider', prev: '.aq-cart-wishlist-prev', next: '.aq-cart-wishlist-next' }
+            ];
+            sliderConfigs.forEach(function(cfg) {
+                var el = document.querySelector(cfg.sel);
+                if (el && typeof Swiper !== 'undefined' && !el.swiper) {
+                    var slideCount = el.querySelectorAll('.swiper-slide').length;
+                    new Swiper(cfg.sel, {
+                        slidesPerView: 5,
+                        loop: slideCount > 5,
+                        autoplay: true,
+                        spaceBetween: 20,
+                        speed: 1000,
+                        observer: true,
+                        observeParents: true,
+                        navigation: {
+                            prevEl: cfg.prev,
+                            nextEl: cfg.next,
+                        },
+                        breakpoints: {
+                            1400: { slidesPerView: 5, spaceBetween: 20 },
+                            1200: { slidesPerView: 4, spaceBetween: 20 },
+                            992:  { slidesPerView: 3, spaceBetween: 15 },
+                            768:  { slidesPerView: 3, spaceBetween: 15 },
+                            576:  { slidesPerView: 2, spaceBetween: 12 },
+                            0:    { slidesPerView: 2, spaceBetween: 10 }
+                        }
+                    });
+                }
+            });
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initCartSliders);
+        } else {
+            initCartSliders();
+        }
+        window.addEventListener('load', initCartSliders);
+
+</script>

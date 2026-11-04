@@ -794,11 +794,15 @@ class account extends MY_Controller {
 
     public function wishlist()
     {
-        $this->_require_account_login('wishlist');
-
-        $user     = $this->_get_account_user();
         $this->load->model('wishlist_model');
-        $wishlist = $this->wishlist_model->get_by_user((int)$this->current_user['id']);
+        if ($this->is_logged_in() && !empty($this->current_user['id'])) {
+            $user     = $this->_get_account_user();
+            $wishlist = $this->wishlist_model->get_by_user((int)$this->current_user['id']);
+        } else {
+            $user     = $this->_get_account_user();
+            $wl_ids   = $this->get_user_wishlist_ids();
+            $wishlist = !empty($wl_ids) ? $this->wishlist_model->get_by_ids($wl_ids) : [];
+        }
 
         $data = [
             'title'              => 'My Wishlist - ' . $this->site_name,

@@ -13,12 +13,15 @@
         <!-- /Page Title -->
 
         <!-- Flash messages -->
-        <?php if ($this->session->flashdata('success')): ?>
+        <?php 
+        $cart_flash_success = $this->session->flashdata('success');
+        if (!empty($cart_flash_success) && stripos($cart_flash_success, 'Item added to your shopping cart') === false): 
+        ?>
             <div class="container mt-3" style="max-width: 1240px;">
                 <div class="alert alert-success alert-dismissible fade show rounded-2 py-2 d-flex align-items-center justify-content-between" role="alert">
                     <div class="d-flex align-items-center">
                         <i class="fa-solid fa-circle-check me-2 fs-5 text-success"></i>
-                        <span><?= $this->session->flashdata('success'); ?></span>
+                        <span><?= $cart_flash_success; ?></span>
                     </div>
                     <button type="button" class="btn-close-alert" onclick="this.closest('.alert').remove();" aria-label="Close">
                         <i class="fa-solid fa-xmark"></i>
@@ -277,7 +280,8 @@
                         <?php 
                             $disp_name = trim(($active_address['first_name'] ?? '') . ' ' . ($active_address['last_name'] ?? ''));
                             $disp_pin  = $active_address['postcode'] ?? '';
-                            $disp_tag  = !empty($active_address['company']) ? strtoupper($active_address['company']) : 'HOME';
+                            $raw_tag   = !empty($active_address['company']) ? $active_address['company'] : (!empty($active_address['address_type']) ? $active_address['address_type'] : 'HOME');
+                            $disp_tag  = (strtoupper(trim((string)$raw_tag)) === 'WORK') ? 'WORK' : 'HOME';
                             $disp_addr = implode(', ', array_filter([$active_address['address_1'] ?? '', $active_address['address_2'] ?? '', $active_address['city'] ?? '', $active_address['state'] ?? '']));
                             $disp_phone = !empty($active_address['phone']) ? $active_address['phone'] : ($current_user['phone'] ?? '');
                         ?>
@@ -286,11 +290,11 @@
                             <div class="cart-address-card p-3 p-sm-4 bg-white border shadow-sm" style="background-color: #ffffff !important; border-radius: 16px; border-color: #e5e7eb !important;">
                                 <div class="d-flex align-items-center justify-content-between mb-2">
                                     <div class="d-flex align-items-center gap-2 min-w-0" id="cart-address-header-box" style="cursor: pointer;" onclick="handleAddressAction()">
-                                        <i class="fa-solid fa-house text-dark flex-shrink-0" style="font-size: 16px;"></i>
+                                        <i class="fa-solid <?= ($disp_tag === 'WORK') ? 'fa-briefcase' : 'fa-house'; ?> text-dark flex-shrink-0" id="display-address-icon" style="font-size: 16px;"></i>
                                         <strong class="fw-bold text-dark text-truncate" id="display-address-name" style="font-size: 17px;">
                                             <?= html_escape($disp_name ?: (!empty($is_logged_in) ? 'Select Address' : 'Sign In to Select Address')); ?>
                                         </strong>
-                                        <span class="badge bg-light text-secondary border text-uppercase d-none" id="display-address-tag"><?= html_escape($disp_tag); ?></span>
+                                        <span class="badge text-uppercase fw-bold <?= empty($disp_name) ? 'd-none' : ''; ?>" id="display-address-tag" style="background-color: #f0f0f0; color: #555555; font-size: 11px; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.5px; border: 1px solid #e0e0e0;"><?= html_escape($disp_tag); ?></span>
                                     </div>
                                     <button type="button" class="btn btn-link p-0 text-decoration-none fw-bold flex-shrink-0 ms-2" id="btn-address-action" style="color: #1a73e8; font-size: 16px; cursor: pointer;" onclick="handleAddressAction(); event.stopPropagation();">
                                         <?= !empty($is_logged_in) ? 'Change' : 'Sign In'; ?>
@@ -731,7 +735,7 @@
                 <?php endif; ?>
 
                 <!-- Your Wishlist Products (Shown ONLY if user is logged in) -->
-                <?php if (!empty($is_logged_in) && !empty($wishlist_items)): ?>
+                <?php if (!empty($wishlist_items)): ?>
                 <div class="cart-wishlist-section mt-4 pt-2">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <h5 class="fw-bold text-dark m-0 d-flex align-items-center gap-1" style="font-size: 18px;">
@@ -754,7 +758,7 @@
                                 </a>
                                 <div class="flex-grow-1 d-flex flex-column">
                                     <div class="d-flex align-items-center gap-1 mb-1">
-                                        <span class="badge bg-success text-white px-1 rounded" style="font-size: 10px;">4.3 ★</span>
+                                        <span class="badge bg-success text-white px-1 rounded" style="font-size: 10px;"><?= number_format((float)($w_item['rating'] ?? 0), 1); ?> ★</span>
                                     </div>
                                     <a href="<?= site_url('product/' . $w_item['slug']); ?>" class="text-dark fw-semibold text-truncate d-block mb-1 text-decoration-none" style="font-size: 13px;" title="<?= html_escape($w_item['title']); ?>">
                                         <?= html_escape($w_item['title']); ?>
@@ -1069,15 +1073,6 @@
                 event.stopPropagation();
             }
 
-            if (!window.IS_USER_LOGGED_IN) {
-                if (typeof window.openLoginModal === 'function') {
-                    window.openLoginModal('<?= site_url("cart"); ?>', 'Please sign in to save items to your wishlist.');
-                } else {
-                    window.location.href = '<?= site_url("login"); ?>';
-                }
-                return;
-            }
-
             var row = document.getElementById('cart-row-' + cartKey);
             if (row) {
                 row.style.opacity = '0.4';
@@ -1099,25 +1094,8 @@
             .then(function(res) { return res.json(); })
             .then(function(data) {
                 if (data.success) {
-                    if (row) row.remove();
-                    showCartToast('Item moved to your wishlist!', 'success');
-                    applySummaryUpdate(data.cart_summary, data.cart_count);
-
-                    var badges = document.querySelectorAll('.cart-count, .cart-badge');
-                    badges.forEach(function(b) { b.textContent = data.cart_count || 0; });
-
-                    if (!data.cart_count || data.cart_count === 0) {
-                        var cartWrapper = document.getElementById('cart-content-wrapper');
-                        var emptyWrapper = document.getElementById('cart-empty-wrapper');
-                        if (cartWrapper) cartWrapper.classList.add('d-none');
-                        if (emptyWrapper) emptyWrapper.classList.remove('d-none');
-                        var fixedBar = document.getElementById('mobile-cart-fixed-bar');
-                        if (fixedBar) fixedBar.remove();
-                    }
-
-                    if (window.renderSideCart) {
-                        window.renderSideCart(data.cart_items, data.cart_summary);
-                    }
+                    // Keep same reload page behavior in move to wishlist from cart page
+                    window.location.reload();
                 } else if (data.require_login) {
                     if (row) {
                         row.style.opacity = '1';

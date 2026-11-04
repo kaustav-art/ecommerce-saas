@@ -480,9 +480,9 @@
     <div class="modal fullRight fade modal-address-side" id="addressModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="header">
-                    <h5 class="title fw-bold"><i class="fa-solid fa-location-dot me-2 text-primary"></i>Delivery Address</h5>
-                    <span class="icon-close icon-close-popup" data-bs-dismiss="modal" title="Close"></span>
+                <div class="header d-flex align-items-center justify-content-between p-3 border-bottom bg-white">
+                    <h5 class="title fw-bold mb-0"><i class="fa-solid fa-location-dot me-2 text-primary"></i>Delivery Address</h5>
+                    <button type="button" class="addr-modal-close-btn" data-bs-dismiss="modal" onclick="if(typeof closeAddressModal==='function')closeAddressModal();" aria-label="Close" title="Close"><i class="fa-solid fa-xmark"></i></button>
                 </div>
 
                 <div class="modal-body p-4" style="overflow-y: auto;">
@@ -500,7 +500,7 @@
                     <div id="add-address-form-box" class="card border p-3 mb-4 rounded-3 bg-light shadow-sm" style="display: none;">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h6 class="fw-bold mb-0 text-primary"><i class="fa-solid fa-map-pin me-1"></i> Add New Delivery Address</h6>
-                            <button type="button" class="btn-close small" onclick="toggleNewAddressForm(false)"></button>
+                            <button type="button" class="addr-form-close-btn" onclick="toggleNewAddressForm(false)" aria-label="Close" title="Close"><i class="fa-solid fa-xmark"></i></button>
                         </div>
                         <form id="newAddressForm" onsubmit="handleSaveAddress(event)">
                             <div class="row g-2 mb-2">
@@ -583,7 +583,8 @@
                         <?php if (!empty($addresses_to_show)): ?>
                             <?php foreach ($addresses_to_show as $addr): 
                                 $is_active = ($curr_selected_id && $addr['id'] == $curr_selected_id);
-                                $addr_tag = !empty($addr['company']) ? strtoupper($addr['company']) : 'HOME';
+                                $raw_tag = !empty($addr['company']) ? $addr['company'] : (!empty($addr['address_type']) ? $addr['address_type'] : 'HOME');
+                                $addr_tag = (strtoupper(trim((string)$raw_tag)) === 'WORK') ? 'WORK' : 'HOME';
                             ?>
                             <div class="card border rounded-3 p-3 mb-3 address-select-card <?= $is_active ? 'border-primary bg-light' : 'border-light-subtle'; ?>" id="address-card-<?= $addr['id']; ?>" onclick="selectDeliveryAddress('<?= $addr['id']; ?>')">
                                 <div class="d-flex align-items-start gap-2">
@@ -591,7 +592,7 @@
                                     <div class="flex-grow-1">
                                         <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
                                             <strong class="text-dark"><?= html_escape($addr['first_name'] . ' ' . ($addr['last_name'] ?? '')); ?></strong>
-                                            <span class="badge bg-secondary text-white text-uppercase" style="font-size: 10px;"><?= html_escape($addr_tag); ?></span>
+                                            <span class="badge text-uppercase fw-bold" style="background-color: #f0f0f0; color: #555555; font-size: 10px; padding: 3px 8px; border-radius: 4px; border: 1px solid #e0e0e0;"><i class="fa-solid <?= ($addr_tag === 'WORK') ? 'fa-briefcase' : 'fa-house'; ?> me-1"></i><?= html_escape($addr_tag); ?></span>
                                             <span class="text-muted small ms-auto fw-bold"><?= html_escape($addr['phone'] ?? ''); ?></span>
                                         </div>
                                         <div class="text-secondary small mb-2">
@@ -1650,7 +1651,8 @@
     window.updateDeliveryAddressUI = function(addr) {
         if (!addr) return;
         var fullName = (addr.first_name + ' ' + (addr.last_name || '')).trim();
-        var tag = (addr.company || 'HOME').toUpperCase();
+        var rawTag = ((addr.company || addr.address_type || 'HOME') + '').toUpperCase();
+        var tag = (rawTag === 'WORK') ? 'WORK' : 'HOME';
         var fullAddr = [addr.address_1, addr.address_2, addr.city, (addr.state ? addr.state + ' - ' + addr.postcode : addr.postcode)].filter(Boolean).join(', ');
         var phone = addr.phone || '';
 
@@ -1658,7 +1660,14 @@
         var cartName = document.getElementById('display-address-name');
         if (cartName) cartName.textContent = fullName + (addr.postcode ? ', ' + addr.postcode : '');
         var cartTag = document.getElementById('display-address-tag');
-        if (cartTag) cartTag.textContent = tag;
+        if (cartTag) {
+            cartTag.textContent = tag;
+            cartTag.classList.remove('d-none');
+        }
+        var cartIcon = document.getElementById('display-address-icon');
+        if (cartIcon) {
+            cartIcon.className = (tag === 'WORK') ? 'fa-solid fa-briefcase text-dark flex-shrink-0' : 'fa-solid fa-house text-dark flex-shrink-0';
+        }
         var cartFull = document.getElementById('display-address-full');
         if (cartFull) cartFull.textContent = fullAddr;
         var cartPhone = document.getElementById('display-address-phone');
@@ -1775,7 +1784,8 @@
                 var html = '';
                 data.addresses.forEach(function(addr) {
                     var isAct = (data.selected_id && addr.id == data.selected_id);
-                    var tag = (addr.company || 'HOME').toUpperCase();
+                    var rawTag = ((addr.company || addr.address_type || 'HOME') + '').toUpperCase();
+        var tag = (rawTag === 'WORK') ? 'WORK' : 'HOME';
                     var full = [addr.address_1, addr.address_2, addr.city, (addr.state ? addr.state + ' - ' + addr.postcode : addr.postcode)].filter(Boolean).join(', ');
                     var name = (addr.first_name + ' ' + (addr.last_name || '')).trim();
 
@@ -1785,7 +1795,8 @@
                     html += '<div class="flex-grow-1">';
                     html += '<div class="d-flex align-items-center gap-2 mb-1 flex-wrap">';
                     html += '<strong class="text-dark">' + name + '</strong>';
-                    html += '<span class="badge bg-secondary text-white text-uppercase" style="font-size: 10px;">' + tag + '</span>';
+                    var icon = (tag === 'WORK') ? 'fa-briefcase' : 'fa-house';
+                    html += '<span class="badge text-uppercase fw-bold" style="background-color: #f0f0f0; color: #555555; font-size: 10px; padding: 3px 8px; border-radius: 4px; border: 1px solid #e0e0e0;"><i class="fa-solid ' + icon + ' me-1"></i>' + tag + '</span>';
                     html += '<span class="text-muted small ms-auto fw-bold">' + (addr.phone || '') + '</span>';
                     html += '</div>';
                     html += '<div class="text-secondary small mb-2">' + full + '</div>';
@@ -1841,4 +1852,59 @@
             }
         });
     });
+
+    window.closeAddressModal = function() {
+        var modalEl = document.getElementById('addressModal');
+        if (!modalEl) return;
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+        } else if (typeof $ !== 'undefined') {
+            $(modalEl).modal('hide');
+        }
+    };
     </script>
+    <style>
+    .modal-address-side .addr-modal-close-btn,
+    .modal-address-side .addr-form-close-btn {
+        position: static !important;
+        top: auto !important;
+        right: auto !important;
+        inset-inline-end: auto !important;
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+        min-height: 34px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border-radius: 50% !important;
+        border: 1px solid #e2e8f0 !important;
+        background-color: #f8fafc !important;
+        background-image: none !important;
+        color: #0f172a !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 15px !important;
+        line-height: 1 !important;
+        cursor: pointer !important;
+        opacity: 1 !important;
+        box-shadow: none !important;
+        transition: all 0.2s ease !important;
+        flex-shrink: 0 !important;
+    }
+    .modal-address-side .addr-form-close-btn {
+        width: 30px !important;
+        height: 30px !important;
+        min-width: 30px !important;
+        min-height: 30px !important;
+        font-size: 13px !important;
+        background-color: #ffffff !important;
+    }
+    .modal-address-side .addr-modal-close-btn:hover,
+    .modal-address-side .addr-form-close-btn:hover {
+        background-color: #0f172a !important;
+        border-color: #0f172a !important;
+        color: #ffffff !important;
+        transform: rotate(90deg) !important;
+    }
+    </style>

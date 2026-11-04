@@ -19,6 +19,11 @@ class cart extends MY_Controller {
         $wishlist_items = [];
         if ($user_id && $this->wishlist_model) {
             $wishlist_items = $this->wishlist_model->get_by_user($user_id);
+        } elseif ($this->wishlist_model) {
+            $guest_wl_ids = $this->get_user_wishlist_ids();
+            if (!empty($guest_wl_ids)) {
+                $wishlist_items = $this->wishlist_model->get_by_ids($guest_wl_ids);
+            }
         }
 
         $items = $this->cart_model->get_items();
@@ -84,7 +89,9 @@ class cart extends MY_Controller {
             $this->json_response($result);
         } else {
             if (!empty($result['success'])) {
-                $this->session->set_flashdata('success', $result['message']);
+                if (empty($result['message']) || stripos($result['message'], 'Item added to your shopping cart') === false) {
+                    $this->session->set_flashdata('success', $result['message']);
+                }
             } else {
                 $this->session->set_flashdata('error', $result['message'] ?? 'Could not add product to cart.');
             }
@@ -190,40 +197,56 @@ class cart extends MY_Controller {
             }
         }
 
-        if (!$this->is_logged_in()) {
-            if ($this->input->is_ajax_request() || !empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
-                $this->json_response([
-                    'success' => false,
-                    'require_login' => true,
-                    'message' => 'Please sign in to move items to your wishlist.'
-                ]);
-                return;
-            } else {
-                $this->session->set_flashdata('error', 'Please sign in to move items to your wishlist.');
-                redirect('cart');
-            }
+        if ($product_id <= 0) {
+            $this->session->set_flashdata('error', 'Product not found.');
+            redirect('cart');
+            return;
         }
 
-        $user_id = (int) ($this->current_user['id'] ?? 0);
-        if ($product_id > 0 && $user_id > 0) {
+        $wishlist_count = 0;
+        if ($this->is_logged_in() && !empty($this->current_user['id'])) {
+            $user_id = (int) $this->current_user['id'];
             if (!$this->wishlist_model->is_wishlisted($user_id, $product_id)) {
                 $this->wishlist_model->toggle($user_id, $product_id);
             }
+            $wishlist_count = (int) $this->db->where('tenant_id', $this->tenant_id)
+                                             ->where('user_id', $user_id)
+                                             ->count_all_results('wishlists');
+        } else {
+            // Guest wishlist
+            $sess_key = 'guest_wishlist_t_' . $this->tenant_id;
+            $guest_wl = $this->session->userdata($sess_key);
+            if (!is_array($guest_wl)) {
+                $guest_wl = [];
+                if (isset($_COOKIE['guest_wishlist'])) {
+                    $c_arr = json_decode($_COOKIE['guest_wishlist'], true);
+                    if (is_array($c_arr)) $guest_wl = $c_arr;
+                }
+            }
+            $guest_wl = array_values(array_map('intval', array_filter($guest_wl)));
+            if (!in_array($product_id, $guest_wl, true)) {
+                $guest_wl[] = $product_id;
+            }
+            $this->session->set_userdata($sess_key, $guest_wl);
+            setcookie('guest_wishlist', json_encode($guest_wl), time() + (86400 * 30), '/');
+            $wishlist_count = count($guest_wl);
         }
 
         // Remove from cart
         $result = $this->cart_model->remove_item($cart_key);
 
+        $this->session->set_flashdata('success', 'Item moved to your wishlist.');
+
         if ($this->input->is_ajax_request() || !empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
             $this->json_response([
-                'success'      => true,
-                'message'      => 'Item moved to your wishlist.',
-                'cart_count'   => $result['cart_count'] ?? 0,
-                'cart_summary' => $result['cart_summary'] ?? $this->cart_model->get_cart_summary(),
-                'cart_items'   => array_values($this->cart_model->get_items())
+                'success'        => true,
+                'message'        => 'Item moved to your wishlist.',
+                'wishlist_count' => $wishlist_count,
+                'cart_count'     => $result['cart_count'] ?? 0,
+                'cart_summary'   => $result['cart_summary'] ?? $this->cart_model->get_cart_summary(),
+                'cart_items'     => array_values($this->cart_model->get_items())
             ]);
         } else {
-            $this->session->set_flashdata('success', 'Item moved to your wishlist.');
             redirect('cart');
         }
     }

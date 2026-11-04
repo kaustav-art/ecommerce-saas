@@ -936,21 +936,6 @@ $modal_store_name = html_escape($site_name ?? ($store_settings['site_name'] ?? '
             }
         });
 
-        // Intercept guest wishlist clicks on product cards
-        document.addEventListener('click', function(e) {
-            var wishlistBtn = e.target.closest('.box-icon.wishlist, .btn-icon-action.wishlist, a[href*="wishlist/toggle"]');
-            if (wishlistBtn && !window.IS_USER_LOGGED_IN) {
-                e.preventDefault();
-                e.stopPropagation();
-                var href = wishlistBtn.getAttribute('href') || '';
-                var m = href.match(/wishlist\/toggle\/(\d+)/);
-                if (m && m[1]) {
-                    document.cookie = "pending_wishlist=" + m[1] + "; path=/; max-age=3600; SameSite=Lax";
-                }
-                window.openLoginModal(window.location.href, 'Please sign in to save items to your wishlist.');
-            }
-        });
-
         // Intercept any links pointing to auth/login or #loginModal when not logged in and open #exampleModalToggle
         document.addEventListener('click', function(e) {
             var trigger = e.target.closest('a[href*="/auth/login"], a[href="#loginModal"], a[href="#exampleModalToggle"]');

@@ -583,7 +583,8 @@
                         <?php if (!empty($addresses_to_show)): ?>
                             <?php foreach ($addresses_to_show as $addr): 
                                 $is_active = ($curr_selected_id && $addr['id'] == $curr_selected_id);
-                                $addr_tag = !empty($addr['company']) ? strtoupper($addr['company']) : 'HOME';
+                                $raw_tag = !empty($addr['company']) ? $addr['company'] : (!empty($addr['address_type']) ? $addr['address_type'] : 'HOME');
+                                $addr_tag = (strtoupper(trim((string)$raw_tag)) === 'WORK') ? 'WORK' : 'HOME';
                             ?>
                             <div class="card border rounded-3 p-3 mb-3 address-select-card <?= $is_active ? 'border-primary bg-light' : 'border-light-subtle'; ?>" id="address-card-<?= $addr['id']; ?>" onclick="selectDeliveryAddress('<?= $addr['id']; ?>')">
                                 <div class="d-flex align-items-start gap-2">
@@ -591,7 +592,7 @@
                                     <div class="flex-grow-1">
                                         <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
                                             <strong class="text-dark"><?= html_escape($addr['first_name'] . ' ' . ($addr['last_name'] ?? '')); ?></strong>
-                                            <span class="badge bg-secondary text-white text-uppercase" style="font-size: 10px;"><?= html_escape($addr_tag); ?></span>
+                                            <span class="badge text-uppercase fw-bold" style="background-color: #f0f0f0; color: #555555; font-size: 10px; padding: 3px 8px; border-radius: 4px; border: 1px solid #e0e0e0;"><i class="fa-solid <?= ($addr_tag === 'WORK') ? 'fa-briefcase' : 'fa-house'; ?> me-1"></i><?= html_escape($addr_tag); ?></span>
                                             <span class="text-muted small ms-auto fw-bold"><?= html_escape($addr['phone'] ?? ''); ?></span>
                                         </div>
                                         <div class="text-secondary small mb-2">
@@ -1650,7 +1651,8 @@
     window.updateDeliveryAddressUI = function(addr) {
         if (!addr) return;
         var fullName = (addr.first_name + ' ' + (addr.last_name || '')).trim();
-        var tag = (addr.company || 'HOME').toUpperCase();
+        var rawTag = ((addr.company || addr.address_type || 'HOME') + '').toUpperCase();
+        var tag = (rawTag === 'WORK') ? 'WORK' : 'HOME';
         var fullAddr = [addr.address_1, addr.address_2, addr.city, (addr.state ? addr.state + ' - ' + addr.postcode : addr.postcode)].filter(Boolean).join(', ');
         var phone = addr.phone || '';
 
@@ -1658,7 +1660,14 @@
         var cartName = document.getElementById('display-address-name');
         if (cartName) cartName.textContent = fullName + (addr.postcode ? ', ' + addr.postcode : '');
         var cartTag = document.getElementById('display-address-tag');
-        if (cartTag) cartTag.textContent = tag;
+        if (cartTag) {
+            cartTag.textContent = tag;
+            cartTag.classList.remove('d-none');
+        }
+        var cartIcon = document.getElementById('display-address-icon');
+        if (cartIcon) {
+            cartIcon.className = (tag === 'WORK') ? 'fa-solid fa-briefcase text-dark flex-shrink-0' : 'fa-solid fa-house text-dark flex-shrink-0';
+        }
         var cartFull = document.getElementById('display-address-full');
         if (cartFull) cartFull.textContent = fullAddr;
         var cartPhone = document.getElementById('display-address-phone');
@@ -1775,7 +1784,8 @@
                 var html = '';
                 data.addresses.forEach(function(addr) {
                     var isAct = (data.selected_id && addr.id == data.selected_id);
-                    var tag = (addr.company || 'HOME').toUpperCase();
+                    var rawTag = ((addr.company || addr.address_type || 'HOME') + '').toUpperCase();
+        var tag = (rawTag === 'WORK') ? 'WORK' : 'HOME';
                     var full = [addr.address_1, addr.address_2, addr.city, (addr.state ? addr.state + ' - ' + addr.postcode : addr.postcode)].filter(Boolean).join(', ');
                     var name = (addr.first_name + ' ' + (addr.last_name || '')).trim();
 
@@ -1785,7 +1795,8 @@
                     html += '<div class="flex-grow-1">';
                     html += '<div class="d-flex align-items-center gap-2 mb-1 flex-wrap">';
                     html += '<strong class="text-dark">' + name + '</strong>';
-                    html += '<span class="badge bg-secondary text-white text-uppercase" style="font-size: 10px;">' + tag + '</span>';
+                    var icon = (tag === 'WORK') ? 'fa-briefcase' : 'fa-house';
+                    html += '<span class="badge text-uppercase fw-bold" style="background-color: #f0f0f0; color: #555555; font-size: 10px; padding: 3px 8px; border-radius: 4px; border: 1px solid #e0e0e0;"><i class="fa-solid ' + icon + ' me-1"></i>' + tag + '</span>';
                     html += '<span class="text-muted small ms-auto fw-bold">' + (addr.phone || '') + '</span>';
                     html += '</div>';
                     html += '<div class="text-secondary small mb-2">' + full + '</div>';
@@ -1829,9 +1840,9 @@
             }
         }
 
-        // Global interceptor: When any guest user clicks a wishlist heart or button anywhere in the project
+        // Global interceptor: When any guest user clicks a wishlist modal trigger
         document.addEventListener('click', function(e) {
-            var wishlistBtn = e.target.closest('.box-icon.wishlist, .btn-icon-action.wishlist, a[href*="wishlist/toggle"], .store-nav-wishlist > a[href="#loginModal"]');
+            var wishlistBtn = e.target.closest('.store-nav-wishlist > a[href="#loginModal"]');
             if (wishlistBtn && !window.IS_USER_LOGGED_IN) {
                 e.preventDefault();
                 e.stopPropagation();

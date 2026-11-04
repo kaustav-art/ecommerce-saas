@@ -22,7 +22,8 @@
                     $target_addr = !empty($active_address) ? $active_address : (!empty($default_address) ? $default_address : NULL);
                     $disp_name   = $target_addr ? trim(($target_addr['first_name'] ?? '') . ' ' . ($target_addr['last_name'] ?? '')) : '';
                     $disp_pin    = $target_addr['postcode'] ?? '';
-                    $disp_tag    = !empty($target_addr['company']) ? strtoupper($target_addr['company']) : 'HOME';
+                    $raw_tag     = !empty($target_addr['company']) ? $target_addr['company'] : (!empty($target_addr['address_type']) ? $target_addr['address_type'] : 'HOME');
+                    $disp_tag    = (strtoupper(trim((string)$raw_tag)) === 'WORK') ? 'WORK' : 'HOME';
                     $disp_addr   = $target_addr 
                         ? implode(', ', array_filter([$target_addr['address_1'] ?? '', $target_addr['address_2'] ?? '', $target_addr['city'] ?? '', ($target_addr['state'] ?? '') . ($disp_pin ? ' - ' . $disp_pin : '')]))
                         : '';
@@ -218,11 +219,11 @@
                                     <div id="address-box-selected">
                                         <div class="d-flex align-items-center justify-content-between mb-2">
                                             <div class="d-flex align-items-center gap-2 min-w-0" <?= empty($this->is_logged_in()) ? 'style="cursor: pointer;" onclick="openAddressModal()"' : ''; ?>>
-                                                <i class="fa-solid fa-house text-dark flex-shrink-0" style="font-size: 16px;"></i>
+                                                <i class="fa-solid <?= ($disp_tag === 'WORK') ? 'fa-briefcase' : 'fa-house'; ?> text-dark flex-shrink-0" id="display-address-icon" style="font-size: 16px;"></i>
                                                 <strong class="fw-bold text-dark text-truncate" id="display-address-name" style="font-size: 17px;">
                                                     <?= html_escape($disp_name ?: (!empty($this->is_logged_in()) ? 'Select Address' : 'Sign In to Select Address')); ?>
                                                 </strong>
-                                                <span class="badge bg-light text-secondary border text-uppercase d-none" id="display-address-tag"><?= html_escape($disp_tag); ?></span>
+                                                <span class="badge text-uppercase fw-bold <?= empty($disp_name) ? 'd-none' : ''; ?>" id="display-address-tag" style="background-color: #f0f0f0; color: #555555; font-size: 11px; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.5px; border: 1px solid #e0e0e0;"><?= html_escape($disp_tag); ?></span>
                                             </div>
                                             <button type="button" class="btn btn-link p-0 text-decoration-none fw-bold flex-shrink-0 ms-2" style="color: #1a73e8; font-size: 16px;" onclick="openAddressModal()">
                                                 <?= !empty($this->is_logged_in()) ? 'Change' : 'Sign In'; ?>

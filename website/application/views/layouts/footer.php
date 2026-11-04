@@ -99,6 +99,122 @@
         if (typeof WOW !== 'undefined') {
             new WOW().init();
         }
+
+        // Global App Toast Notification
+        function showAppToast(message, type) {
+            type = type || 'success';
+            var existingToast = document.getElementById('app-toast-notice');
+            if (existingToast) existingToast.remove();
+
+            var toast = document.createElement('div');
+            toast.id = 'app-toast-notice';
+            var bgClass = (type === 'success') ? 'bg-success text-white' : ((type === 'danger') ? 'bg-danger text-white' : 'bg-dark text-white');
+            var icon = (type === 'success') ? 'fa-circle-check text-white' : 'fa-circle-info text-warning';
+            toast.className = 'position-fixed bottom-0 end-0 p-3';
+            toast.style.zIndex = '999999';
+            toast.innerHTML = 
+                '<div class="toast show ' + bgClass + ' border-0 shadow-lg rounded-3" role="alert" style="max-width: 400px;">' +
+                    '<div class="d-flex align-items-center justify-content-between py-2 ps-3 pe-2 gap-2">' +
+                        '<div class="toast-body d-flex align-items-center gap-2 p-0 flex-grow-1" style="font-size: 13.5px; line-height: 1.45;">' +
+                            '<i class="fa-solid ' + icon + ' fs-5 flex-shrink-0"></i>' +
+                            '<span class="fw-medium">' + message + '</span>' +
+                        '</div>' +
+                        '<button type="button" class="fk-toast-close-btn" aria-label="Close" onclick="this.closest(\'#app-toast-notice\').remove()" style="position: static !important; width: 28px !important; height: 28px !important; min-width: 28px !important; min-height: 28px !important; padding: 0 !important; margin: 0 !important; border: none !important; border-radius: 6px !important; background: transparent !important; color: inherit !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; flex-shrink: 0 !important; opacity: 0.85 !important; cursor: pointer !important; box-shadow: none !important; transform: none !important;">' +
+                            '<i class="fa-solid fa-xmark" style="font-size: 15px; line-height: 1;"></i>' +
+                        '</button>' +
+                    '</div>' +
+                '</div>';
+            document.body.appendChild(toast);
+            setTimeout(function() {
+                if (toast && toast.parentNode) toast.remove();
+            }, 4000);
+        }
+        window.showAppToast = showAppToast;
+
+        // Global Wishlist AJAX Toggle (No reload, toaster, toggle heart icon, sync badge)
+        function toggleProductWishlist(productId, btnEl) {
+            if (typeof event !== 'undefined' && event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            productId = parseInt(productId, 10);
+            if (!productId || isNaN(productId)) return;
+
+            if (!btnEl && typeof event !== 'undefined' && event) {
+                btnEl = event.currentTarget || (event.target ? event.target.closest('a, button') : null);
+            }
+
+            var fd = new FormData();
+            fd.append('product_id', productId);
+
+            fetch('<?= site_url("wishlist/toggle"); ?>', {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: fd
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(res) {
+                if (res && res.success) {
+                    var isAdded = (res.action === 'added' || res.is_wishlisted === true);
+
+                    // Update all buttons for this product across the page
+                    var selectors = [
+                        '[data-product-id="' + productId + '"]',
+                        '.box-icon.wishlist[href*="/' + productId + '"]',
+                        '.btn-icon-action[href*="/' + productId + '"]',
+                        '.wishlist-btn[onclick*="' + productId + '"]'
+                    ];
+                    var buttons = document.querySelectorAll(selectors.join(', '));
+                    buttons.forEach(function(btn) {
+                        var icon = btn.querySelector('i');
+                        var tooltip = btn.querySelector('.tooltip');
+                        if (isAdded) {
+                            btn.classList.add('active', 'in-wishlist');
+                            btn.setAttribute('title', 'Remove from Wishlist');
+                            if (icon) {
+                                icon.className = 'fa-solid fa-heart text-danger';
+                            }
+                            if (tooltip) {
+                                tooltip.textContent = 'Remove';
+                            }
+                        } else {
+                            btn.classList.remove('active', 'in-wishlist');
+                            btn.setAttribute('title', 'Add to Wishlist');
+                            if (icon) {
+                                icon.className = 'fa-regular fa-heart';
+                            }
+                            if (tooltip) {
+                                tooltip.textContent = 'Wishlist';
+                            }
+                        }
+                    });
+
+                    // Update header & page wishlist counter badges
+                    if (typeof res.wishlist_count !== 'undefined') {
+                        document.querySelectorAll('.wishlist-count, .wishlist-badge').forEach(function(el) {
+                            el.textContent = res.wishlist_count;
+                        });
+                        var headerCounter = document.getElementById('wishlist-counter');
+                        if (headerCounter) {
+                            headerCounter.textContent = res.wishlist_count;
+                            headerCounter.style.display = (res.wishlist_count > 0) ? '' : 'none';
+                        }
+                    }
+
+                    // Show Toast Notification
+                    var toastMsg = res.message || (isAdded ? 'Added to your wishlist!' : 'Removed from your wishlist.');
+                    showAppToast(toastMsg, 'success');
+                } else {
+                    showAppToast((res && res.message) ? res.message : 'Unable to update wishlist.', 'danger');
+                }
+            })
+            .catch(function(err) {
+                showAppToast('Network error updating wishlist.', 'danger');
+            });
+        }
+        window.toggleProductWishlist = toggleProductWishlist;
+        window.grcToggleWishlist = toggleProductWishlist;
+        window.toggleWishlistItem = toggleProductWishlist;
 <?php if (empty($is_user_project)): ?>
         (function() {
             var siteBase = '<?= rtrim(base_url(), "/"); ?>';

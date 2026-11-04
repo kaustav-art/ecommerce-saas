@@ -42,7 +42,7 @@ if ($active_template === 'electronics') {
             </div>
 
             <?php if (!empty($wishlist)): ?>
-                <div class="row g-3 g-md-4 row-cols-xl-4 row-cols-lg-3 row-cols-sm-2 row-cols-1 pt-4">
+                <div class="row g-3 g-md-4 row-cols-xl-4 row-cols-lg-3 row-cols-sm-2 row-cols-1 pt-4" id="wishlist-items-grid">
                     <?php foreach ($wishlist as $item):
                         $item_id   = (int)($item['id'] ?? 0);
                         $item_slug = $item['slug'] ?? '';
@@ -68,13 +68,13 @@ if ($active_template === 'electronics') {
                         <div class="col" id="wishlist-item-col-<?= $item_id; ?>">
                             <div class="card h-100 border rounded-3 p-3 position-relative shadow-none product-wishlist-card transition-all" style="border-color: #e2e8f0 !important; background: #ffffff;">
                                 <!-- Remove from Wishlist Button -->
-                                <a href="<?= site_url('wishlist/toggle/' . $item_id); ?>"
-                                   onclick="event.preventDefault(); grcToggleWishlist(<?= $item_id; ?>, this); document.getElementById('wishlist-item-col-<?= $item_id; ?>').remove();"
+                                <button type="button"
+                                   onclick="removeWishlistPageItem(<?= $item_id; ?>, event);"
                                    class="position-absolute top-0 end-0 m-2 text-danger bg-light rounded-circle shadow-sm d-flex align-items-center justify-content-center text-decoration-none border"
-                                   style="width: 32px; height: 32px; z-index: 2;"
+                                   style="width: 32px; height: 32px; z-index: 2; cursor: pointer; padding: 0;"
                                    title="Remove from Wishlist">
                                     <i class="fa-solid fa-xmark text-muted fs-6"></i>
-                                </a>
+                                </button>
 
                                 <!-- Product Image -->
                                 <a href="<?= $prod_url; ?>" class="d-block text-center mb-3 overflow-hidden rounded-2" style="height: 180px; background: #f8fafc;">
@@ -126,21 +126,87 @@ if ($active_template === 'electronics') {
                         </div>
                     <?php endforeach; ?>
                 </div>
-            <?php else: ?>
-                <div class="text-center py-5 my-4">
-                    <div class="mb-3 d-inline-flex align-items-center justify-content-center rounded-circle bg-light shadow-sm" style="width: 80px; height: 80px;">
-                        <i class="fa-regular fa-heart fs-1 text-muted" style="opacity: 0.6;"></i>
-                    </div>
-                    <h4 class="fw-bold text-dark mb-2">Your Wishlist is Empty</h4>
-                    <p class="text-muted mx-auto mb-4" style="max-width: 460px; font-size: 14px;">
-                        Explore our catalog, discover fresh groceries and deals, and click the heart icon on any product to save it here for later.
-                    </p>
-                    <a href="<?= site_url('shop'); ?>" class="btn rounded-pill px-4 py-2 fw-semibold text-white shadow-sm" style="background-color: <?= $theme_primary; ?>; font-size: 14px;">
-                        <i class="fa-solid fa-store me-2"></i> Explore Store Products
-                    </a>
-                </div>
             <?php endif; ?>
+
+            <div class="text-center py-5 my-4 <?= !empty($wishlist) ? 'd-none' : ''; ?>" id="wishlist-empty-state">
+                <div class="mb-3 d-inline-flex align-items-center justify-content-center rounded-circle bg-light shadow-sm" style="width: 80px; height: 80px;">
+                    <i class="fa-regular fa-heart fs-1 text-muted" style="opacity: 0.6;"></i>
+                </div>
+                <h4 class="fw-bold text-dark mb-2">Your Wishlist is Empty</h4>
+                <p class="text-muted mx-auto mb-4" style="max-width: 460px; font-size: 14px;">
+                    Explore our catalog, discover fresh products and deals, and click the heart icon on any product to save it here for later.
+                </p>
+                <a href="<?= site_url('shop'); ?>" class="btn rounded-pill px-4 py-2 fw-semibold text-white shadow-sm" style="background-color: <?= $theme_primary; ?>; font-size: 14px;">
+                    <i class="fa-solid fa-store me-2"></i> Explore Store Products
+                </a>
+            </div>
         </div>
     </div>
 </section>
+
+<script>
+function removeWishlistPageItem(productId, event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+    var col = document.getElementById('wishlist-item-col-' + productId);
+    if (col) {
+        col.style.opacity = '0.4';
+        col.style.pointerEvents = 'none';
+    }
+
+    var fd = new FormData();
+    fd.append('product_id', productId);
+
+    fetch('<?= site_url("wishlist/toggle"); ?>', {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        body: fd
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+        if (res && res.success) {
+            if (col) col.remove();
+            if (typeof window.showAppToast === 'function') {
+                window.showAppToast('Removed from your wishlist.', 'success');
+            }
+            var remaining = document.querySelectorAll('#wishlist-items-grid .col').length;
+            document.querySelectorAll('.wishlist-count').forEach(function(el) {
+                el.textContent = res.wishlist_count !== undefined ? res.wishlist_count : remaining;
+            });
+            var headerCounter = document.getElementById('wishlist-counter');
+            if (headerCounter) {
+                var cnt = res.wishlist_count !== undefined ? res.wishlist_count : remaining;
+                headerCounter.textContent = cnt;
+                headerCounter.style.display = cnt > 0 ? '' : 'none';
+            }
+            if (remaining === 0) {
+                var grid = document.getElementById('wishlist-items-grid');
+                if (grid) grid.remove();
+                var emptyState = document.getElementById('wishlist-empty-state');
+                if (emptyState) emptyState.classList.remove('d-none');
+            }
+        } else {
+            if (col) {
+                col.style.opacity = '1';
+                col.style.pointerEvents = 'auto';
+            }
+            if (typeof window.showAppToast === 'function') {
+                window.showAppToast((res && res.message) ? res.message : 'Could not remove item.', 'danger');
+            }
+        }
+    })
+    .catch(function(err) {
+        if (col) {
+            col.style.opacity = '1';
+            col.style.pointerEvents = 'auto';
+        }
+        if (typeof window.showAppToast === 'function') {
+            window.showAppToast('Network error removing item.', 'danger');
+        }
+    });
+}
+window.grcToggleWishlist = removeWishlistPageItem;
+</script>
 <!-- /wishlist content -->
