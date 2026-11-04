@@ -186,6 +186,19 @@
                             if (tooltip) {
                                 tooltip.textContent = 'Wishlist';
                             }
+
+                            // If on wishlist page, remove the item card
+                            var wlCol = document.getElementById('wishlist-item-col-' + productId);
+                            if (wlCol) {
+                                wlCol.remove();
+                                var remaining = document.querySelectorAll('#wishlist-items-grid .col').length;
+                                if (remaining === 0) {
+                                    var grid = document.getElementById('wishlist-items-grid');
+                                    if (grid) grid.remove();
+                                    var emptyState = document.getElementById('wishlist-empty-state');
+                                    if (emptyState) emptyState.classList.remove('d-none');
+                                }
+                            }
                         }
                     });
 

@@ -45,6 +45,81 @@
         <?php endif; ?>
 
         <style>
+
+        /* Home Page Product Card Styles */
+        .product-badge-group {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+            z-index: 5;
+            pointer-events: none;
+        }
+        .product-badge {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1;
+            padding: 5px 12px;
+            border-radius: 40px;
+            color: #ffffff;
+            background-color: #DA3F3F;
+        }
+        .product-badge.badge-sale {
+            background-color: #DA3F3F;
+        }
+        .product-badge.badge-flash-sale {
+            background-color: #DA3F3F;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .animate-fade-in {
+            animation: productFadeIn 0.35s ease-out;
+        }
+        @keyframes productFadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Uniform Product Card Size (Same as Home Page) */
+        .card-product {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-product .card-product-wrapper {
+            aspect-ratio: 3 / 4 !important;
+            width: 100% !important;
+            overflow: hidden !important;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            position: relative;
+        }
+        .card-product .card-product-wrapper .product-img {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+        }
+        .card-product .card-product-wrapper .product-img img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            display: block;
+        }
+        @media (max-width: 767.98px) {
+            .product-badge-group {
+                top: 10px;
+                left: 10px;
+            }
+            .product-badge {
+                font-size: 10px;
+                padding: 4px 9px;
+            }
+        }
+
         /* Cart Page Styles */
         /* Swiper Sliders for Cart (Same as Product Detail) */
         .aq-product-slide-wrap {
@@ -1186,5 +1261,32 @@
             initCartSliders();
         }
         window.addEventListener('load', initCartSliders);
+
+
+        // Delegated Color Swatch Hover/Click Preview for all .card-product (including Swiper loop clones)
+        if (!window._fshColorSwatchBound) {
+            window._fshColorSwatchBound = true;
+            ['click', 'mouseover'].forEach(function(evtType) {
+                document.addEventListener(evtType, function(e) {
+                    var swatch = e.target.closest('.card-product .color-swatch');
+                    if (!swatch) return;
+                    var card = swatch.closest('.card-product');
+                    var swatchImg = swatch.querySelector('img');
+                    if (card && swatchImg) {
+                        var newSrc = swatchImg.getAttribute('src') || swatchImg.getAttribute('data-src');
+                        var prodImg = card.querySelector('.img-product');
+                        if (prodImg && newSrc) {
+                            prodImg.setAttribute('src', newSrc);
+                        }
+                    }
+                    if (swatch.parentElement) {
+                        swatch.parentElement.querySelectorAll('.color-swatch.active').forEach(function(sib) {
+                            sib.classList.remove('active');
+                        });
+                    }
+                    swatch.classList.add('active');
+                });
+            });
+        }
 
 </script>

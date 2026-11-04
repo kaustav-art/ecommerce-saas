@@ -1,3 +1,109 @@
+<style>
+
+        /* Home Page Product Card Styles */
+        .product-badge-group {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+            z-index: 5;
+            pointer-events: none;
+        }
+        .product-badge {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1;
+            padding: 5px 12px;
+            border-radius: 40px;
+            color: #ffffff;
+            background-color: #DA3F3F;
+        }
+        .product-badge.badge-sale {
+            background-color: #DA3F3F;
+        }
+        .product-badge.badge-flash-sale {
+            background-color: #DA3F3F;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .animate-fade-in {
+            animation: productFadeIn 0.35s ease-out;
+        }
+        @keyframes productFadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Uniform Product Card Size (Same as Home Page) */
+        .card-product {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-product .card-product-wrapper {
+            aspect-ratio: 3 / 4 !important;
+            width: 100% !important;
+            overflow: hidden !important;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            position: relative;
+        }
+        .card-product .card-product-wrapper .product-img {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+        }
+        .card-product .card-product-wrapper .product-img img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            display: block;
+        }
+        @media (max-width: 767.98px) {
+            .product-badge-group {
+                top: 10px;
+                left: 10px;
+            }
+            .product-badge {
+                font-size: 10px;
+                padding: 4px 9px;
+            }
+        }
+
+
+        .wishlist-close-btn {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            z-index: 10;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4b5563;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 0;
+        }
+        .wishlist-close-btn:hover {
+            background: #ef4444;
+            color: #ffffff;
+            border-color: #ef4444;
+        }
+        .wishlist-item-col {
+            position: relative;
+        }
+
+</style>
 <?php
 $theme_primary = '#003D29';
 $theme_accent  = '#108910';
@@ -41,92 +147,32 @@ if ($active_template === 'electronics') {
                 </div>
             </div>
 
-            <?php if (!empty($wishlist)): ?>
-                <div class="row g-3 g-md-4 row-cols-xl-4 row-cols-lg-3 row-cols-sm-2 row-cols-1 pt-4" id="wishlist-items-grid">
+            <?php if (!empty($wishlist)):  ?>
+                <div class="row g-3 g-md-4 row-cols-xl-4 row-cols-lg-3 row-cols-sm-2 row-cols-2 pt-4" id="wishlist-items-grid">
                     <?php foreach ($wishlist as $item):
-                        $item_id   = (int)($item['id'] ?? 0);
-                        $item_slug = $item['slug'] ?? '';
-                        $item_name = $item['title'] ?? ($item['name'] ?? 'Product');
-                        $item_raw  = $item['main_image'] ?? ($item['image'] ?? '');
-                        if (!empty($item_raw)) {
-                            if (strpos($item_raw, 'http') === 0) {
-                                $item_img = $item_raw;
-                            } elseif (strpos($item_raw, 'assets/') === 0) {
-                                $item_img = base_url($item_raw);
-                            } else {
-                                $item_img = base_url('assets/images/' . ltrim($item_raw, '/'));
-                            }
-                        } else {
-                            $item_img = base_url('assets/images/placeholder.jpg');
-                        }
-                        $reg_price = (float)($item['price'] ?? 0);
-                        $sal_price = (!empty($item['sale_price']) && (float)$item['sale_price'] > 0 && (float)$item['sale_price'] < $reg_price) ? (float)$item['sale_price'] : 0;
-                        $cur_sym   = $currency_symbol ?? '$';
-                        $cat_name  = $item['category_name'] ?? 'General';
-                        $prod_url  = site_url('product/' . $item_slug);
-                    ?>
-                        <div class="col" id="wishlist-item-col-<?= $item_id; ?>">
-                            <div class="card h-100 border rounded-3 p-3 position-relative shadow-none product-wishlist-card transition-all" style="border-color: #e2e8f0 !important; background: #ffffff;">
-                                <!-- Remove from Wishlist Button -->
-                                <button type="button"
-                                   onclick="removeWishlistPageItem(<?= $item_id; ?>, event);"
-                                   class="position-absolute top-0 end-0 m-2 text-danger bg-light rounded-circle shadow-sm d-flex align-items-center justify-content-center text-decoration-none border"
-                                   style="width: 32px; height: 32px; z-index: 2; cursor: pointer; padding: 0;"
-                                   title="Remove from Wishlist">
-                                    <i class="fa-solid fa-xmark text-muted fs-6"></i>
-                                </button>
-
-                                <!-- Product Image -->
-                                <a href="<?= $prod_url; ?>" class="d-block text-center mb-3 overflow-hidden rounded-2" style="height: 180px; background: #f8fafc;">
-                                    <img src="<?= $item_img; ?>" alt="<?= html_escape($item_name); ?>" class="w-100 h-100 object-fit-contain p-2" onerror="this.src='<?= base_url('assets/images/logo/logo.webp'); ?>'">
-                                </a>
-
-                                <!-- Details -->
-                                <div class="d-flex flex-column flex-grow-1">
-                                    <span class="text-muted text-uppercase fw-semibold mb-1" style="font-size: 11px; letter-spacing: 0.5px;"><?= html_escape($cat_name); ?></span>
-                                    <h5 class="fw-bold text-dark text-truncate mb-1" style="font-size: 14.5px;" title="<?= html_escape($item_name); ?>">
-                                        <a href="<?= $prod_url; ?>" class="text-dark text-decoration-none"><?= html_escape($item_name); ?></a>
-                                    </h5>
-                                    <?php
-                                    $w_rev_cnt = (isset($item['reviews']) && is_array($item['reviews'])) ? count($item['reviews']) : (int)($item['reviews_count'] ?? 0);
-                                    $w_rating  = $w_rev_cnt > 0 ? (float)($item['rating'] ?? 0) : 0.0;
-                                    $w_stars   = (int)round($w_rating);
-                                    ?>
-                                    <div class="d-flex align-items-center gap-1 text-warning small mb-2">
-                                        <span>
-                                            <?php for ($si = 1; $si <= 5; $si++): ?>
-                                                <i class="fa-<?= ($si <= $w_stars) ? 'solid' : 'regular'; ?> fa-star" style="font-size: 12px;"></i>
-                                            <?php endfor; ?>
-                                        </span>
-                                        <span class="text-muted" style="font-size: 12px;">(<?= $w_rev_cnt; ?>)</span>
-                                    </div>
-
-                                    <div class="d-flex align-items-baseline gap-2 mb-3 mt-auto">
-                                        <?php if ($sal_price > 0): ?>
-                                            <span class="fw-bold text-dark fs-5"><?= $cur_sym . number_format($sal_price, 2); ?></span>
-                                            <span class="text-muted text-decoration-line-through small"><?= $cur_sym . number_format($reg_price, 2); ?></span>
-                                            <span class="badge bg-danger-subtle text-danger small px-2 py-1 ms-auto" style="font-size: 11px;">
-                                                -<?= round((($reg_price - $sal_price) / $reg_price) * 100); ?>%
-                                            </span>
-                                        <?php else: ?>
-                                            <span class="fw-bold text-dark fs-5"><?= $cur_sym . number_format($reg_price, 2); ?></span>
-                                        <?php endif; ?>
-                                    </div>
-
-                                    <!-- Add to Cart Form -->
-                                    <form action="<?= site_url('cart/add'); ?>" method="POST" class="w-100">
-                                        <input type="hidden" name="product_id" value="<?= $item_id; ?>">
-                                        <input type="hidden" name="quantity" value="1">
-                                        <button type="submit" class="btn w-100 rounded-pill fw-semibold py-2 d-flex align-items-center justify-content-center gap-2 shadow-sm text-white" style="background-color: <?= $theme_primary; ?>; border: none; font-size: 13.5px;">
-                                            <i class="fa-solid fa-basket-shopping"></i> Add To Cart
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
+                        $item_id = (int)($item['id'] ?? 0);
+                        $card_view = file_exists(APPPATH . 'views/template1/home/_product_card.php') ? 'template1/home/_product_card' : 'home/_product_card';
+                     ?>
+                        <div class="col position-relative wishlist-item-col" id="wishlist-item-col-<?= $item_id; ?>">
+                            <!-- Wishlist Close Button -->
+                            <button type="button"
+                               onclick="removeWishlistPageItem(<?= $item_id; ?>, event);"
+                               class="wishlist-close-btn"
+                               title="Remove from Wishlist"
+                               aria-label="Remove from Wishlist">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                            <?php $this->load->view($card_view, [
+                                'p'                 => $item,
+                                'currency_symbol'   => $currency_symbol ?? '$',
+                                'user_wishlist_ids' => $user_wishlist_ids ?? array_column($wishlist, 'id')
+                            ]);  ?>
                         </div>
-                    <?php endforeach; ?>
+                    <?php endforeach;  ?>
                 </div>
-            <?php endif; ?>
+            <?php endif;  ?>
+
+            
 
             <div class="text-center py-5 my-4 <?= !empty($wishlist) ? 'd-none' : ''; ?>" id="wishlist-empty-state">
                 <div class="mb-3 d-inline-flex align-items-center justify-content-center rounded-circle bg-light shadow-sm" style="width: 80px; height: 80px;">
@@ -208,5 +254,32 @@ function removeWishlistPageItem(productId, event) {
     });
 }
 window.grcToggleWishlist = removeWishlistPageItem;
+
+        // Delegated Color Swatch Hover/Click Preview for all .card-product (including Swiper loop clones)
+        if (!window._fshColorSwatchBound) {
+            window._fshColorSwatchBound = true;
+            ['click', 'mouseover'].forEach(function(evtType) {
+                document.addEventListener(evtType, function(e) {
+                    var swatch = e.target.closest('.card-product .color-swatch');
+                    if (!swatch) return;
+                    var card = swatch.closest('.card-product');
+                    var swatchImg = swatch.querySelector('img');
+                    if (card && swatchImg) {
+                        var newSrc = swatchImg.getAttribute('src') || swatchImg.getAttribute('data-src');
+                        var prodImg = card.querySelector('.img-product');
+                        if (prodImg && newSrc) {
+                            prodImg.setAttribute('src', newSrc);
+                        }
+                    }
+                    if (swatch.parentElement) {
+                        swatch.parentElement.querySelectorAll('.color-swatch.active').forEach(function(sib) {
+                            sib.classList.remove('active');
+                        });
+                    }
+                    swatch.classList.add('active');
+                });
+            });
+        }
+
 </script>
 <!-- /wishlist content -->
