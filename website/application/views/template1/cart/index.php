@@ -490,8 +490,24 @@
                                                 <a href="<?= site_url('product/' . $item['slug']); ?>" class="cart-item-title text-truncate" style="display: block; width: 100%; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 14px; line-height: 1.35; font-weight: 700; color: #111827; text-decoration: none;" title="<?= html_escape($item['title']); ?>">
                                                     <?= html_escape($item['title']); ?>
                                                 </a>
+
                                                 <?php 
-                                                    $short_desc = !empty($item['short_description']) ? trim(strip_tags($item['short_description'])) : (!empty($item['variant_title']) ? trim(strip_tags($item['variant_title'])) : '');
+                                                    $var_info = [];
+                                                    if (!empty($item['color'])) {
+                                                        $var_info[] = 'Color: <span class="text-dark fw-semibold">' . html_escape($item['color']) . '</span>';
+                                                    }
+                                                    if (!empty($item['size'])) {
+                                                        $var_info[] = 'Size: <span class="text-dark fw-semibold">' . html_escape($item['size']) . '</span>';
+                                                    }
+                                                ?>
+                                                <?php if (!empty($var_info)): ?>
+                                                    <div class="cart-item-variant text-secondary small my-1" style="font-size: 13px;">
+                                                        <?= implode(', ', $var_info); ?>
+                                                    </div>
+                                                <?php endif; ?>
+
+                                                <?php 
+                                                    $short_desc = !empty($item['short_description']) ? trim(strip_tags($item['short_description'])) : '';
                                                 ?>
                                                 <?php if (!empty($short_desc)): ?>
                                                     <div class="cart-item-short-desc" style="display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; word-break: break-word; overflow-wrap: anywhere; font-size: 12px; line-height: 1.35; color: #6b7280; width: 100%; max-width: 100%; max-height: 2.7em; margin-bottom: 6px;" title="<?= html_escape($short_desc); ?>">

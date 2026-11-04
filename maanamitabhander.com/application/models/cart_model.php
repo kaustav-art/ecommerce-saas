@@ -164,48 +164,35 @@ class cart_model extends CI_Model {
                 $item['discount_percent'] = 0;
             }
 
-            // Extract variant attributes (size, color) if not already set
-            if (empty($item['size']) || empty($item['color'])) {
-                if (!empty($item['variant_id'])) {
-                    $attr_rows = $this->db->select('a.slug as attr_slug, a.name as attr_name, av.value as attr_val')
-                                          ->from('product_variant_values pvv')
-                                          ->join('attributes a', 'a.id = pvv.attribute_id')
-                                          ->join('attribute_values av', 'av.id = pvv.attribute_value_id')
-                                          ->where('pvv.variant_id', (int) $item['variant_id'])
-                                          ->get()
-                                          ->result_array();
-                    foreach ($attr_rows as $ar) {
-                        $slug = strtolower($ar['attr_slug'] ?: $ar['attr_name']);
-                        if ($slug === 'size' && empty($item['size'])) {
-                            $item['size'] = $ar['attr_val'];
-                        } elseif ($slug === 'color' && empty($item['color'])) {
-                            $item['color'] = $ar['attr_val'];
-                        }
+            // Extract variant attributes (size, color) strictly if product has variant and attribute exists
+            $resolved_color = '';
+            $resolved_size = '';
+            if (!empty($item['variant_id'])) {
+                if (empty($item['variant_title'])) {
+                    $v_row = $this->db->select('title')->where('id', (int) $item['variant_id'])->get('product_variants')->row_array();
+                    if ($v_row && !empty($v_row['title'])) {
+                        $item['variant_title'] = $v_row['title'];
                     }
                 }
 
-                // Fallback parsing from variant_title if size or color still empty
-                if ((empty($item['size']) || empty($item['color'])) && !empty($item['variant_title'])) {
-                    $opt_str = $item['variant_title'];
-                    if (strpos($opt_str, '-') !== false) {
-                        $dash_parts = explode('-', $opt_str);
-                        $opt_str = trim(end($dash_parts));
-                    }
-                    if (strpos($opt_str, '/') !== false) {
-                        $parts = array_map('trim', explode('/', $opt_str));
-                        $sizes_known = ['xs', 's', 'm', 'l', 'xl', 'xxl', 'xxxl', '28', '30', '32', '34', '36', '38', '40', '42'];
-                        foreach ($parts as $p) {
-                            if (in_array(strtolower($p), $sizes_known)) {
-                                if (empty($item['size'])) $item['size'] = $p;
-                            } else {
-                                if (empty($item['color'])) $item['color'] = $p;
-                            }
-                        }
-                    } else {
-                        if (empty($item['size'])) $item['size'] = $opt_str;
+                $attr_rows = $this->db->select('a.slug as attr_slug, a.name as attr_name, av.value as attr_val')
+                                      ->from('product_variant_values pvv')
+                                      ->join('attributes a', 'a.id = pvv.attribute_id')
+                                      ->join('attribute_values av', 'av.id = pvv.attribute_value_id')
+                                      ->where('pvv.variant_id', (int) $item['variant_id'])
+                                      ->get()
+                                      ->result_array();
+                foreach ($attr_rows as $ar) {
+                    $slug = strtolower($ar['attr_slug'] ?: $ar['attr_name']);
+                    if (strpos($slug, 'color') !== false || strpos($slug, 'colour') !== false) {
+                        $resolved_color = $ar['attr_val'];
+                    } elseif (strpos($slug, 'size') !== false) {
+                        $resolved_size = $ar['attr_val'];
                     }
                 }
             }
+            $item['color'] = $resolved_color;
+            $item['size'] = $resolved_size;
 
             // Ensure brand_name, max_purchase_quantity, is_cod_allowed, rating, reviews_count, short_description
             if (!empty($item['id'])) {
@@ -358,13 +345,31 @@ class cart_model extends CI_Model {
 
         $item_size = '';
         $item_color = '';
-        if ($variant && !empty($variant['values'])) {
-            foreach ($variant['values'] as $vval) {
-                $aslug = strtolower($vval['attribute_slug'] ?? ($vval['attribute_name'] ?? ''));
-                if ($aslug === 'size' && empty($item_size)) {
-                    $item_size = $vval['attribute_value'];
-                } elseif ($aslug === 'color' && empty($item_color)) {
-                    $item_color = $vval['attribute_value'];
+        if ($variant) {
+            if (!empty($variant['values']) && is_array($variant['values'])) {
+                foreach ($variant['values'] as $vval) {
+                    $aslug = strtolower($vval['attribute_slug'] ?? ($vval['attribute_name'] ?? ''));
+                    if (strpos($aslug, 'color') !== false || strpos($aslug, 'colour') !== false) {
+                        $item_color = $vval['attribute_value'];
+                    } elseif (strpos($aslug, 'size') !== false) {
+                        $item_size = $vval['attribute_value'];
+                    }
+                }
+            } elseif (!empty($variant['id'])) {
+                $attr_rows = $this->db->select('a.slug as attr_slug, a.name as attr_name, av.value as attr_val')
+                                      ->from('product_variant_values pvv')
+                                      ->join('attributes a', 'a.id = pvv.attribute_id')
+                                      ->join('attribute_values av', 'av.id = pvv.attribute_value_id')
+                                      ->where('pvv.variant_id', (int) $variant['id'])
+                                      ->get()
+                                      ->result_array();
+                foreach ($attr_rows as $ar) {
+                    $aslug = strtolower($ar['attr_slug'] ?: $ar['attr_name']);
+                    if (strpos($aslug, 'color') !== false || strpos($aslug, 'colour') !== false) {
+                        $item_color = $ar['attr_val'];
+                    } elseif (strpos($aslug, 'size') !== false) {
+                        $item_size = $ar['attr_val'];
+                    }
                 }
             }
         }
@@ -1115,13 +1120,31 @@ class cart_model extends CI_Model {
 
         $item_size = '';
         $item_color = '';
-        if ($variant && !empty($variant['values'])) {
-            foreach ($variant['values'] as $vval) {
-                $aslug = strtolower($vval['attribute_slug'] ?? ($vval['attribute_name'] ?? ''));
-                if ($aslug === 'size' && empty($item_size)) {
-                    $item_size = $vval['attribute_value'];
-                } elseif ($aslug === 'color' && empty($item_color)) {
-                    $item_color = $vval['attribute_value'];
+        if ($variant) {
+            if (!empty($variant['values']) && is_array($variant['values'])) {
+                foreach ($variant['values'] as $vval) {
+                    $aslug = strtolower($vval['attribute_slug'] ?? ($vval['attribute_name'] ?? ''));
+                    if (strpos($aslug, 'color') !== false || strpos($aslug, 'colour') !== false) {
+                        $item_color = $vval['attribute_value'];
+                    } elseif (strpos($aslug, 'size') !== false) {
+                        $item_size = $vval['attribute_value'];
+                    }
+                }
+            } elseif (!empty($variant['id'])) {
+                $attr_rows = $this->db->select('a.slug as attr_slug, a.name as attr_name, av.value as attr_val')
+                                      ->from('product_variant_values pvv')
+                                      ->join('attributes a', 'a.id = pvv.attribute_id')
+                                      ->join('attribute_values av', 'av.id = pvv.attribute_value_id')
+                                      ->where('pvv.variant_id', (int) $variant['id'])
+                                      ->get()
+                                      ->result_array();
+                foreach ($attr_rows as $ar) {
+                    $aslug = strtolower($ar['attr_slug'] ?: $ar['attr_name']);
+                    if (strpos($aslug, 'color') !== false || strpos($aslug, 'colour') !== false) {
+                        $item_color = $ar['attr_val'];
+                    } elseif (strpos($aslug, 'size') !== false) {
+                        $item_size = $ar['attr_val'];
+                    }
                 }
             }
         }

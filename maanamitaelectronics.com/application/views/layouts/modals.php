@@ -842,7 +842,12 @@
                     ? (item.image.indexOf('http') === 0 ? item.image : '<?= base_url("assets/images/"); ?>' + item.image) 
                     : '<?= base_url("assets/images/products/womens/women-1.jpg"); ?>';
                 var itemKey = item.cart_key || item.id;
-                var variantText = item.variant_title ? '<div class="text-secondary-2 small text-truncate me-2" style="min-width: 0;">' + item.variant_title + '</div>' : '<div class="flex-grow-1"></div>';
+                var vParts = [];
+                if (item.color) vParts.push('Color: ' + item.color);
+                if (item.size) vParts.push('Size: ' + item.size);
+                var variantText = vParts.length > 0 
+                    ? '<div class="text-secondary-2 small text-truncate me-2" style="min-width: 0;">' + vParts.join(' | ') + '</div>' 
+                    : (item.variant_title ? '<div class="text-secondary-2 small text-truncate me-2" style="min-width: 0;">' + item.variant_title + '</div>' : '<div class="flex-grow-1"></div>');
 
                 html += '<div class="tf-mini-cart-item file-delete" id="side-cart-item-' + itemKey + '">' +
                     '<div class="tf-mini-cart-image">' +
