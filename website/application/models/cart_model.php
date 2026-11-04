@@ -582,9 +582,9 @@ class cart_model extends CI_Model {
         return ['success' => true];
     }
 
-    public function get_cart_summary($shipping_method = 'standard')
+    public function get_cart_summary($shipping_method = 'standard', $custom_items = null)
     {
-        $items = $this->get_items();
+        $items = ($custom_items !== null) ? $custom_items : $this->get_items();
         $subtotal = 0.00;
         $item_count = 0;
         $mrp_total = 0.00;
@@ -792,9 +792,9 @@ class cart_model extends CI_Model {
      * Check if Cash on Delivery is allowed for all items in the cart.
      * If even one item has is_cod_allowed == 0, COD is disabled for the whole order.
      */
-    public function check_cod_eligibility()
+    public function check_cod_eligibility($custom_items = null)
     {
-        $items = $this->get_items();
+        $items = ($custom_items !== null) ? $custom_items : $this->get_items();
         if (empty($items)) {
             return [
                 'eligible'      => false,

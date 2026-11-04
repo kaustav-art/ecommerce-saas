@@ -239,7 +239,6 @@
                                     </div>
                                 </div>
                             </div>
-
                             <!-- Products List (Matches IMG_20260922_115257.jpeg) -->
                             <div class="d-flex flex-column gap-3" id="checkout-items-list">
                                 <?php foreach ($cart_items as $item): 
@@ -600,6 +599,8 @@
         var SITE_NAME = <?= json_encode($site_name); ?>;
         var SITE_URL = <?= json_encode(site_url()); ?>;
         var CURRENCY = <?= json_encode($currency_symbol); ?>;
+        var IS_BUY_NOW = <?= !empty($is_buy_now) ? 'true' : 'false'; ?>;
+        var BUY_NOW_KEY = <?= !empty($buy_now_key) ? json_encode($buy_now_key) : 'null'; ?>;
 
         function hasDeliveryAddress() {
             var fullAddr = document.getElementById('display-address-full');
@@ -637,7 +638,7 @@
                 btnSide.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Loading Payment...';
             }
 
-            window.location.href = SITE_URL + 'checkout/payment';
+            window.location.href = SITE_URL + 'checkout/payment' + (IS_BUY_NOW && BUY_NOW_KEY ? '?buy_now=' + encodeURIComponent(BUY_NOW_KEY) : '');
         }
 
         function showCheckoutToast(message, type) {
@@ -778,6 +779,9 @@
             var formData = new FormData();
             formData.append('cart_key', cartKey);
             formData.append('quantity', next);
+            if (IS_BUY_NOW && BUY_NOW_KEY) {
+                formData.append('buy_now_key', BUY_NOW_KEY);
+            }
 
             fetch(SITE_URL + 'cart/update', {
                 method: 'POST',

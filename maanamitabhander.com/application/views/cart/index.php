@@ -15,7 +15,7 @@
         <!-- Flash messages -->
         <?php 
         $cart_flash_success = $this->session->flashdata('success');
-        if (!empty($cart_flash_success) && stripos($cart_flash_success, 'Item added to your shopping cart') === false): 
+        if (!empty($cart_flash_success) && stripos($cart_flash_success, 'Item added to your shopping cart') === false && stripos($cart_flash_success, 'moved to your wishlist') === false): 
         ?>
             <div class="container mt-3" style="max-width: 1240px;">
                 <div class="alert alert-success alert-dismissible fade show rounded-2 py-2 d-flex align-items-center justify-content-between" role="alert">
@@ -1202,7 +1202,17 @@
                 event.preventDefault();
                 event.stopPropagation();
             }
-            handleCartCheckout(event);
+            if (!window.IS_USER_LOGGED_IN) {
+                var targetCheckoutUrl = '<?= site_url("checkout?buy_now="); ?>' + encodeURIComponent(cartKey);
+                if (typeof window.openLoginModal === 'function') {
+                    window.openLoginModal(targetCheckoutUrl, 'Please sign in to proceed with Buy Now.');
+                } else {
+                    window.location.href = '<?= site_url("auth/login?redirect="); ?>' + encodeURIComponent('checkout?buy_now=' + cartKey);
+                }
+                return false;
+            }
+            window.location.href = '<?= site_url("checkout?buy_now="); ?>' + encodeURIComponent(cartKey);
+            return true;
         }
 
         function escapeCartHtml(str) {
@@ -1320,7 +1330,7 @@
                 return false;
             }
 
-            window.location.href = '<?= site_url("checkout"); ?>';
+            window.location.href = '<?= site_url("checkout?buy_now=0"); ?>';
             return true;
         }
 

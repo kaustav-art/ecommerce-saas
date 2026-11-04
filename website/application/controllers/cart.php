@@ -13,6 +13,9 @@ class cart extends MY_Controller {
 
     public function index()
     {
+        if (!$this->input->get('login')) {
+            $this->session->unset_userdata('checkout_buy_now_item');
+        }
         $shipping_method = $this->session->userdata('shipping_method') ?: 'standard';
 
         $user_id = $this->is_logged_in() && !empty($this->current_user['id']) ? (int)$this->current_user['id'] : NULL;
@@ -145,6 +148,10 @@ class cart extends MY_Controller {
 
         $result = $this->cart_model->update_item($cart_key, $quantity);
         $items = $this->cart_model->get_items();
+        $bn_key = $this->input->post('buy_now_key', TRUE) ?: ($this->input->get('buy_now', TRUE) ?: $this->session->userdata('checkout_buy_now_item'));
+        if ($bn_key && isset($items[$bn_key])) {
+            $result['cart_summary'] = $this->cart_model->get_cart_summary('standard', [$bn_key => $items[$bn_key]]);
+        }
         $result['cart_items'] = array_values($items);
         $result['item_total'] = isset($items[$cart_key]) ? (float) $items[$cart_key]['total'] : 0.00;
         $result['item_price'] = isset($items[$cart_key]) ? (float) $items[$cart_key]['price'] : 0.00;
@@ -165,6 +172,9 @@ class cart extends MY_Controller {
     public function remove($cart_key = '')
     {
         $cart_key = urldecode($cart_key ?: (string) $this->input->post('cart_key'));
+        if ($this->session->userdata('checkout_buy_now_item') === $cart_key) {
+            $this->session->unset_userdata('checkout_buy_now_item');
+        }
         $result = $this->cart_model->remove_item($cart_key);
 
         $is_ajax = $this->input->is_ajax_request()
@@ -235,7 +245,7 @@ class cart extends MY_Controller {
         // Remove from cart
         $result = $this->cart_model->remove_item($cart_key);
 
-        $this->session->set_flashdata('success', 'Item moved to your wishlist.');
+        // Flash message removed as requested
 
         if ($this->input->is_ajax_request() || !empty($_SERVER['HTTP_X_REQUESTED_WITH'])) {
             $this->json_response([

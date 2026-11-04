@@ -528,7 +528,6 @@
                         </div>
                     </div>
                 </div>
-
                 <!-- Mobile Top Amount Dropdown Bar (Matches c:\CMR\SS\amount.png) -->
                 <div class="d-block d-lg-none mb-3">
                     <div class="fk-mobile-amount-card d-flex justify-content-between align-items-center" 
@@ -958,6 +957,9 @@
 
             var formData = new FormData();
             formData.append('payment_method', method);
+            <?php if (!empty($is_buy_now) && !empty($buy_now_key)): ?>
+            formData.append('buy_now_item', <?= json_encode($buy_now_key); ?>);
+            <?php endif; ?>
 
             fetch(SITE_URL + 'checkout/create_order_ajax', {
                 method: 'POST',

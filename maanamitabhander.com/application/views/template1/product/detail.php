@@ -3209,8 +3209,10 @@ if (!empty($initial_variant)) {
             },
             body: payload.toString()
         })
-        .then(function() {
-            window.location.href = '<?= site_url("checkout"); ?>';
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+            var key = (data && data.item && data.item.cart_key) ? data.item.cart_key : '';
+            window.location.href = '<?= site_url("checkout"); ?>' + (key ? '?buy_now=' + encodeURIComponent(key) : '');
         })
         .catch(function() {
             window.location.href = '<?= site_url("checkout"); ?>';

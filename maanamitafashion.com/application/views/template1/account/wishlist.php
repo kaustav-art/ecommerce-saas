@@ -103,6 +103,25 @@
             position: relative;
         }
 
+
+        /* Always show close button on wishlist cards */
+        .card-product .box-icon.wishlist-remove-btn {
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform: none !important;
+            color: #4b5563;
+        }
+        .card-product .box-icon.wishlist-remove-btn:hover {
+            background-color: #DA3F3F !important;
+            border-color: #DA3F3F !important;
+            color: #ffffff !important;
+        }
+        .wishlist-item-wrap {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
 </style>
 <?php
 $theme_primary = '#003D29';
@@ -132,45 +151,31 @@ if ($active_template === 'electronics') {
 <section class="py-4 py-md-5" style="background-color: #f8fafc; min-height: 75vh;">
     <div class="container container-1630" style="max-width: 1400px;">
         <div class="card border-0 shadow-sm rounded-3 p-3 p-md-4 bg-white mb-4">
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pb-3 border-bottom">
-                <div>
-                    <h3 class="fw-bold text-dark m-0 d-flex align-items-center gap-2" style="font-size: 22px;">
-                        <i class="fa-solid fa-heart text-danger"></i> My Wishlist
-                        <span class="badge rounded-pill bg-light text-dark border px-2 py-1 fs-6 wishlist-count"><?= count($wishlist); ?></span>
-                    </h3>
-                    <p class="text-muted small m-0 mt-1">Manage and purchase products you saved for later</p>
-                </div>
-                <div>
-                    <a href="<?= site_url('shop'); ?>" class="btn btn-outline-dark btn-sm rounded-pill px-3 py-2 fw-semibold d-inline-flex align-items-center gap-2">
-                        <i class="fa-solid fa-bag-shopping"></i> Continue Shopping
-                    </a>
-                </div>
+            <div class="pb-3 border-bottom">
+                <h3 class="fw-bold text-dark m-0 d-flex align-items-center gap-2" style="font-size: 22px;">
+                    <i class="fa-solid fa-heart text-danger"></i> My Wishlist
+                </h3>
             </div>
 
             <?php if (!empty($wishlist)):  ?>
-                <div class="row g-3 g-md-4 row-cols-xl-4 row-cols-lg-3 row-cols-sm-2 row-cols-2 pt-4" id="wishlist-items-grid">
+                <div class="tf-grid-layout tf-col-2 lg-col-4 xl-col-5 pt-4" id="wishlist-items-grid">
                     <?php foreach ($wishlist as $item):
                         $item_id = (int)($item['id'] ?? 0);
                         $card_view = file_exists(APPPATH . 'views/template1/home/_product_card.php') ? 'template1/home/_product_card' : 'home/_product_card';
                      ?>
-                        <div class="col position-relative wishlist-item-col" id="wishlist-item-col-<?= $item_id; ?>">
-                            <!-- Wishlist Close Button -->
-                            <button type="button"
-                               onclick="removeWishlistPageItem(<?= $item_id; ?>, event);"
-                               class="wishlist-close-btn"
-                               title="Remove from Wishlist"
-                               aria-label="Remove from Wishlist">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
+                        <div class="wishlist-item-wrap" id="wishlist-item-col-<?= $item_id; ?>">
                             <?php $this->load->view($card_view, [
                                 'p'                 => $item,
                                 'currency_symbol'   => $currency_symbol ?? '$',
+                                'is_wishlist_page'  => true,
                                 'user_wishlist_ids' => $user_wishlist_ids ?? array_column($wishlist, 'id')
                             ]);  ?>
                         </div>
                     <?php endforeach;  ?>
                 </div>
             <?php endif;  ?>
+
+            
 
             
 
@@ -217,7 +222,7 @@ function removeWishlistPageItem(productId, event) {
             if (typeof window.showAppToast === 'function') {
                 window.showAppToast('Removed from your wishlist.', 'success');
             }
-            var remaining = document.querySelectorAll('#wishlist-items-grid .col').length;
+            var remaining = document.querySelectorAll('#wishlist-items-grid .wishlist-item-wrap, #wishlist-items-grid .col').length;
             document.querySelectorAll('.wishlist-count').forEach(function(el) {
                 el.textContent = res.wishlist_count !== undefined ? res.wishlist_count : remaining;
             });

@@ -14,9 +14,44 @@ class checkout extends MY_Controller {
 
     public function index()
     {
-        $items = $this->cart_model->get_items();
-        if (empty($items)) {
+        $buy_now_param = $this->input->get('buy_now', TRUE);
+        if ($buy_now_param !== NULL) {
+            if ($buy_now_param === '0' || $buy_now_param === 'all' || $buy_now_param === '') {
+                $this->session->unset_userdata('checkout_buy_now_item');
+            } else {
+                $this->session->set_userdata('checkout_buy_now_item', $buy_now_param);
+            }
+        }
+        $buy_now_item = $this->session->userdata('checkout_buy_now_item');
+
+        $all_items = $this->cart_model->get_items();
+        if (empty($all_items)) {
             redirect('cart');
+        }
+
+        $items = $all_items;
+        $is_buy_now = false;
+        $matched_buy_now_key = null;
+
+        if (!empty($buy_now_item)) {
+            if (isset($all_items[$buy_now_item])) {
+                $items = [$buy_now_item => $all_items[$buy_now_item]];
+                $is_buy_now = true;
+                $matched_buy_now_key = $buy_now_item;
+            } else {
+                foreach ($all_items as $ck => $ci) {
+                    if ((string)$ck === (string)$buy_now_item || (string)($ci['cart_key'] ?? '') === (string)$buy_now_item || (string)($ci['id'] ?? '') === (string)$buy_now_item) {
+                        $items = [$ck => $ci];
+                        $is_buy_now = true;
+                        $matched_buy_now_key = $ck;
+                        break;
+                    }
+                }
+                if (!$is_buy_now) {
+                    $this->session->unset_userdata('checkout_buy_now_item');
+                    $items = $all_items;
+                }
+            }
         }
 
         if (!$this->is_logged_in() || empty($this->current_user['id'])) {
@@ -25,7 +60,7 @@ class checkout extends MY_Controller {
         }
 
         $shipping_method = $this->session->userdata('shipping_method') ?: 'standard';
-        $summary = $this->cart_model->get_cart_summary($shipping_method);
+        $summary = $this->cart_model->get_cart_summary($shipping_method, $items);
 
         $gateways = $this->setting_model->get_active_gateways();
         if (empty($gateways) && !$this->is_user_project) {
@@ -64,6 +99,9 @@ class checkout extends MY_Controller {
             'title'           => 'Checkout - ' . $this->site_name,
             'active_page'     => 'checkout',
             'cart_items'      => $items,
+            'all_cart_count'  => count($all_items),
+            'is_buy_now'      => $is_buy_now,
+            'buy_now_key'     => $matched_buy_now_key,
             'cart_summary'    => $summary,
             'gateways'        => $gateways,
             'default_address' => $default_address,
@@ -76,11 +114,48 @@ class checkout extends MY_Controller {
         $this->render('checkout/index', $data);
     }
 
+    
+
     public function payment()
     {
-        $items = $this->cart_model->get_items();
-        if (empty($items)) {
+        $buy_now_param = $this->input->get('buy_now', TRUE);
+        if ($buy_now_param !== NULL) {
+            if ($buy_now_param === '0' || $buy_now_param === 'all' || $buy_now_param === '') {
+                $this->session->unset_userdata('checkout_buy_now_item');
+            } else {
+                $this->session->set_userdata('checkout_buy_now_item', $buy_now_param);
+            }
+        }
+        $buy_now_item = $this->session->userdata('checkout_buy_now_item');
+
+        $all_items = $this->cart_model->get_items();
+        if (empty($all_items)) {
             redirect('cart');
+        }
+
+        $items = $all_items;
+        $is_buy_now = false;
+        $matched_buy_now_key = null;
+
+        if (!empty($buy_now_item)) {
+            if (isset($all_items[$buy_now_item])) {
+                $items = [$buy_now_item => $all_items[$buy_now_item]];
+                $is_buy_now = true;
+                $matched_buy_now_key = $buy_now_item;
+            } else {
+                foreach ($all_items as $ck => $ci) {
+                    if ((string)$ck === (string)$buy_now_item || (string)($ci['cart_key'] ?? '') === (string)$buy_now_item || (string)($ci['id'] ?? '') === (string)$buy_now_item) {
+                        $items = [$ck => $ci];
+                        $is_buy_now = true;
+                        $matched_buy_now_key = $ck;
+                        break;
+                    }
+                }
+                if (!$is_buy_now) {
+                    $this->session->unset_userdata('checkout_buy_now_item');
+                    $items = $all_items;
+                }
+            }
         }
 
         if (!$this->is_logged_in() || empty($this->current_user['id'])) {
@@ -89,7 +164,7 @@ class checkout extends MY_Controller {
         }
 
         $shipping_method = $this->session->userdata('shipping_method') ?: 'standard';
-        $summary = $this->cart_model->get_cart_summary($shipping_method);
+        $summary = $this->cart_model->get_cart_summary($shipping_method, $items);
 
         $gateways = $this->setting_model->get_active_gateways();
         if (empty($gateways) && !$this->is_user_project) {
@@ -122,7 +197,7 @@ class checkout extends MY_Controller {
             $default_address = !empty($demo_addresses[0]) ? $demo_addresses[0] : NULL;
         }
 
-        $cod_check = $this->cart_model->check_cod_eligibility();
+        $cod_check = $this->cart_model->check_cod_eligibility($items);
         $cod_eligible = $cod_check['eligible'] ?? TRUE;
         $non_cod_items = $cod_check['non_cod_items'] ?? [];
 
@@ -132,6 +207,9 @@ class checkout extends MY_Controller {
             'title'           => 'Payment - ' . $this->site_name,
             'active_page'     => 'checkout',
             'cart_items'      => $items,
+            'all_cart_count'  => count($all_items),
+            'is_buy_now'      => $is_buy_now,
+            'buy_now_key'     => $matched_buy_now_key,
             'cart_summary'    => $summary,
             'gateways'        => $gateways,
             'default_gateway' => $default_gateway,
@@ -146,6 +224,8 @@ class checkout extends MY_Controller {
 
         $this->render('checkout/payment', $data);
     }
+
+    
 
     public function select_address()
     {
@@ -238,9 +318,31 @@ class checkout extends MY_Controller {
 
     public function create_order_ajax()
     {
-        $items = $this->cart_model->get_items();
-        if (empty($items)) {
+        $all_items = $this->cart_model->get_items();
+        if (empty($all_items)) {
             return $this->json_response(['success' => false, 'message' => 'Your shopping bag is empty.'], 400);
+        }
+
+        $buy_now_item = $this->input->post('buy_now_item', TRUE) ?: $this->session->userdata('checkout_buy_now_item');
+        $items = $all_items;
+        $is_buy_now = false;
+        $matched_buy_now_key = null;
+
+        if (!empty($buy_now_item)) {
+            if (isset($all_items[$buy_now_item])) {
+                $items = [$buy_now_item => $all_items[$buy_now_item]];
+                $is_buy_now = true;
+                $matched_buy_now_key = $buy_now_item;
+            } else {
+                foreach ($all_items as $ck => $ci) {
+                    if ((string)$ck === (string)$buy_now_item || (string)($ci['cart_key'] ?? '') === (string)$buy_now_item || (string)($ci['id'] ?? '') === (string)$buy_now_item) {
+                        $items = [$ck => $ci];
+                        $is_buy_now = true;
+                        $matched_buy_now_key = $ck;
+                        break;
+                    }
+                }
+            }
         }
 
         // Validate Max Purchase Quantity (Per Order)
@@ -310,7 +412,7 @@ class checkout extends MY_Controller {
                 ], 400);
             }
         } elseif ($payment_method === 'cod') {
-            $cod_check = $this->cart_model->check_cod_eligibility();
+            $cod_check = $this->cart_model->check_cod_eligibility($items);
             if (!$cod_check['eligible']) {
                 $non_cod = implode(', ', $cod_check['non_cod_items'] ?? []);
                 return $this->json_response([
@@ -321,7 +423,7 @@ class checkout extends MY_Controller {
         }
 
         $shipping_method = $this->input->post('shipping_method', TRUE) ?: ($this->session->userdata('shipping_method') ?: 'standard');
-        $summary = $this->cart_model->get_cart_summary($shipping_method);
+        $summary = $this->cart_model->get_cart_summary($shipping_method, $items);
 
         $active_addr = NULL;
         $sel_id = $this->session->userdata('selected_address_id');
@@ -378,6 +480,10 @@ class checkout extends MY_Controller {
             $order = $this->order_model->get_by_order_number($order_number);
             $razorpay_data['order_number'] = $order_number;
 
+            if ($is_buy_now && $matched_buy_now_key) {
+                $this->session->set_userdata('buy_now_for_order_' . $order_number, $matched_buy_now_key);
+            }
+
             return $this->json_response([
                 'success'      => true,
                 'gateway'      => 'razorpay',
@@ -404,6 +510,10 @@ class checkout extends MY_Controller {
             $order_number = $this->order_model->create_order($order_data, $items);
             $order = $this->order_model->get_by_order_number($order_number);
             $redirect_url = !empty($stripe_data['checkout_url']) ? $stripe_data['checkout_url'] : site_url('payment/stripe/' . $order_number);
+
+            if ($is_buy_now && $matched_buy_now_key) {
+                $this->session->set_userdata('buy_now_for_order_' . $order_number, $matched_buy_now_key);
+            }
 
             return $this->json_response([
                 'success'      => true,
@@ -432,6 +542,10 @@ class checkout extends MY_Controller {
             $order_number = $this->order_model->create_order($order_data, $items);
             $order = $this->order_model->get_by_order_number($order_number);
 
+            if ($is_buy_now && $matched_buy_now_key) {
+                $this->session->set_userdata('buy_now_for_order_' . $order_number, $matched_buy_now_key);
+            }
+
             return $this->json_response([
                 'success'      => true,
                 'gateway'      => 'payu',
@@ -443,7 +557,12 @@ class checkout extends MY_Controller {
 
         // 4. CASH ON DELIVERY (COD)
         $order_number = $this->order_model->create_order($order_data, $items);
-        $this->cart_model->clear_cart();
+        if ($is_buy_now && $matched_buy_now_key) {
+            $this->cart_model->remove_item($matched_buy_now_key);
+            $this->session->unset_userdata('checkout_buy_now_item');
+        } else {
+            $this->cart_model->clear_cart();
+        }
 
         return $this->json_response([
             'success'      => true,
@@ -452,6 +571,8 @@ class checkout extends MY_Controller {
             'redirect_url' => site_url('account/order/' . $order_number)
         ]);
     }
+
+    
 
     public function verify_razorpay_ajax()
     {

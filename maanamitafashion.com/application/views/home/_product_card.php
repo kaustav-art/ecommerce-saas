@@ -84,17 +84,29 @@ if (!empty($p['variants']) && is_array($p['variants'])) {
         <?php endif; ?>
 
         <?php
-        $is_p_wish = !empty($user_wishlist_ids) && in_array((int)$p['id'], $user_wishlist_ids, true);
+        $is_p_wish  = !empty($user_wishlist_ids) && in_array((int)$p['id'], $user_wishlist_ids, true);
+        $is_wl_page = !empty($is_wishlist_page) || !empty($show_close_btn);
         ?>
         <div class="list-product-btn">
-            <a href="<?= site_url('wishlist/toggle/' . $p['id']); ?>" 
-               class="box-icon wishlist btn-icon-action <?= $is_p_wish ? 'active in-wishlist' : ''; ?>" 
-               data-product-id="<?= (int)$p['id']; ?>"
-               onclick="event.preventDefault(); toggleProductWishlist(<?= (int)$p['id']; ?>, this);"
-               title="<?= $is_p_wish ? 'Remove from Wishlist' : 'Add to Wishlist'; ?>">
-                <i class="fa-<?= $is_p_wish ? 'solid' : 'regular'; ?> fa-heart <?= $is_p_wish ? 'text-danger' : ''; ?>"></i>
-                <span class="tooltip"><?= $is_p_wish ? 'Remove' : 'Wishlist'; ?></span>
-            </a>
+            <?php if ($is_wl_page): ?>
+                <a href="javascript:void(0)" 
+                   class="box-icon wishlist-remove-btn" 
+                   data-product-id="<?= (int)$p['id']; ?>"
+                   onclick="event.preventDefault(); event.stopPropagation(); removeWishlistPageItem(<?= (int)$p['id']; ?>, event);"
+                   title="Remove from Wishlist">
+                    <i class="fa-solid fa-xmark fs-6"></i>
+                    <span class="tooltip">Remove</span>
+                </a>
+            <?php else: ?>
+                <a href="<?= site_url('wishlist/toggle/' . $p['id']); ?>" 
+                   class="box-icon wishlist btn-icon-action <?= $is_p_wish ? 'active in-wishlist' : ''; ?>" 
+                   data-product-id="<?= (int)$p['id']; ?>"
+                   onclick="event.preventDefault(); toggleProductWishlist(<?= (int)$p['id']; ?>, this);"
+                   title="<?= $is_p_wish ? 'Remove from Wishlist' : 'Add to Wishlist'; ?>">
+                    <i class="fa-<?= $is_p_wish ? 'solid' : 'regular'; ?> fa-heart <?= $is_p_wish ? 'text-danger' : ''; ?>"></i>
+                    <span class="tooltip"><?= $is_p_wish ? 'Remove' : 'Wishlist'; ?></span>
+                </a>
+            <?php endif; ?>
         </div>
         <div class="list-btn-main">
             <form action="<?= site_url('cart/add'); ?>" method="POST" class="d-inline w-100">
