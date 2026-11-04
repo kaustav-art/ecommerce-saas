@@ -65,10 +65,10 @@
                                         <?php foreach ($products as $p): ?>
                                             <td>
                                                 <?php if (!empty($p['sale_price'])): ?>
-                                                    <div class="fs-5 fw-bold text-danger"><?= $currency_symbol . number_format($p['sale_price'], 2); ?></div>
-                                                    <div class="small text-muted text-decoration-line-through"><?= $currency_symbol . number_format($p['price'], 2); ?></div>
+                                                    <div class="fs-5 fw-bold text-danger"><?= $currency_symbol . number_format(round($p['sale_price'])); ?></div>
+                                                    <div class="small text-muted text-decoration-line-through"><?= $currency_symbol . number_format(round($p['price'])); ?></div>
                                                 <?php else: ?>
-                                                    <div class="fs-5 fw-bold text-dark"><?= $currency_symbol . number_format($p['price'], 2); ?></div>
+                                                    <div class="fs-5 fw-bold text-dark"><?= $currency_symbol . number_format(round($p['price'])); ?></div>
                                                 <?php endif; ?>
                                             </td>
                                         <?php endforeach; ?>

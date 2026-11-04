@@ -76,10 +76,10 @@ $hover_img = !empty($p['gallery_images_decoded'][0]) ? $p['gallery_images_decode
         <a href="<?= site_url('product/' . $p['slug']); ?>" class="title link"><?= html_escape($p['title']); ?></a>
         <div class="price">
             <?php if (!empty($p['sale_price'])): ?>
-                <span class="text-danger fw-bold"><?= $curr . number_format($p['sale_price'], 2); ?></span>
-                <span class="text-muted text-decoration-line-through small ms-1"><?= $curr . number_format($p['price'], 2); ?></span>
+                <span class="text-danger fw-bold"><?= $curr . number_format(round($p['sale_price'])); ?></span>
+                <span class="text-muted text-decoration-line-through small ms-1"><?= $curr . number_format(round($p['price'])); ?></span>
             <?php else: ?>
-                <span class="fw-bold"><?= $curr . number_format($p['price'], 2); ?></span>
+                <span class="fw-bold"><?= $curr . number_format(round($p['price'])); ?></span>
             <?php endif; ?>
         </div>
     </div>

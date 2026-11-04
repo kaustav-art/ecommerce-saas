@@ -326,7 +326,7 @@ $display_address = !empty($clean_lines) ? implode(', ', $clean_lines) : '';
             <div>
                 <div class="app-amount-chip">
                     <span class="chip-label"><?= $is_cod ? 'To Pay' : 'Total Paid'; ?>:</span>
-                    <span class="text-primary"><?= $currency_symbol . number_format($order['total_amount'], 2); ?></span>
+                    <span class="text-primary"><?= $currency_symbol . number_format(round($order['total_amount'])); ?></span>
                 </div>
             </div>
 

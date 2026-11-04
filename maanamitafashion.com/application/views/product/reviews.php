@@ -63,9 +63,9 @@ $bar_avg_round      = round($computed_avg * 2) / 2;
                             </a>
                         </h5>
                         <div class="d-flex align-items-center gap-2">
-                            <span class="fw-bold text-dark" style="font-size: 15px;"><?= ($currency_symbol ?? '₹') . number_format($eff_price, 2); ?></span>
+                            <span class="fw-bold text-dark" style="font-size: 15px;"><?= ($currency_symbol ?? '₹') . number_format(round($eff_price)); ?></span>
                             <?php if ($sale_price && $reg_price > $sale_price): ?>
-                                <del class="text-muted small"><?= ($currency_symbol ?? '₹') . number_format($reg_price, 2); ?></del>
+                                <del class="text-muted small"><?= ($currency_symbol ?? '₹') . number_format(round($reg_price)); ?></del>
                             <?php endif; ?>
                         </div>
                     </div>

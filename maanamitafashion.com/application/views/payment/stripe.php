@@ -9,7 +9,7 @@
                                     <i class="fa-solid fa-shield-halved me-1"></i> Stripe Secure Checkout
                                 </span>
                                 <h4 class="fw-bold mb-1">Pay for Order #<?= html_escape($order['order_number']); ?></h4>
-                                <p class="text-muted">Total Due: <strong class="text-primary fs-4"><?= $currency_symbol . number_format($order['total_amount'], 2); ?></strong></p>
+                                <p class="text-muted">Total Due: <strong class="text-primary fs-4"><?= $currency_symbol . number_format(round($order['total_amount'])); ?></strong></p>
                             </div>
 
                             <form action="<?= site_url('payment/stripe_confirm/' . $order['order_number']); ?>" method="POST" id="stripe-payment-form">
@@ -40,7 +40,7 @@
                                 </div>
 
                                 <button type="submit" class="btn btn-primary btn-lg w-100 py-3" id="pay-btn">
-                                    <i class="fa-solid fa-shield-halved me-2"></i> Authorize & Pay <?= $currency_symbol . number_format($order['total_amount'], 2); ?>
+                                    <i class="fa-solid fa-shield-halved me-2"></i> Authorize & Pay <?= $currency_symbol . number_format(round($order['total_amount'])); ?>
                                 </button>
                             </form>
 

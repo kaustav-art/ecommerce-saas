@@ -19,8 +19,8 @@ if (empty($all_images)) {
 $total_images = count($all_images);
 
 // Price & discount calculations
-$regular_price = (float) $product['price'];
-$sale_price = !empty($product['sale_price']) ? (float) $product['sale_price'] : null;
+$regular_price = round((float) $product['price']);
+$sale_price = !empty($product['sale_price']) ? round((float) $product['sale_price']) : null;
 $current_price = $sale_price ?: $regular_price;
 $discount_percent = ($regular_price > 0 && $sale_price && $sale_price < $regular_price)
     ? round((($regular_price - $sale_price) / $regular_price) * 100)
@@ -242,8 +242,8 @@ if ($has_variants) {
             'variant_id'     => (int) $pv['id'],
             'title'          => !empty($pv['title']) ? $pv['title'] : $product['title'],
             'sku'            => $pv['sku'],
-            'price'          => (float) $pv['price'],
-            'sale_price'     => (isset($pv['sale_price']) && $pv['sale_price'] !== null && $pv['sale_price'] !== '') ? (float) $pv['sale_price'] : null,
+            'price'          => round((float) $pv['price']),
+            'sale_price'     => (isset($pv['sale_price']) && $pv['sale_price'] !== null && $pv['sale_price'] !== '') ? round((float) $pv['sale_price']) : null,
             'stock'          => (int) $pv['stock_quantity'],
             'image'          => !empty($pv['image']) ? $pv['image'] : null,
             'color'          => $v_color,
@@ -303,8 +303,8 @@ if (empty($initial_variant) && $has_variants) {
             'variant_id'     => (int) $first_v['id'],
             'title'          => !empty($first_v['title']) ? $first_v['title'] : $product['title'],
             'sku'            => $first_v['sku'],
-            'price'          => (float) $first_v['price'],
-            'sale_price'     => (isset($first_v['sale_price']) && $first_v['sale_price'] !== null && $first_v['sale_price'] !== '') ? (float) $first_v['sale_price'] : null,
+            'price'          => round((float) $first_v['price']),
+            'sale_price'     => (isset($first_v['sale_price']) && $first_v['sale_price'] !== null && $first_v['sale_price'] !== '') ? round((float) $first_v['sale_price']) : null,
             'stock'          => (int) $first_v['stock_quantity'],
             'image'          => !empty($first_v['image']) ? $first_v['image'] : null,
             'color'          => $initial_color,
@@ -320,8 +320,8 @@ if (!empty($initial_variant)) {
     if (!empty($initial_variant['sku'])) {
         $initial_sku = $initial_variant['sku'];
     }
-    $regular_price = (float) $initial_variant['price'];
-    $sale_price    = ($initial_variant['sale_price'] !== null) ? (float) $initial_variant['sale_price'] : null;
+    $regular_price = round((float) $initial_variant['price']);
+    $sale_price    = ($initial_variant['sale_price'] !== null) ? round((float) $initial_variant['sale_price']) : null;
     $current_price = ($sale_price !== null && $sale_price > 0) ? $sale_price : $regular_price;
     $discount_percent = ($regular_price > 0 && $sale_price && $sale_price < $regular_price)
         ? round((($regular_price - $sale_price) / $regular_price) * 100)
@@ -364,7 +364,7 @@ if (!empty($initial_variant)) {
     transform: scale(1.03);
 }
 
-/* Floating Action Buttons on 2nd Image */
+/* Floating Action Buttons on 2nd Image (Wishlist & Fullscreen - Perfect Circles) */
 .grid-floating-actions {
     position: absolute;
     top: 10px;
@@ -374,30 +374,50 @@ if (!empty($initial_variant)) {
     gap: 8px;
     z-index: 10;
 }
-.grid-action-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: #ffffff;
-    border: 1px solid #d1d5db;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #181818;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+.grid-action-btn,
+button.grid-action-btn {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    max-width: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    gap: 0 !important;
+    aspect-ratio: 1 / 1 !important;
+    border-radius: 50% !important;
+    background: #ffffff !important;
+    border: 1px solid #d1d5db !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+    flex-shrink: 0 !important;
+    color: #181818 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
     cursor: pointer;
     transition: all 0.2s ease;
 }
-.grid-action-btn:hover {
-    background: #181818;
-    color: #ffffff;
-    border-color: #181818;
+.grid-action-btn i {
+    font-size: 15px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.grid-action-btn:hover,
+button.grid-action-btn:hover {
+    background: #181818 !important;
+    color: #ffffff !important;
+    border-color: #181818 !important;
     transform: translateY(-2px);
 }
-.grid-action-btn.active {
-    background: #dc3545;
-    color: #ffffff;
-    border-color: #dc3545;
+.grid-action-btn.active,
+button.grid-action-btn.active {
+    background: #dc3545 !important;
+    color: #ffffff !important;
+    border-color: #dc3545 !important;
 }
 
 /* 1px border for desktop Add to cart button */
@@ -587,34 +607,45 @@ if (!empty($initial_variant)) {
 }
 
 /* Circular floating navigation arrows (as shown in color_badge.PNG) */
-.color-slider-arrow {
+.color-slider-arrow,
+button.color-slider-arrow {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.92);
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    gap: 0 !important;
+    aspect-ratio: 1 / 1 !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.95) !important;
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
     cursor: pointer;
     z-index: 5;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16) !important;
     transition: all 0.2s ease;
-    color: #1a1a1a;
-    font-size: 13px;
-    padding: 0;
-    line-height: 1;
+    color: #1a1a1a !important;
+    font-size: 13px !important;
+    line-height: 1 !important;
 }
 
-.color-slider-arrow:hover {
-    background: #ffffff;
-    color: #000000;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22);
+.color-slider-arrow:hover,
+button.color-slider-arrow:hover {
+    background: #181818 !important;
+    color: #ffffff !important;
+    border-color: #181818 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.22) !important;
     transform: translateY(-50%) scale(1.05);
 }
 
@@ -697,29 +728,50 @@ if (!empty($initial_variant)) {
     object-fit: contain;
     border-radius: 6px;
 }
-.lightbox-arrow {
+.lightbox-arrow,
+button.lightbox-arrow {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-    border: none;
-    color: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
+    width: 46px !important;
+    height: 46px !important;
+    min-width: 46px !important;
+    max-width: 46px !important;
+    min-height: 46px !important;
+    max-height: 46px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    gap: 0 !important;
+    aspect-ratio: 1 / 1 !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.22) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: #ffffff !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+    flex-shrink: 0 !important;
+    font-size: 17px !important;
     cursor: pointer;
-    transition: background 0.2s ease;
+    transition: all 0.2s ease;
     z-index: 10;
 }
-.lightbox-arrow:hover {
-    background: rgba(255, 255, 255, 0.4);
+.lightbox-arrow:hover,
+button.lightbox-arrow:hover {
+    background: #ffffff !important;
+    color: #141414 !important;
+    border-color: #ffffff !important;
 }
 .lightbox-arrow.prev { left: 20px; }
 .lightbox-arrow.next { right: 20px; }
+.modal-header .btn-close {
+    padding: 0.5rem !important;
+    width: 1em !important;
+    height: 1em !important;
+    min-width: 0 !important;
+    border-radius: 0.25rem !important;
+}
 .lightbox-thumbs-strip {
     display: flex;
     gap: 8px;
@@ -842,21 +894,31 @@ if (!empty($initial_variant)) {
         gap: 10px !important;
         z-index: 20 !important;
     }
-    .mobile-floating-btn {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: #ffffff;
-        border: 1px solid #d1d5db;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #1e2022;
-        font-size: 16px;
+    .mobile-floating-btn,
+    button.mobile-floating-btn {
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px !important;
+        max-width: 40px !important;
+        min-height: 40px !important;
+        max-height: 40px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        gap: 0 !important;
+        aspect-ratio: 1 / 1 !important;
+        border-radius: 50% !important;
+        background: #ffffff !important;
+        border: 1px solid #d1d5db !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14) !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        line-height: 1 !important;
+        flex-shrink: 0 !important;
+        color: #1e2022 !important;
+        font-size: 16px !important;
         cursor: pointer;
         transition: transform 0.15s ease, background 0.15s ease;
-        padding: 0;
         outline: none;
     }
     .mobile-floating-btn:active {
@@ -1230,6 +1292,142 @@ if (!empty($initial_variant)) {
         gap: 12px !important;
     }
 }
+
+/* CircularPrev / Next Slider Buttons & Bazaro Popular Products Slider Style (.aqf-seller-area / .aq-product-slide-wrap) */
+.color-slider-arrow,
+button.color-slider-arrow {
+    display: none !important;
+}
+.aqf-seller-area.fix {
+    overflow: visible;
+}
+.aq-product-slide-wrap.p-relative {
+    position: relative;
+}
+@media (max-width: 575px) {
+    .aq-product-arrow {
+        display: none;
+    }
+}
+.aq-product-arrow button,
+.aq-product-arrow button.aq-product-prev,
+.aq-product-arrow button.aq-product-next {
+    position: absolute;
+    top: 38%;
+    transform: translateY(-50%);
+    inset-inline-start: -30px;
+    z-index: 20;
+    height: 46px !important;
+    width: 46px !important;
+    min-width: 46px !important;
+    max-width: 46px !important;
+    min-height: 46px !important;
+    max-height: 46px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    gap: 0 !important;
+    aspect-ratio: 1 / 1 !important;
+    border-radius: 50% !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    outline: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+    flex-shrink: 0 !important;
+    opacity: 0;
+    visibility: hidden;
+    color: #141414 !important;
+    background: #ffffff !important;
+    box-shadow: 0 3px 10px rgba(1, 15, 28, 0.16) !important;
+    transition: all 0.3s ease-out;
+}
+.aq-product-arrow button span {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100%;
+    height: 100%;
+    line-height: 1 !important;
+}
+.aq-product-arrow button svg {
+    display: block;
+    transform: translateX(-1px);
+}
+.aq-product-arrow button.aq-product-next {
+    inset-inline-start: auto;
+    inset-inline-end: -30px;
+}
+.aq-product-arrow button.aq-product-next svg {
+    transform: translateX(1px);
+}
+.aq-product-arrow button:hover {
+    color: #ffffff !important;
+    border-color: #141414 !important;
+    background-color: #141414 !important;
+}
+.aq-product-slide-wrap:hover .aq-product-arrow button {
+    opacity: 1;
+    visibility: visible;
+    inset-inline-start: -23px;
+}
+.aq-product-slide-wrap:hover .aq-product-arrow button.aq-product-next {
+    inset-inline-start: auto;
+    inset-inline-end: -23px;
+}
+.card-product {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.card-product .card-product-wrapper {
+    aspect-ratio: 3 / 4 !important;
+    width: 100% !important;
+    overflow: hidden !important;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    position: relative;
+}
+.card-product .card-product-wrapper .product-img {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+.card-product .card-product-wrapper .product-img img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block;
+}
+.product-badge-group {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    z-index: 5;
+    pointer-events: none;
+}
+.product-badge {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    padding: 5px 12px;
+    border-radius: 40px;
+    color: #ffffff;
+    background-color: #DA3F3F;
+}
+.product-badge.badge-sale {
+    background-color: #DA3F3F;
+}
+.product-badge.badge-flash-sale {
+    background-color: #DA3F3F;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
 </style>
 
         <!-- breadcrumb -->
@@ -1268,7 +1466,7 @@ if (!empty($initial_variant)) {
                                 <div class="product-gallery-stage position-relative">
                                     <!-- Mobile Floating Action Buttons (Wishlist & Share in product_deatils_mobile.jpeg) -->
                                     <div class="mobile-gallery-floating-actions d-md-none">
-                                        <button type="button" class="mobile-floating-btn mobile-wishlist-btn <?= !empty($is_in_wishlist) ? 'active' : ''; ?>" id="btn-mobile-wishlist" onclick="toggleWishlist(<?= $product['id']; ?>, this)" title="Wishlist" aria-label="Wishlist">
+                                        <button type="button" class="mobile-floating-btn mobile-wishlist-btn <?= !empty($is_in_wishlist) ? 'active' : ''; ?>" id="btn-mobile-wishlist" onclick="event.preventDefault(); event.stopPropagation(); toggleWishlist(<?= $product['id']; ?>, this)" title="Wishlist" aria-label="Wishlist">
                                             <i class="<?= !empty($is_in_wishlist) ? 'fa-solid fa-heart text-danger' : 'fa-regular fa-heart'; ?>"></i>
                                         </button>
                                         <button type="button" class="mobile-floating-btn mobile-share-btn" id="btn-mobile-share" onclick="handleMobileShare()" title="Share" aria-label="Share">
@@ -1302,8 +1500,8 @@ if (!empty($initial_variant)) {
                                                 <!-- Desktop Floating Actions in Top-Right corner of 2nd image (Slot 1) -->
                                                 <?php if ($i === 1 || ($total_images === 1 && $i === 0)): ?>
                                                     <div class="grid-floating-actions d-none d-md-flex" onclick="event.stopPropagation();">
-                                                        <button type="button" class="grid-action-btn wishlist-btn <?= !empty($is_in_wishlist) ? 'active' : ''; ?>" id="btn-grid-wishlist" onclick="toggleWishlist(<?= $product['id']; ?>, this)" title="Wishlist">
-                                                            <i class="<?= !empty($is_in_wishlist) ? 'fa-solid' : 'fa-regular'; ?> fa-heart"></i>
+                                                        <button type="button" class="grid-action-btn wishlist-btn <?= !empty($is_in_wishlist) ? 'active' : ''; ?>" id="btn-grid-wishlist" onclick="event.preventDefault(); event.stopPropagation(); toggleWishlist(<?= $product['id']; ?>, this)" title="Wishlist">
+                                                            <i class="<?= !empty($is_in_wishlist) ? 'fa-solid fa-heart text-white' : 'fa-regular fa-heart'; ?>"></i>
                                                         </button>
                                                         <button type="button" class="grid-action-btn zoom-btn" onclick="openLightbox(<?= $i; ?>)" title="Fullscreen Gallery">
                                                             <i class="fa-solid fa-expand"></i>
@@ -1360,13 +1558,9 @@ if (!empty($initial_variant)) {
                                                             <span class="color-badge-name" id="selected-color-name"><?= ucwords(html_escape($initial_color)); ?></span>
                                                         </div>
 
-                                                        <!-- Horizontal color slider with navigation arrows (color_badge.PNG) -->
+                                                        <!-- Horizontal color slider (without next/prev buttons) -->
                                                         <div class="color-variant-container">
-                                                            <button type="button" class="color-slider-arrow prev" id="color-arrow-prev" onclick="slideColorTrack(-1)" aria-label="Previous Color" style="display: none;">
-                                                                <i class="fa-solid fa-chevron-left"></i>
-                                                            </button>
-                                                            
-                                                            <div class="color-slider-track" id="color-slider-track" onscroll="updateColorSliderArrows()">
+                                                            <div class="color-slider-track" id="color-slider-track">
                                                                 <?php foreach ($color_map as $c_name => $c_info): 
                                                                     $is_active_color = ($c_name === $initial_color);
                                                                     $c_img = !empty($c_info['image']) ? $c_info['image'] : $product['main_image'];
@@ -1380,10 +1574,6 @@ if (!empty($initial_variant)) {
                                                                     </div>
                                                                 <?php endforeach; ?>
                                                             </div>
-
-                                                            <button type="button" class="color-slider-arrow next" id="color-arrow-next" onclick="slideColorTrack(1)" aria-label="Next Color">
-                                                                <i class="fa-solid fa-chevron-right"></i>
-                                                            </button>
                                                         </div>
                                                     <?php else: ?>
                                                         <div class="d-flex align-items-center justify-content-between mb-2">
@@ -1522,11 +1712,11 @@ if (!empty($initial_variant)) {
                                                 </div>
 
                                                 <span class="product-current-price" id="display-sale-price">
-                                                    <?= $currency_symbol . number_format($current_price, 2); ?>
+                                                    <?= $currency_symbol . number_format(round($current_price)); ?>
                                                 </span>
 
                                                 <span class="product-mrp-price" id="display-mrp-price" style="<?= ($sale_price && $sale_price < $regular_price) ? 'display: inline;' : 'display: none;'; ?>">
-                                                    M.R.P.: <?= $currency_symbol . number_format($regular_price, 2); ?>
+                                                    M.R.P.: <?= $currency_symbol . number_format(round($regular_price)); ?>
                                                 </span>
                                             </div>
                                             
@@ -2101,9 +2291,9 @@ if (!empty($initial_variant)) {
         </section>
         <!-- /Product_Description_Tabs -->
 
-        <!-- RELATED PRODUCTS & RECENTLY VIEWED TABS -->
+        <!-- RELATED PRODUCTS & RECENTLY VIEWED TABS (Same Popular Products Slider Style as Home Page) -->
         <?php if (!empty($related_products) || !empty($recently_viewed_products)): ?>
-            <section class="flat-spacing border-top">
+            <section class="flat-spacing border-top aqf-seller-area fix">
                 <div class="container flat-animate-tab">
                     <ul class="tab-product justify-content-sm-center nav nav-tabs border-0 mb-4" role="tablist">
                         <?php if (!empty($related_products)): ?>
@@ -2121,22 +2311,31 @@ if (!empty($initial_variant)) {
                     <div class="tab-content">
                         <?php if (!empty($related_products)): ?>
                             <div class="tab-pane active show" id="relatedProductsTab" role="tabpanel">
-                                <div class="position-relative">
-                                    <div dir="ltr" class="swiper tf-sw-latest" data-preview="4" data-tablet="3" data-mobile="2" data-space-lg="30" data-space-md="30" data-space="15" data-pagination="1" data-pagination-md="1" data-pagination-lg="1">
+                                <div class="aq-product-slide-wrap p-relative">
+                                    <div class="aq-product-arrow">
+                                        <button type="button" class="aq-product-prev aq-related-prev" aria-label="Previous slide">
+                                            <span>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="7" height="12" viewBox="0 0 7 12" fill="none">
+                                                    <path d="M5.75 10.75L0.75 5.75L5.75 0.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                            </span>
+                                        </button>
+                                        <button type="button" class="aq-product-next aq-related-next" aria-label="Next slide">
+                                            <span>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="7" height="12" viewBox="0 0 7 12" fill="none">
+                                                    <path d="M0.75 10.75L5.75 5.75L0.75 0.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <div class="swiper aq-product-active aq-related-slider">
                                         <div class="swiper-wrapper">
                                             <?php foreach ($related_products as $rp): ?>
                                                 <div class="swiper-slide">
-                                                    <?php $this->load->view('home/_product_card', ['p' => $rp, 'currency_symbol' => $currency_symbol ?? '$']); ?>
+                                                    <?php $this->load->view('template1/home/_product_card', ['p' => $rp, 'currency_symbol' => $currency_symbol ?? '$']); ?>
                                                 </div>
                                             <?php endforeach; ?>
                                         </div>
-                                        <div class="sw-pagination-latest sw-dots type-circle justify-content-center mt-4"></div>
-                                    </div>
-                                    <div class="nav-next-latest nav-sw nav-sw-left d-none d-md-flex position-absolute top-50 start-0 translate-middle-y shadow-sm" style="z-index: 5; margin-left: -16px; cursor: pointer;" title="Previous">
-                                        <i class="fa-solid fa-chevron-left" style="font-size: 13px;"></i>
-                                    </div>
-                                    <div class="nav-prev-latest nav-sw nav-sw-right d-none d-md-flex position-absolute top-50 end-0 translate-middle-y shadow-sm" style="z-index: 5; margin-right: -16px; cursor: pointer;" title="Next">
-                                        <i class="fa-solid fa-chevron-right" style="font-size: 13px;"></i>
                                     </div>
                                 </div>
                             </div>
@@ -2144,22 +2343,31 @@ if (!empty($initial_variant)) {
 
                         <?php if (!empty($recently_viewed_products)): ?>
                             <div class="tab-pane <?= empty($related_products) ? 'active show' : ''; ?>" id="recentlyViewedTab" role="tabpanel">
-                                <div class="position-relative">
-                                    <div dir="ltr" class="swiper tf-sw-recent" data-preview="4" data-tablet="3" data-mobile="2" data-space-lg="30" data-space-md="30" data-space="15" data-pagination="1" data-pagination-md="1" data-pagination-lg="1">
+                                <div class="aq-product-slide-wrap p-relative">
+                                    <div class="aq-product-arrow">
+                                        <button type="button" class="aq-product-prev aq-recent-prev" aria-label="Previous slide">
+                                            <span>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="7" height="12" viewBox="0 0 7 12" fill="none">
+                                                    <path d="M5.75 10.75L0.75 5.75L5.75 0.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                            </span>
+                                        </button>
+                                        <button type="button" class="aq-product-next aq-recent-next" aria-label="Next slide">
+                                            <span>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="7" height="12" viewBox="0 0 7 12" fill="none">
+                                                    <path d="M0.75 10.75L5.75 5.75L0.75 0.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <div class="swiper aq-product-active aq-recent-slider">
                                         <div class="swiper-wrapper">
                                             <?php foreach ($recently_viewed_products as $rvp): ?>
                                                 <div class="swiper-slide">
-                                                    <?php $this->load->view('home/_product_card', ['p' => $rvp, 'currency_symbol' => $currency_symbol ?? '$']); ?>
+                                                    <?php $this->load->view('template1/home/_product_card', ['p' => $rvp, 'currency_symbol' => $currency_symbol ?? '$']); ?>
                                                 </div>
                                             <?php endforeach; ?>
                                         </div>
-                                        <div class="sw-pagination-recent sw-dots type-circle justify-content-center mt-4"></div>
-                                    </div>
-                                    <div class="nav-next-recent nav-sw nav-sw-left d-none d-md-flex position-absolute top-50 start-0 translate-middle-y shadow-sm" style="z-index: 5; margin-left: -16px; cursor: pointer;" title="Previous">
-                                        <i class="fa-solid fa-chevron-left" style="font-size: 13px;"></i>
-                                    </div>
-                                    <div class="nav-prev-recent nav-sw nav-sw-right d-none d-md-flex position-absolute top-50 end-0 translate-middle-y shadow-sm" style="z-index: 5; margin-right: -16px; cursor: pointer;" title="Next">
-                                        <i class="fa-solid fa-chevron-right" style="font-size: 13px;"></i>
                                     </div>
                                 </div>
                             </div>
@@ -2487,8 +2695,8 @@ if (!empty($initial_variant)) {
 
             if (i === 1 || (count === 1 && i === 0)) {
                 html += '  <div class="grid-floating-actions d-none d-md-flex" onclick="event.stopPropagation();">';
-                html += '    <button type="button" class="grid-action-btn wishlist-btn ' + (isProductInWishlist ? 'active' : '') + '" id="btn-grid-wishlist" onclick="toggleWishlist(' + productId + ', this)" title="Wishlist">';
-                html += '      <i class="' + (isProductInWishlist ? 'fa-solid' : 'fa-regular') + ' fa-heart"></i>';
+                html += '    <button type="button" class="grid-action-btn wishlist-btn ' + (isProductInWishlist ? 'active' : '') + '" id="btn-grid-wishlist" onclick="event.preventDefault(); event.stopPropagation(); toggleWishlist(' + productId + ', this)" title="Wishlist">';
+                html += '      <i class="' + (isProductInWishlist ? 'fa-solid fa-heart text-white' : 'fa-regular fa-heart') + '"></i>';
                 html += '    </button>';
                 html += '    <button type="button" class="grid-action-btn zoom-btn" onclick="openLightbox(' + i + ')" title="Fullscreen Gallery">';
                 html += '      <i class="fa-solid fa-expand"></i>';
@@ -3011,7 +3219,7 @@ if (!empty($initial_variant)) {
             // Price display
             var salePriceEl = document.getElementById('display-sale-price');
             if (salePriceEl) {
-                salePriceEl.textContent = currencySymbol + effectivePrice.toFixed(2);
+                salePriceEl.textContent = currencySymbol + Math.round(effectivePrice).toLocaleString('en-IN');
             }
 
             // MRP and Discount badge
@@ -3025,7 +3233,7 @@ if (!empty($initial_variant)) {
                     discountBadgeEl.style.display = 'inline-flex';
                 }
                 if (mrpEl) {
-                    mrpEl.textContent = 'M.R.P.: ' + currencySymbol + regularP.toFixed(2);
+                    mrpEl.textContent = 'M.R.P.: ' + currencySymbol + Math.round(regularP).toLocaleString('en-IN');
                     mrpEl.style.display = 'inline';
                 }
             } else {
@@ -3036,7 +3244,7 @@ if (!empty($initial_variant)) {
             var curQty = parseInt(document.getElementById('product-qty-input')?.value, 10) || 1;
             var atcPriceEl = document.getElementById('atc-btn-price');
             if (atcPriceEl) {
-                atcPriceEl.textContent = currencySymbol + (effectivePrice * curQty).toFixed(2);
+                atcPriceEl.textContent = currencySymbol + Math.round(effectivePrice * curQty).toLocaleString('en-IN');
             }
 
             // SKU
@@ -3100,7 +3308,7 @@ if (!empty($initial_variant)) {
             // Update ATC button dynamic price
             var atcPriceEl = document.getElementById('atc-btn-price');
             if (atcPriceEl && unitPrice > 0) {
-                atcPriceEl.textContent = currencySymbol + (unitPrice * val).toFixed(2);
+                atcPriceEl.textContent = currencySymbol + Math.round(unitPrice * val).toLocaleString('en-IN');
             }
         }
     };
@@ -3221,41 +3429,77 @@ if (!empty($initial_variant)) {
 
     // 10. WISHLIST TOGGLE AJAX
     window.toggleWishlist = function(pId, btnEl) {
+        if (typeof event !== 'undefined' && event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        var fd = new FormData();
+        fd.append('product_id', pId);
+
         fetch('<?= site_url("wishlist/toggle"); ?>', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
                 'X-Requested-With': 'XMLHttpRequest'
             },
-            body: 'product_id=' + pId
+            body: fd
         })
         .then(function(res) { return res.json(); })
         .then(function(data) {
             if (data.status === 'success' || data.success) {
-                isProductInWishlist = !isProductInWishlist;
+                var isAdded = (data.action === 'added' || data.is_wishlisted === true);
+                isProductInWishlist = isAdded;
+
                 // Sync all wishlist buttons across desktop and mobile
                 var allWishlistBtns = document.querySelectorAll('.wishlist-btn, #btn-grid-wishlist, #btn-mobile-wishlist, .box-icon.wishlist');
                 allWishlistBtns.forEach(function(b) {
-                    if (isProductInWishlist) {
-                        b.classList.add('active');
-                        var icon = b.querySelector('i');
+                    var icon = b.querySelector('i');
+                    if (isAdded) {
+                        b.classList.add('active', 'in-wishlist');
                         if (icon) {
-                            icon.className = 'fa-solid fa-heart text-danger';
+                            if (b.id === 'btn-grid-wishlist') {
+                                icon.className = 'fa-solid fa-heart text-white';
+                            } else {
+                                icon.className = 'fa-solid fa-heart text-danger';
+                            }
                         }
                     } else {
-                        b.classList.remove('active');
-                        var icon = b.querySelector('i');
+                        b.classList.remove('active', 'in-wishlist');
                         if (icon) {
                             icon.className = 'fa-regular fa-heart';
                         }
                     }
                 });
+
+                // Update header counter badges
+                if (typeof data.wishlist_count !== 'undefined') {
+                    document.querySelectorAll('.wishlist-count, .wishlist-badge').forEach(function(el) {
+                        el.textContent = data.wishlist_count;
+                    });
+                    var headerCounter = document.getElementById('wishlist-counter');
+                    if (headerCounter) {
+                        headerCounter.textContent = data.wishlist_count;
+                        headerCounter.style.display = (data.wishlist_count > 0) ? '' : 'none';
+                    }
+                }
+
+                // Show Toast Notification
+                var toastMsg = data.message || (isAdded ? 'Added to your wishlist!' : 'Removed from your wishlist.');
+                if (typeof showAppToast === 'function') {
+                    showAppToast(toastMsg, 'success');
+                }
             } else if (data.redirect) {
                 window.location.href = data.redirect;
+            } else {
+                if (typeof showAppToast === 'function') {
+                    showAppToast((data && data.message) ? data.message : 'Unable to update wishlist.', 'danger');
+                }
             }
         })
         .catch(function(err) {
             console.error('Wishlist toggle error:', err);
+            if (typeof showAppToast === 'function') {
+                showAppToast('Network error updating wishlist.', 'danger');
+            }
         });
     };
 
@@ -3268,7 +3512,7 @@ if (!empty($initial_variant)) {
         });
         var display = document.getElementById('bundle-total-price');
         if (display) {
-            display.textContent = currencySymbol + total.toFixed(2);
+            display.textContent = currencySymbol + Math.round(total).toLocaleString('en-IN');
         }
     };
 
@@ -3462,16 +3706,84 @@ window.toggleSeeMoreSpecs = function(e) {
     }
 };
 
-// Update Swiper sliders when switching tabs
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof jQuery !== 'undefined') {
-        jQuery('a[data-bs-toggle="tab"]').on('shown.bs.tab', function () {
-            document.querySelectorAll('.tf-sw-latest, .tf-sw-recent').forEach(function(el) {
-                if (el.swiper) {
-                    el.swiper.update();
+// Initialize Related Products & Recently Viewed Sliders (Same as Home Popular Products Slider)
+(function() {
+    function initDetailPopularStyleSliders() {
+        var sliderConfigs = [
+            { sel: '.aq-related-slider', prev: '.aq-related-prev', next: '.aq-related-next' },
+            { sel: '.aq-recent-slider',  prev: '.aq-recent-prev',  next: '.aq-recent-next' }
+        ];
+        sliderConfigs.forEach(function(cfg) {
+            var el = document.querySelector(cfg.sel);
+            if (el && typeof Swiper !== 'undefined' && !el.swiper) {
+                new Swiper(cfg.sel, {
+                    slidesPerView: 5,
+                    loop: true,
+                    autoplay: true,
+                    spaceBetween: 30,
+                    speed: 1000,
+                    observer: true,
+                    observeParents: true,
+                    navigation: {
+                        prevEl: cfg.prev,
+                        nextEl: cfg.next,
+                    },
+                    breakpoints: {
+                        1400: { slidesPerView: 5, spaceBetween: 30 },
+                        1200: { slidesPerView: 5, spaceBetween: 24 },
+                        992:  { slidesPerView: 4, spaceBetween: 20 },
+                        768:  { slidesPerView: 3, spaceBetween: 15 },
+                        576:  { slidesPerView: 2, spaceBetween: 15 },
+                        0:    { slidesPerView: 2, spaceBetween: 12 }
+                    }
+                });
+            }
+        });
+    }
+
+    if (!window._fshColorSwatchBound) {
+        window._fshColorSwatchBound = true;
+        ['click', 'mouseover'].forEach(function(evtType) {
+            document.addEventListener(evtType, function(e) {
+                var swatch = e.target.closest('.card-product .color-swatch');
+                if (!swatch) return;
+                var card = swatch.closest('.card-product');
+                var swatchImg = swatch.querySelector('img');
+                if (card && swatchImg) {
+                    var newSrc = swatchImg.getAttribute('src') || swatchImg.getAttribute('data-src');
+                    var prodImg = card.querySelector('.img-product');
+                    if (prodImg && newSrc) {
+                        prodImg.setAttribute('src', newSrc);
+                        prodImg.setAttribute('data-src', newSrc);
+                    }
                 }
+                if (swatch.parentElement) {
+                    swatch.parentElement.querySelectorAll('.color-swatch.active').forEach(function(sib) {
+                        sib.classList.remove('active');
+                    });
+                }
+                swatch.classList.add('active');
             });
         });
     }
-});
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initDetailPopularStyleSliders);
+    } else {
+        initDetailPopularStyleSliders();
+    }
+    window.addEventListener('load', initDetailPopularStyleSliders);
+
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof jQuery !== 'undefined') {
+            jQuery('a[data-bs-toggle="tab"]').on('shown.bs.tab', function () {
+                document.querySelectorAll('.aq-related-slider, .aq-recent-slider').forEach(function(el) {
+                    if (el.swiper) {
+                        el.swiper.update();
+                    }
+                });
+            });
+        }
+    });
+})();
 </script>

@@ -19,8 +19,8 @@ if (empty($all_images)) {
 $total_images = count($all_images);
 
 // Price & discount calculations
-$regular_price = (float) $product['price'];
-$sale_price = !empty($product['sale_price']) ? (float) $product['sale_price'] : null;
+$regular_price = round((float) $product['price']);
+$sale_price = !empty($product['sale_price']) ? round((float) $product['sale_price']) : null;
 $current_price = $sale_price ?: $regular_price;
 $discount_percent = ($regular_price > 0 && $sale_price && $sale_price < $regular_price)
     ? round((($regular_price - $sale_price) / $regular_price) * 100)
@@ -242,8 +242,8 @@ if ($has_variants) {
             'variant_id'     => (int) $pv['id'],
             'title'          => !empty($pv['title']) ? $pv['title'] : $product['title'],
             'sku'            => $pv['sku'],
-            'price'          => (float) $pv['price'],
-            'sale_price'     => (isset($pv['sale_price']) && $pv['sale_price'] !== null && $pv['sale_price'] !== '') ? (float) $pv['sale_price'] : null,
+            'price'          => round((float) $pv['price']),
+            'sale_price'     => (isset($pv['sale_price']) && $pv['sale_price'] !== null && $pv['sale_price'] !== '') ? round((float) $pv['sale_price']) : null,
             'stock'          => (int) $pv['stock_quantity'],
             'image'          => !empty($pv['image']) ? $pv['image'] : null,
             'color'          => $v_color,
@@ -303,8 +303,8 @@ if (empty($initial_variant) && $has_variants) {
             'variant_id'     => (int) $first_v['id'],
             'title'          => !empty($first_v['title']) ? $first_v['title'] : $product['title'],
             'sku'            => $first_v['sku'],
-            'price'          => (float) $first_v['price'],
-            'sale_price'     => (isset($first_v['sale_price']) && $first_v['sale_price'] !== null && $first_v['sale_price'] !== '') ? (float) $first_v['sale_price'] : null,
+            'price'          => round((float) $first_v['price']),
+            'sale_price'     => (isset($first_v['sale_price']) && $first_v['sale_price'] !== null && $first_v['sale_price'] !== '') ? round((float) $first_v['sale_price']) : null,
             'stock'          => (int) $first_v['stock_quantity'],
             'image'          => !empty($first_v['image']) ? $first_v['image'] : null,
             'color'          => $initial_color,
@@ -320,8 +320,8 @@ if (!empty($initial_variant)) {
     if (!empty($initial_variant['sku'])) {
         $initial_sku = $initial_variant['sku'];
     }
-    $regular_price = (float) $initial_variant['price'];
-    $sale_price    = ($initial_variant['sale_price'] !== null) ? (float) $initial_variant['sale_price'] : null;
+    $regular_price = round((float) $initial_variant['price']);
+    $sale_price    = ($initial_variant['sale_price'] !== null) ? round((float) $initial_variant['sale_price']) : null;
     $current_price = ($sale_price !== null && $sale_price > 0) ? $sale_price : $regular_price;
     $discount_percent = ($regular_price > 0 && $sale_price && $sale_price < $regular_price)
         ? round((($regular_price - $sale_price) / $regular_price) * 100)
@@ -1466,7 +1466,7 @@ button.color-slider-arrow {
                                 <div class="product-gallery-stage position-relative">
                                     <!-- Mobile Floating Action Buttons (Wishlist & Share in product_deatils_mobile.jpeg) -->
                                     <div class="mobile-gallery-floating-actions d-md-none">
-                                        <button type="button" class="mobile-floating-btn mobile-wishlist-btn <?= !empty($is_in_wishlist) ? 'active' : ''; ?>" id="btn-mobile-wishlist" onclick="toggleWishlist(<?= $product['id']; ?>, this)" title="Wishlist" aria-label="Wishlist">
+                                        <button type="button" class="mobile-floating-btn mobile-wishlist-btn <?= !empty($is_in_wishlist) ? 'active' : ''; ?>" id="btn-mobile-wishlist" onclick="event.preventDefault(); event.stopPropagation(); toggleWishlist(<?= $product['id']; ?>, this)" title="Wishlist" aria-label="Wishlist">
                                             <i class="<?= !empty($is_in_wishlist) ? 'fa-solid fa-heart text-danger' : 'fa-regular fa-heart'; ?>"></i>
                                         </button>
                                         <button type="button" class="mobile-floating-btn mobile-share-btn" id="btn-mobile-share" onclick="handleMobileShare()" title="Share" aria-label="Share">
@@ -1500,8 +1500,8 @@ button.color-slider-arrow {
                                                 <!-- Desktop Floating Actions in Top-Right corner of 2nd image (Slot 1) -->
                                                 <?php if ($i === 1 || ($total_images === 1 && $i === 0)): ?>
                                                     <div class="grid-floating-actions d-none d-md-flex" onclick="event.stopPropagation();">
-                                                        <button type="button" class="grid-action-btn wishlist-btn <?= !empty($is_in_wishlist) ? 'active' : ''; ?>" id="btn-grid-wishlist" onclick="toggleWishlist(<?= $product['id']; ?>, this)" title="Wishlist">
-                                                            <i class="<?= !empty($is_in_wishlist) ? 'fa-solid' : 'fa-regular'; ?> fa-heart"></i>
+                                                        <button type="button" class="grid-action-btn wishlist-btn <?= !empty($is_in_wishlist) ? 'active' : ''; ?>" id="btn-grid-wishlist" onclick="event.preventDefault(); event.stopPropagation(); toggleWishlist(<?= $product['id']; ?>, this)" title="Wishlist">
+                                                            <i class="<?= !empty($is_in_wishlist) ? 'fa-solid fa-heart text-white' : 'fa-regular fa-heart'; ?>"></i>
                                                         </button>
                                                         <button type="button" class="grid-action-btn zoom-btn" onclick="openLightbox(<?= $i; ?>)" title="Fullscreen Gallery">
                                                             <i class="fa-solid fa-expand"></i>
@@ -1712,11 +1712,11 @@ button.color-slider-arrow {
                                                 </div>
 
                                                 <span class="product-current-price" id="display-sale-price">
-                                                    <?= $currency_symbol . number_format($current_price, 2); ?>
+                                                    <?= $currency_symbol . number_format(round($current_price)); ?>
                                                 </span>
 
                                                 <span class="product-mrp-price" id="display-mrp-price" style="<?= ($sale_price && $sale_price < $regular_price) ? 'display: inline;' : 'display: none;'; ?>">
-                                                    M.R.P.: <?= $currency_symbol . number_format($regular_price, 2); ?>
+                                                    M.R.P.: <?= $currency_symbol . number_format(round($regular_price)); ?>
                                                 </span>
                                             </div>
                                             
@@ -2695,8 +2695,8 @@ button.color-slider-arrow {
 
             if (i === 1 || (count === 1 && i === 0)) {
                 html += '  <div class="grid-floating-actions d-none d-md-flex" onclick="event.stopPropagation();">';
-                html += '    <button type="button" class="grid-action-btn wishlist-btn ' + (isProductInWishlist ? 'active' : '') + '" id="btn-grid-wishlist" onclick="toggleWishlist(' + productId + ', this)" title="Wishlist">';
-                html += '      <i class="' + (isProductInWishlist ? 'fa-solid' : 'fa-regular') + ' fa-heart"></i>';
+                html += '    <button type="button" class="grid-action-btn wishlist-btn ' + (isProductInWishlist ? 'active' : '') + '" id="btn-grid-wishlist" onclick="event.preventDefault(); event.stopPropagation(); toggleWishlist(' + productId + ', this)" title="Wishlist">';
+                html += '      <i class="' + (isProductInWishlist ? 'fa-solid fa-heart text-white' : 'fa-regular fa-heart') + '"></i>';
                 html += '    </button>';
                 html += '    <button type="button" class="grid-action-btn zoom-btn" onclick="openLightbox(' + i + ')" title="Fullscreen Gallery">';
                 html += '      <i class="fa-solid fa-expand"></i>';
@@ -3219,7 +3219,7 @@ button.color-slider-arrow {
             // Price display
             var salePriceEl = document.getElementById('display-sale-price');
             if (salePriceEl) {
-                salePriceEl.textContent = currencySymbol + effectivePrice.toFixed(2);
+                salePriceEl.textContent = currencySymbol + Math.round(effectivePrice).toLocaleString('en-IN');
             }
 
             // MRP and Discount badge
@@ -3233,7 +3233,7 @@ button.color-slider-arrow {
                     discountBadgeEl.style.display = 'inline-flex';
                 }
                 if (mrpEl) {
-                    mrpEl.textContent = 'M.R.P.: ' + currencySymbol + regularP.toFixed(2);
+                    mrpEl.textContent = 'M.R.P.: ' + currencySymbol + Math.round(regularP).toLocaleString('en-IN');
                     mrpEl.style.display = 'inline';
                 }
             } else {
@@ -3244,7 +3244,7 @@ button.color-slider-arrow {
             var curQty = parseInt(document.getElementById('product-qty-input')?.value, 10) || 1;
             var atcPriceEl = document.getElementById('atc-btn-price');
             if (atcPriceEl) {
-                atcPriceEl.textContent = currencySymbol + (effectivePrice * curQty).toFixed(2);
+                atcPriceEl.textContent = currencySymbol + Math.round(effectivePrice * curQty).toLocaleString('en-IN');
             }
 
             // SKU
@@ -3308,7 +3308,7 @@ button.color-slider-arrow {
             // Update ATC button dynamic price
             var atcPriceEl = document.getElementById('atc-btn-price');
             if (atcPriceEl && unitPrice > 0) {
-                atcPriceEl.textContent = currencySymbol + (unitPrice * val).toFixed(2);
+                atcPriceEl.textContent = currencySymbol + Math.round(unitPrice * val).toLocaleString('en-IN');
             }
         }
     };
@@ -3429,41 +3429,77 @@ button.color-slider-arrow {
 
     // 10. WISHLIST TOGGLE AJAX
     window.toggleWishlist = function(pId, btnEl) {
+        if (typeof event !== 'undefined' && event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        var fd = new FormData();
+        fd.append('product_id', pId);
+
         fetch('<?= site_url("wishlist/toggle"); ?>', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
                 'X-Requested-With': 'XMLHttpRequest'
             },
-            body: 'product_id=' + pId
+            body: fd
         })
         .then(function(res) { return res.json(); })
         .then(function(data) {
             if (data.status === 'success' || data.success) {
-                isProductInWishlist = !isProductInWishlist;
+                var isAdded = (data.action === 'added' || data.is_wishlisted === true);
+                isProductInWishlist = isAdded;
+
                 // Sync all wishlist buttons across desktop and mobile
                 var allWishlistBtns = document.querySelectorAll('.wishlist-btn, #btn-grid-wishlist, #btn-mobile-wishlist, .box-icon.wishlist');
                 allWishlistBtns.forEach(function(b) {
-                    if (isProductInWishlist) {
-                        b.classList.add('active');
-                        var icon = b.querySelector('i');
+                    var icon = b.querySelector('i');
+                    if (isAdded) {
+                        b.classList.add('active', 'in-wishlist');
                         if (icon) {
-                            icon.className = 'fa-solid fa-heart text-danger';
+                            if (b.id === 'btn-grid-wishlist') {
+                                icon.className = 'fa-solid fa-heart text-white';
+                            } else {
+                                icon.className = 'fa-solid fa-heart text-danger';
+                            }
                         }
                     } else {
-                        b.classList.remove('active');
-                        var icon = b.querySelector('i');
+                        b.classList.remove('active', 'in-wishlist');
                         if (icon) {
                             icon.className = 'fa-regular fa-heart';
                         }
                     }
                 });
+
+                // Update header counter badges
+                if (typeof data.wishlist_count !== 'undefined') {
+                    document.querySelectorAll('.wishlist-count, .wishlist-badge').forEach(function(el) {
+                        el.textContent = data.wishlist_count;
+                    });
+                    var headerCounter = document.getElementById('wishlist-counter');
+                    if (headerCounter) {
+                        headerCounter.textContent = data.wishlist_count;
+                        headerCounter.style.display = (data.wishlist_count > 0) ? '' : 'none';
+                    }
+                }
+
+                // Show Toast Notification
+                var toastMsg = data.message || (isAdded ? 'Added to your wishlist!' : 'Removed from your wishlist.');
+                if (typeof showAppToast === 'function') {
+                    showAppToast(toastMsg, 'success');
+                }
             } else if (data.redirect) {
                 window.location.href = data.redirect;
+            } else {
+                if (typeof showAppToast === 'function') {
+                    showAppToast((data && data.message) ? data.message : 'Unable to update wishlist.', 'danger');
+                }
             }
         })
         .catch(function(err) {
             console.error('Wishlist toggle error:', err);
+            if (typeof showAppToast === 'function') {
+                showAppToast('Network error updating wishlist.', 'danger');
+            }
         });
     };
 
@@ -3476,7 +3512,7 @@ button.color-slider-arrow {
         });
         var display = document.getElementById('bundle-total-price');
         if (display) {
-            display.textContent = currencySymbol + total.toFixed(2);
+            display.textContent = currencySymbol + Math.round(total).toLocaleString('en-IN');
         }
     };
 

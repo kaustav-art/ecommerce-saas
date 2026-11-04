@@ -52,7 +52,7 @@
                                             </div>
                                             <div class="col-sm-4">
                                                 <small class="text-muted text-uppercase fw-bold">Grand Total:</small>
-                                                <div class="fw-bold text-dark"><?= $currency_symbol . number_format($order['total_amount'], 2); ?></div>
+                                                <div class="fw-bold text-dark"><?= $currency_symbol . number_format(round($order['total_amount'])); ?></div>
                                             </div>
                                         </div>
 
@@ -188,7 +188,7 @@
                                                                 <?php if (!empty($it['variant_title'])): ?>
                                                                     <div class="text-muted small" style="font-size: 11px;"><?= html_escape($it['variant_title']); ?></div>
                                                                 <?php endif; ?>
-                                                                <div class="text-secondary small">Qty: <?= (int) $it['quantity']; ?> &times; <?= $currency_symbol . number_format($it['price'], 2); ?></div>
+                                                                <div class="text-secondary small">Qty: <?= (int) $it['quantity']; ?> &times; <?= $currency_symbol . number_format(round($it['price'])); ?></div>
                                                                 <?php if (!empty($it_c) || !empty($it_trk)): ?>
                                                                     <div class="text-muted small" style="font-size: 11px;">
                                                                         <i class="fa-solid fa-truck-fast text-primary me-1"></i><?= html_escape($it_c ?: 'Courier'); ?><?= !empty($it_trk) ? ' (AWB: ' . html_escape($it_trk) . ')' : ''; ?>
@@ -198,7 +198,7 @@
                                                             <div class="text-end">
                                                                 <span class="badge <?= $badge_class; ?> mb-1"><?= ($it_st === 'shipped') ? 'Shipped' : ucfirst($it_st); ?></span>
                                                                 <div class="fw-bold text-dark small">
-                                                                    <?= $currency_symbol . number_format($it['total'], 2); ?>
+                                                                    <?= $currency_symbol . number_format(round($it['total'])); ?>
                                                                 </div>
                                                             </div>
                                                         </div>

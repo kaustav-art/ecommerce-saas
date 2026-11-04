@@ -393,8 +393,8 @@
                                         ? (strpos($item['image'], 'http') === 0 ? $item['image'] : base_url('assets/images/' . $item['image']))
                                         : base_url('assets/images/products/womens/women-1.jpg');
                                     $item_key = $item['cart_key'] ?? $item['id'];
-                                    $reg_price = !empty($item['regular_price']) ? (float)$item['regular_price'] : round($item['price'] * 1.3, 2);
-                                    if ($reg_price <= $item['price']) $reg_price = round($item['price'] * 1.3, 2);
+                                    $reg_price = !empty($item['regular_price']) ? (float)$item['regular_price'] : round($item['price'] * 1.3);
+                                    if ($reg_price <= $item['price']) $reg_price = round($item['price'] * 1.3);
                                     $disc_pct = round((($reg_price - $item['price']) / $reg_price) * 100);
                                 ?>
                                 <div class="card border rounded-3 p-3 bg-white shadow-sm mb-3 cart-product-card" id="cart-row-<?= html_escape($item_key); ?>" style="width: 100%; max-width: 100%; min-width: 0; overflow: hidden; box-sizing: border-box;">
@@ -470,9 +470,9 @@
                                             <div class="d-flex align-items-center gap-2 flex-wrap mt-1">
                                                 <?php if ($disc_pct > 0): ?>
                                                     <span class="text-success fw-bold" style="font-size: 14px;"><i class="fa-solid fa-arrow-down small"></i><?= $disc_pct; ?>%</span>
-                                                    <span class="text-muted text-decoration-line-through small" id="cart-item-reg-<?= html_escape($item_key); ?>"><?= $currency_symbol . number_format($reg_price * $item['quantity'], 2); ?></span>
+                                                    <span class="text-muted text-decoration-line-through small" id="cart-item-reg-<?= html_escape($item_key); ?>"><?= $currency_symbol . number_format(round($reg_price * $item['quantity'])); ?></span>
                                                 <?php endif; ?>
-                                                <span class="fw-bold text-dark fs-6" id="cart-page-total-<?= html_escape($item_key); ?>"><?= $currency_symbol . number_format($item['total'], 2); ?></span>
+                                                <span class="fw-bold text-dark fs-6" id="cart-page-total-<?= html_escape($item_key); ?>"><?= $currency_symbol . number_format(round($item['total'])); ?></span>
                                             </div>
 
                                             <!-- Stock Alert -->
@@ -528,17 +528,17 @@
                                     <span class="text-secondary" id="order-summary-mrp-label">
                                         <?= (!empty($cart_summary['tax_inclusive']) && (int)$cart_summary['tax_inclusive'] === 1) ? 'MRP (incl. of all taxes)' : 'MRP'; ?>
                                     </span>
-                                    <span class="text-dark fw-medium" id="order-summary-mrp"><?= $currency_symbol . number_format($cart_summary['mrp_total'], 2); ?></span>
+                                    <span class="text-dark fw-medium" id="order-summary-mrp"><?= $currency_symbol . number_format(round($cart_summary['mrp_total'])); ?></span>
                                 </div>
 
                                 <div class="d-flex justify-content-between align-items-center mb-2 text-success <?= (empty($cart_summary['mrp_discount']) || $cart_summary['mrp_discount'] <= 0) ? 'd-none' : ''; ?>" style="font-size: 14px;" id="order-summary-mrp-discount-row">
                                     <span>Discount on MRP</span>
-                                    <span class="fw-semibold" id="order-summary-mrp-discount">-<?= $currency_symbol . number_format($cart_summary['mrp_discount'], 2); ?></span>
+                                    <span class="fw-semibold" id="order-summary-mrp-discount">-<?= $currency_symbol . number_format(round($cart_summary['mrp_discount'])); ?></span>
                                 </div>
 
                                 <div class="d-flex justify-content-between align-items-center mb-2 text-success <?= (empty($cart_summary['discount']) || $cart_summary['discount'] <= 0) ? 'd-none' : ''; ?>" style="font-size: 14px;" id="order-summary-discount-row">
                                     <span>Coupon Discount (<span id="applied-coupon-code"><?= html_escape($cart_summary['coupon']['code'] ?? ''); ?></span>) <a href="<?= site_url('cart/remove_coupon'); ?>" class="small text-danger text-decoration-underline ms-1">Remove</a></span>
-                                    <span class="fw-semibold" id="order-summary-discount">-<?= $currency_symbol . number_format($cart_summary['discount'] ?? 0, 2); ?></span>
+                                    <span class="fw-semibold" id="order-summary-discount">-<?= $currency_symbol . number_format(round($cart_summary['discount'] ?? 0)); ?></span>
                                 </div>
 
                                 <!-- Dynamic Shipping Charges Breakdown -->
@@ -548,7 +548,7 @@
                                             <div class="d-flex justify-content-between align-items-center mb-2" style="font-size: 14px;">
                                                 <span class="text-secondary"><?= html_escape($s_charge['name']); ?></span>
                                                 <span class="<?= ((float)$s_charge['value'] <= 0) ? 'text-success fw-semibold' : 'text-dark fw-medium'; ?>">
-                                                    <?= ((float)$s_charge['value'] <= 0) ? 'FREE' : $currency_symbol . number_format($s_charge['value'], 2); ?>
+                                                    <?= ((float)$s_charge['value'] <= 0) ? 'FREE' : $currency_symbol . number_format(round($s_charge['value'])); ?>
                                                 </span>
                                             </div>
                                         <?php endforeach; ?>
@@ -556,7 +556,7 @@
                                         <div class="d-flex justify-content-between align-items-center mb-2" style="font-size: 14px;">
                                             <span class="text-secondary">Delivery Charges</span>
                                             <span class="<?= ($cart_summary['shipping'] <= 0) ? 'text-success fw-semibold' : 'text-dark fw-medium'; ?>" id="standard-shipping-price">
-                                                <?= ($cart_summary['shipping'] <= 0) ? 'FREE' : $currency_symbol . number_format($cart_summary['shipping'], 2); ?>
+                                                <?= ($cart_summary['shipping'] <= 0) ? 'FREE' : $currency_symbol . number_format(round($cart_summary['shipping'])); ?>
                                             </span>
                                         </div>
                                     <?php endif; ?>
@@ -568,17 +568,17 @@
                                 ?>
                                 <div class="d-flex justify-content-between align-items-center mb-2 <?= $show_tax_row ? '' : 'd-none'; ?>" style="font-size: 14px;" id="order-summary-tax-row">
                                     <span class="text-secondary" id="order-summary-tax-label">Tax (<?= (float)($cart_summary['tax_rate_percent'] ?? 0); ?>%)</span>
-                                    <span class="text-dark fw-medium" id="order-summary-tax"><?= $currency_symbol . number_format($cart_summary['tax'] ?? 0, 2); ?></span>
+                                    <span class="text-dark fw-medium" id="order-summary-tax"><?= $currency_symbol . number_format(round($cart_summary['tax'] ?? 0)); ?></span>
                                 </div>
 
                                 <div class="border-top pt-2 mt-2 d-flex justify-content-between align-items-center mb-3">
                                     <span class="fw-bold text-dark" style="font-size: 16px;">Total Amount</span>
-                                    <span class="fw-bold text-dark" style="font-size: 18px;" id="order-summary-grandtotal"><?= $currency_symbol . number_format($cart_summary['total'], 2); ?></span>
+                                    <span class="fw-bold text-dark" style="font-size: 18px;" id="order-summary-grandtotal"><?= $currency_symbol . number_format(round($cart_summary['total'])); ?></span>
                                 </div>
 
                                 <div class="p-2 px-3 rounded-2 d-flex align-items-center gap-2 mb-3 <?= (empty($cart_summary['total_savings']) || $cart_summary['total_savings'] <= 0) ? 'd-none' : ''; ?>" style="background-color: #e8f8f0; color: #16a34a; font-size: 13px; font-weight: 600;" id="order-summary-savings-banner">
                                     <i class="fa-solid fa-tag"></i>
-                                    <span>You'll Save <span id="order-summary-savings"><?= $currency_symbol . number_format($cart_summary['total_savings'], 2); ?></span> on this order</span>
+                                    <span>You'll Save <span id="order-summary-savings"><?= $currency_symbol . number_format(round($cart_summary['total_savings'])); ?></span> on this order</span>
                                 </div>
 
                                 <!-- Proceed to Buy Button -->
@@ -758,9 +758,9 @@
                                         </div>
                                         <h4 class="aq-product-title mb-10"><a href="<?= $rv_slug; ?>"><?= html_escape($rv_name); ?></a></h4>
                                         <div class="aq-product-price">
-                                            <ins><span class="aq-product-new-price"><?= $currency_symbol . number_format($rv_price, 2); ?></span></ins>
+                                            <ins><span class="aq-product-new-price"><?= $currency_symbol . number_format(round($rv_price)); ?></span></ins>
                                             <?php if ($rv_old > $rv_price): ?>
-                                            <del><span class="aq-product-old-price"><?= $currency_symbol . number_format($rv_old, 2); ?></span></del>
+                                            <del><span class="aq-product-old-price"><?= $currency_symbol . number_format(round($rv_old)); ?></span></del>
                                             <?php endif; ?>
                                         </div>
                                         <?php if (!empty($rv_swatches)): ?>
@@ -785,7 +785,7 @@
                     <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">
                         <?php foreach ($recently_viewed_products as $rvp): 
                             $rvp_price = !empty($rvp['sale_price']) ? (float) $rvp['sale_price'] : (float) $rvp['price'];
-                            $rvp_reg   = !empty($rvp['price']) ? (float) $rvp['price'] : round($rvp_price * 1.3, 2);
+                            $rvp_reg   = !empty($rvp['price']) ? (float) $rvp['price'] : round($rvp_price * 1.3);
                             $rvp_img   = !empty($rvp['main_image']) ? (strpos($rvp['main_image'], 'http') === 0 ? $rvp['main_image'] : base_url('assets/images/' . $rvp['main_image'])) : base_url('assets/images/products/womens/women-1.jpg');
                             $in_cart   = isset($cart_items[$rvp['id']]);
                         ?>
@@ -805,9 +805,9 @@
                                     </a>
                                     <div class="d-flex align-items-center gap-1 mb-2">
                                         <?php if ($rvp_reg > $rvp_price): ?>
-                                            <span class="text-muted text-decoration-line-through" style="font-size: 11px;"><?= $currency_symbol . number_format($rvp_reg, 2); ?></span>
+                                            <span class="text-muted text-decoration-line-through" style="font-size: 11px;"><?= $currency_symbol . number_format(round($rvp_reg)); ?></span>
                                         <?php endif; ?>
-                                        <span class="fw-bold text-dark" style="font-size: 14px;"><?= $currency_symbol . number_format($rvp_price, 2); ?></span>
+                                        <span class="fw-bold text-dark" style="font-size: 14px;"><?= $currency_symbol . number_format(round($rvp_price)); ?></span>
                                     </div>
                                     <form action="<?= site_url('cart/add'); ?>" method="POST" class="mt-auto">
                                         <input type="hidden" name="product_id" value="<?= $rvp['id']; ?>">
@@ -839,7 +839,7 @@
                     <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">
                         <?php foreach ($wishlist_items as $w_item): 
                             $w_price = !empty($w_item['sale_price']) ? (float) $w_item['sale_price'] : (float) $w_item['price'];
-                            $w_reg   = !empty($w_item['price']) ? (float) $w_item['price'] : round($w_price * 1.3, 2);
+                            $w_reg   = !empty($w_item['price']) ? (float) $w_item['price'] : round($w_price * 1.3);
                             $w_img   = !empty($w_item['main_image']) ? (strpos($w_item['main_image'], 'http') === 0 ? $w_item['main_image'] : base_url('assets/images/' . $w_item['main_image'])) : base_url('assets/images/products/womens/women-1.jpg');
                         ?>
                         <div class="col">
@@ -856,9 +856,9 @@
                                     </a>
                                     <div class="d-flex align-items-center gap-1 mb-2">
                                         <?php if ($w_reg > $w_price): ?>
-                                            <span class="text-muted text-decoration-line-through" style="font-size: 11px;"><?= $currency_symbol . number_format($w_reg, 2); ?></span>
+                                            <span class="text-muted text-decoration-line-through" style="font-size: 11px;"><?= $currency_symbol . number_format(round($w_reg)); ?></span>
                                         <?php endif; ?>
-                                        <span class="fw-bold text-dark" style="font-size: 14px;"><?= $currency_symbol . number_format($w_price, 2); ?></span>
+                                        <span class="fw-bold text-dark" style="font-size: 14px;"><?= $currency_symbol . number_format(round($w_price)); ?></span>
                                     </div>
                                     <form action="<?= site_url('cart/add'); ?>" method="POST" class="mt-auto">
                                         <input type="hidden" name="product_id" value="<?= $w_item['id']; ?>">
@@ -1060,16 +1060,16 @@
                         if (qtyValEl) qtyValEl.textContent = updatedItem.quantity;
                         var itemTotalEl = document.getElementById('cart-page-total-' + cartKey);
                         if (itemTotalEl && updatedItem.total !== undefined) {
-                            itemTotalEl.textContent = CURRENCY + parseFloat(updatedItem.total).toFixed(2);
+                            itemTotalEl.textContent = CURRENCY + Math.round(parseFloat(updatedItem.total)).toLocaleString('en-IN');
                         }
                         var itemRegEl = document.getElementById('cart-item-reg-' + cartKey);
                         if (itemRegEl && updatedItem.regular_price !== undefined) {
-                            itemRegEl.textContent = CURRENCY + (parseFloat(updatedItem.regular_price) * updatedItem.quantity).toFixed(2);
+                            itemRegEl.textContent = CURRENCY + Math.round(parseFloat(updatedItem.regular_price) * updatedItem.quantity).toLocaleString('en-IN');
                         }
                     } else if (data.item_total !== undefined) {
                         var itemTotalEl = document.getElementById('cart-page-total-' + cartKey);
                         if (itemTotalEl) {
-                            itemTotalEl.textContent = CURRENCY + parseFloat(data.item_total).toFixed(2);
+                            itemTotalEl.textContent = CURRENCY + Math.round(parseFloat(data.item_total)).toLocaleString('en-IN');
                         }
                     }
 
@@ -1249,7 +1249,7 @@
             }
             var mrpEl = document.getElementById('order-summary-mrp');
             if (mrpEl) {
-                mrpEl.textContent = CURRENCY + parseFloat(summary.mrp_total || summary.subtotal || 0).toFixed(2);
+                mrpEl.textContent = CURRENCY + Math.round(parseFloat(summary.mrp_total || summary.subtotal || 0)).toLocaleString('en-IN');
             }
 
             // Discount on MRP
@@ -1257,7 +1257,7 @@
             var mrpDiscVal = document.getElementById('order-summary-mrp-discount');
             if (summary.mrp_discount && summary.mrp_discount > 0) {
                 if (mrpDiscRow) mrpDiscRow.classList.remove('d-none');
-                if (mrpDiscVal) mrpDiscVal.textContent = '-' + CURRENCY + parseFloat(summary.mrp_discount).toFixed(2);
+                if (mrpDiscVal) mrpDiscVal.textContent = '-' + CURRENCY + Math.round(parseFloat(summary.mrp_discount)).toLocaleString('en-IN');
             } else if (mrpDiscRow) {
                 mrpDiscRow.classList.add('d-none');
             }
@@ -1268,7 +1268,7 @@
             var discountCode = document.getElementById('applied-coupon-code');
             if (summary.discount && summary.discount > 0) {
                 if (discountRow) discountRow.classList.remove('d-none');
-                if (discountVal) discountVal.textContent = '-' + CURRENCY + parseFloat(summary.discount).toFixed(2);
+                if (discountVal) discountVal.textContent = '-' + CURRENCY + Math.round(parseFloat(summary.discount)).toLocaleString('en-IN');
                 if (discountCode && summary.coupon) discountCode.textContent = summary.coupon.code;
             } else if (discountRow) {
                 discountRow.classList.add('d-none');
@@ -1283,7 +1283,7 @@
                         var scVal = parseFloat(sc.value || 0);
                         var valHtml = (scVal <= 0) 
                             ? '<span class="text-success fw-semibold">FREE</span>' 
-                            : '<span class="text-dark fw-medium">' + CURRENCY + scVal.toFixed(2) + '</span>';
+                            : '<span class="text-dark fw-medium">' + CURRENCY + Math.round(scVal).toLocaleString('en-IN') + '</span>';
                         sHtml += '<div class="d-flex justify-content-between align-items-center mb-2" style="font-size: 14px;">' +
                                  '  <span class="text-secondary">' + escapeCartHtml(sc.name) + '</span>' +
                                  '  ' + valHtml +
@@ -1292,7 +1292,7 @@
                     shipBreakdown.innerHTML = sHtml;
                 } else {
                     var isFree = (!summary.shipping || summary.shipping <= 0);
-                    var feeHtml = isFree ? '<span class="text-success fw-semibold">FREE</span>' : '<span class="text-dark fw-medium">' + CURRENCY + parseFloat(summary.shipping || 0).toFixed(2) + '</span>';
+                    var feeHtml = isFree ? '<span class="text-success fw-semibold">FREE</span>' : '<span class="text-dark fw-medium">' + CURRENCY + Math.round(parseFloat(summary.shipping || 0)).toLocaleString('en-IN') + '</span>';
                     shipBreakdown.innerHTML = '<div class="d-flex justify-content-between align-items-center mb-2" style="font-size: 14px;"><span class="text-secondary">Delivery Charges</span>' + feeHtml + '</div>';
                 }
             }
@@ -1305,7 +1305,7 @@
                 if (!summary.tax_inclusive && summary.tax_enabled && summary.tax && summary.tax > 0) {
                     taxRow.classList.remove('d-none');
                     if (taxLabel) taxLabel.textContent = 'Tax (' + parseFloat(summary.tax_rate_percent || 0) + '%)';
-                    if (taxVal) taxVal.textContent = CURRENCY + parseFloat(summary.tax).toFixed(2);
+                    if (taxVal) taxVal.textContent = CURRENCY + Math.round(parseFloat(summary.tax)).toLocaleString('en-IN');
                 } else {
                     taxRow.classList.add('d-none');
                 }
@@ -1314,7 +1314,7 @@
             // Total Amount
             var grandTotalEl = document.getElementById('order-summary-grandtotal');
             if (grandTotalEl) {
-                grandTotalEl.textContent = CURRENCY + parseFloat(summary.total || 0).toFixed(2);
+                grandTotalEl.textContent = CURRENCY + Math.round(parseFloat(summary.total || 0)).toLocaleString('en-IN');
             }
 
             // Total Savings
@@ -1322,7 +1322,7 @@
             var savingsBanner = document.getElementById('order-summary-savings-banner');
             if (summary.total_savings && summary.total_savings > 0) {
                 if (savingsBanner) savingsBanner.classList.remove('d-none');
-                if (savingsVal) savingsVal.textContent = CURRENCY + parseFloat(summary.total_savings).toFixed(2);
+                if (savingsVal) savingsVal.textContent = CURRENCY + Math.round(parseFloat(summary.total_savings)).toLocaleString('en-IN');
             } else if (savingsBanner) {
                 savingsBanner.classList.add('d-none');
             }

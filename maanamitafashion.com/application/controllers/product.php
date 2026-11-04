@@ -106,9 +106,22 @@ class product extends MY_Controller {
 
         $is_in_wishlist = FALSE;
         $prod_id = (int)($product['id'] ?? 0);
-        if ($prod_id > 0 && $this->is_logged_in() && !empty($this->current_user['id'])) {
-            $this->load->model('wishlist_model');
-            $is_in_wishlist = $this->wishlist_model->is_wishlisted((int)$this->current_user['id'], $prod_id);
+        if ($prod_id > 0) {
+            if ($this->is_logged_in() && !empty($this->current_user['id'])) {
+                $this->load->model('wishlist_model');
+                $is_in_wishlist = $this->wishlist_model->is_wishlisted((int)$this->current_user['id'], $prod_id);
+            } else {
+                $sess_key = 'guest_wishlist_t_' . $this->tenant_id;
+                $guest_wl = $this->session->userdata($sess_key);
+                if (!is_array($guest_wl)) {
+                    $guest_wl = [];
+                    if (isset($_COOKIE['guest_wishlist'])) {
+                        $c_arr = json_decode($_COOKIE['guest_wishlist'], true);
+                        if (is_array($c_arr)) $guest_wl = $c_arr;
+                    }
+                }
+                $is_in_wishlist = in_array($prod_id, array_map('intval', (array)$guest_wl), true);
+            }
         }
 
         $data = [

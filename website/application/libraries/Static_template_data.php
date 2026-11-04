@@ -157,7 +157,7 @@ class Static_template_data {
 
         // 3. Categories (all_categories, root_categories, category_tree) with recursive descendant rollup
         $catStmt = $pdo->prepare("SELECT c.*, (SELECT COUNT(*) FROM `products` p WHERE p.category_id = c.id AND p.tenant_id = c.tenant_id AND p.status = 'published') AS direct_product_count
-            FROM `categories` c WHERE c.tenant_id = ? AND c.status = 'active' ORDER BY c.is_featured DESC, c.sort_order DESC, c.id DESC");
+            FROM `categories` c WHERE c.tenant_id = ? AND c.status = 'active' ORDER BY c.sort_order ASC, c.name ASC");
         $catStmt->execute([$tenantId]);
         $rawCats = $catStmt->fetchAll();
 
@@ -405,22 +405,23 @@ class Static_template_data {
                     $vReg = (!empty($pvItem['price']) && (float)$pvItem['price'] > 0) ? (float)$pvItem['price'] : $regPrice;
                     $vSelling = (!empty($pvItem['sale_price']) && (float)$pvItem['sale_price'] > 0) ? (float)$pvItem['sale_price'] : $vReg;
                     if ($isFlashSaleProd && $fsDiscountPct > 0) {
-                        $vFlashPrice = round($vSelling * (1 - ($fsDiscountPct / 100)), 2);
+                        $vFlashPrice = round($vSelling * (1 - ($fsDiscountPct / 100)));
                         $vTotalPct   = ($vReg > 0 && $vFlashPrice < $vReg) ? round((($vReg - $vFlashPrice) / $vReg) * 100) : 0;
-                        $pvItem['original_selling_price'] = $vSelling;
-                        $pvItem['original_regular_price'] = $vReg;
-                        $pvItem['price']                  = $vReg;
-                        $pvItem['regular_price']          = $vReg;
-                        $pvItem['sale_price']             = $vFlashPrice;
-                        $pvItem['final_price']            = $vFlashPrice;
+                        $pvItem['original_selling_price'] = round($vSelling);
+                        $pvItem['original_regular_price'] = round($vReg);
+                        $pvItem['price']                  = round($vReg);
+                        $pvItem['regular_price']          = round($vReg);
+                        $pvItem['sale_price']             = round($vFlashPrice);
+                        $pvItem['final_price']            = round($vFlashPrice);
                         $pvItem['total_discount_percent'] = $vTotalPct;
                         $pvItem['is_flash_sale']          = 1;
                     } else {
                         $vTotalPct = ($vReg > 0 && $vSelling < $vReg) ? round((($vReg - $vSelling) / $vReg) * 100) : 0;
-                        $pvItem['original_selling_price'] = $vSelling;
-                        $pvItem['price']                  = $vReg;
-                        $pvItem['regular_price']          = $vReg;
-                        $pvItem['sale_price']             = ($vSelling < $vReg) ? $vSelling : null;
+                        $pvItem['original_selling_price'] = round($vSelling);
+                        $pvItem['price']                  = round($vReg);
+                        $pvItem['regular_price']          = round($vReg);
+                        $pvItem['sale_price']             = ($vSelling < $vReg) ? round($vSelling) : null;
+                        $pvItem['final_price']            = round($vSelling);
                         $pvItem['total_discount_percent'] = $vTotalPct;
                         $pvItem['is_flash_sale']          = 0;
                     }
@@ -438,12 +439,16 @@ class Static_template_data {
                 if ($unitLabel === '' && !empty($primaryVar['variant_label'])) {
                     $unitLabel = $primaryVar['variant_label'];
                 }
-                $regPrice = (float)$primaryVar['price'];
-                $salePrice = (!empty($primaryVar['sale_price']) && (float)$primaryVar['sale_price'] > 0) ? (float)$primaryVar['sale_price'] : null;
+                $regPrice = round((float)$primaryVar['price']);
+                $salePrice = (!empty($primaryVar['sale_price']) && (float)$primaryVar['sale_price'] > 0) ? round((float)$primaryVar['sale_price']) : null;
             } elseif ($isFlashSaleProd && $fsDiscountPct > 0) {
                 // Simple product under flash sale
                 $prodSelling = ($salePrice !== null && $salePrice > 0) ? $salePrice : $regPrice;
-                $salePrice   = round($prodSelling * (1 - ($fsDiscountPct / 100)), 2);
+                $salePrice   = round($prodSelling * (1 - ($fsDiscountPct / 100)));
+                $regPrice    = round($regPrice);
+            } else {
+                $regPrice    = round($regPrice);
+                $salePrice   = ($salePrice !== null && $salePrice > 0) ? round($salePrice) : null;
             }
 
             $totalDiscountPct = ($regPrice > 0 && $salePrice !== null && $salePrice < $regPrice)
@@ -546,10 +551,10 @@ class Static_template_data {
         foreach ($cartRows as $cr) {
             $pid = (int)$cr['product_id'];
             $qty = max(1, (int)$cr['quantity']);
-            $regP = (float)$cr['reg_price'];
-            $effP = (!empty($cr['sale_price']) && (float)$cr['sale_price'] > 0) ? (float)$cr['sale_price'] : $regP;
-            $lineTotal = round($effP * $qty, 2);
-            $lineMrp = round($regP * $qty, 2);
+            $regP = round((float)$cr['reg_price']);
+            $effP = (!empty($cr['sale_price']) && (float)$cr['sale_price'] > 0) ? round((float)$cr['sale_price']) : $regP;
+            $lineTotal = round($effP * $qty);
+            $lineMrp = round($regP * $qty);
             $img = self::normalize_img($cr['main_image']);
 
             $cartItems[$pid] = [
@@ -581,17 +586,17 @@ class Static_template_data {
             $subtotal += $lineTotal;
             $mrpTotal += $lineMrp;
         }
-        $savings = max(0.0, round($mrpTotal - $subtotal, 2));
+        $savings = max(0.0, round($mrpTotal - $subtotal));
         $freeShipMin = (float)($settings['free_shipping_min'] ?? 99.0);
-        $amtToFree = max(0.0, round($freeShipMin - $subtotal, 2));
+        $amtToFree = max(0.0, round($freeShipMin - $subtotal));
         $freeShipPct = $freeShipMin > 0 ? min(100, (int)round(($subtotal / $freeShipMin) * 100)) : 100;
 
         $cartSummary = [
             'item_count'          => $itemCount,
-            'mrp_total'           => round($mrpTotal, 2),
+            'mrp_total'           => round($mrpTotal),
             'mrp_discount'        => $savings,
-            'subtotal'            => round($subtotal, 2),
-            'base_subtotal'       => round($subtotal, 2),
+            'subtotal'            => round($subtotal),
+            'base_subtotal'       => round($subtotal),
             'tax'                 => 0.0,
             'tax_inclusive'       => true,
             'discount'            => 0.0,
@@ -602,7 +607,7 @@ class Static_template_data {
             'free_shipping_min'   => $freeShipMin,
             'amount_to_free_ship' => $amtToFree,
             'free_ship_percent'   => $freeShipPct,
-            'total'               => round($subtotal, 2),
+            'total'               => round($subtotal),
             'total_savings'       => $savings,
         ];
 

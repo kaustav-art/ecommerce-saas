@@ -74,7 +74,7 @@
                                                 <tr>
                                                     <td><strong>#<?= html_escape($ord['order_number']); ?></strong></td>
                                                     <td class="small text-muted"><?= date('M d, Y', strtotime($ord['created_at'])); ?></td>
-                                                    <td><strong><?= $currency_symbol . number_format($ord['total_amount'], 2); ?></strong></td>
+                                                    <td><strong><?= $currency_symbol . number_format(round($ord['total_amount'])); ?></strong></td>
                                                     <td><span class="badge bg-success bg-opacity-10 text-success border border-success"><?= ucfirst($ord['payment_status']); ?></span></td>
                                                     <td><span class="badge bg-primary bg-opacity-10 text-primary border border-primary"><?= ucfirst($ord['order_status']); ?></span></td>
                                                     <td>
@@ -103,7 +103,7 @@
                                                 </div>
                                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                                     <span class="text-muted small"><?= date('M d, Y', strtotime($ord['created_at'])); ?></span>
-                                                    <span class="fw-bold text-dark"><?= $currency_symbol . number_format($ord['total_amount'], 2); ?></span>
+                                                    <span class="fw-bold text-dark"><?= $currency_symbol . number_format(round($ord['total_amount'])); ?></span>
                                                 </div>
                                                 <div class="d-flex justify-content-between align-items-center pt-2 border-top">
                                                     <span class="badge bg-success bg-opacity-10 text-success border border-success" style="font-size: 10px;">

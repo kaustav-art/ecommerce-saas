@@ -79,7 +79,9 @@ class product_model extends CI_Model {
 
         $reg = (isset($prod['base_price']) && is_numeric($prod['base_price'])) ? (float)$prod['base_price'] : ((!empty($prod['price']) && (float)$prod['price'] > 0) ? (float)$prod['price'] : 0);
         $selling = (isset($prod['base_sale_price']) && is_numeric($prod['base_sale_price']) && (float)$prod['base_sale_price'] > 0) ? (float)$prod['base_sale_price'] : ((!empty($prod['sale_price']) && (float)$prod['sale_price'] > 0) ? (float)$prod['sale_price'] : $reg);
-        $final_price = round($selling * (1 - ($discount_pct / 100)), 2);
+        $final_price = round($selling * (1 - ($discount_pct / 100)));
+        $reg = round($reg);
+        $selling = round($selling);
         $total_pct = ($reg > 0 && $final_price < $reg) ? round((($reg - $final_price) / $reg) * 100) : 0;
 
         $prod['is_flash_sale'] = 1;
@@ -110,7 +112,9 @@ class product_model extends CI_Model {
 
         $v_reg = (isset($v['base_price']) && is_numeric($v['base_price'])) ? (float)$v['base_price'] : ((!empty($v['price']) && (float)$v['price'] > 0) ? (float)$v['price'] : 0);
         $v_selling = (isset($v['base_sale_price']) && is_numeric($v['base_sale_price']) && (float)$v['base_sale_price'] > 0) ? (float)$v['base_sale_price'] : ((!empty($v['sale_price']) && (float)$v['sale_price'] > 0) ? (float)$v['sale_price'] : $v_reg);
-        $v_final = round($v_selling * (1 - ($discount_pct / 100)), 2);
+        $v_final = round($v_selling * (1 - ($discount_pct / 100)));
+        $v_reg = round($v_reg);
+        $v_selling = round($v_selling);
         $total_pct = ($v_reg > 0 && $v_final < $v_reg) ? round((($v_reg - $v_final) / $v_reg) * 100) : 0;
 
         $v['is_flash_sale'] = 1;
@@ -154,7 +158,9 @@ class product_model extends CI_Model {
         if (isset($prod['price']) && is_numeric($prod['price'])) {
             $prod['base_price'] = (float) $prod['price'];
             if ($mult > 1.0) {
-                $prod['price'] = round($prod['base_price'] * $mult, 2);
+                $prod['price'] = round($prod['base_price'] * $mult);
+            } else {
+                $prod['price'] = round($prod['price']);
             }
             if (!isset($prod['regular_price'])) {
                 $prod['regular_price'] = (float) $prod['price'];
@@ -163,7 +169,9 @@ class product_model extends CI_Model {
         if (isset($prod['sale_price']) && is_numeric($prod['sale_price']) && (float)$prod['sale_price'] > 0) {
             $prod['base_sale_price'] = (float) $prod['sale_price'];
             if ($mult > 1.0) {
-                $prod['sale_price'] = round($prod['base_sale_price'] * $mult, 2);
+                $prod['sale_price'] = round($prod['base_sale_price'] * $mult);
+            } else {
+                $prod['sale_price'] = round($prod['sale_price']);
             }
         }
         $this->apply_flash_sale_pricing($prod);
@@ -182,13 +190,17 @@ class product_model extends CI_Model {
         if (isset($v['price']) && is_numeric($v['price'])) {
             $v['base_price'] = (float) $v['price'];
             if ($mult > 1.0) {
-                $v['price'] = round($v['base_price'] * $mult, 2);
+                $v['price'] = round($v['base_price'] * $mult);
+            } else {
+                $v['price'] = round($v['price']);
             }
         }
         if (isset($v['sale_price']) && is_numeric($v['sale_price']) && (float)$v['sale_price'] > 0) {
             $v['base_sale_price'] = (float) $v['sale_price'];
             if ($mult > 1.0) {
-                $v['sale_price'] = round($v['base_sale_price'] * $mult, 2);
+                $v['sale_price'] = round($v['base_sale_price'] * $mult);
+            } else {
+                $v['sale_price'] = round($v['sale_price']);
             }
         }
         $this->apply_variant_flash_sale_pricing($v);

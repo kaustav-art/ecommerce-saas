@@ -188,7 +188,7 @@
                                         <a class="link text-line-clamp-1 fw-semibold text-dark text-decoration-none" href="<?= site_url('product/' . $rec['slug']); ?>"><?= html_escape($rec['title']); ?></a>
                                     </div>
                                     <div class="cart-item-bot">
-                                        <div class="text-button price"><?= $currency_symbol . number_format($rec_price, 2); ?></div>
+                                        <div class="text-button price"><?= $currency_symbol . number_format(round($rec_price)); ?></div>
                                         <a class="link text-button" href="<?= site_url('product/' . $rec['slug']); ?>">View</a>
                                     </div>
                                 </div>
@@ -231,7 +231,7 @@
                                                     </div>
                                                     <div class="d-flex align-items-center justify-content-between flex-nowrap gap-2">
                                                         <div class="text-secondary-2 small text-truncate me-2" style="min-width: 0;"><?= html_escape($item['variant_title'] ?? ''); ?></div>
-                                                        <div class="text-button fw-bold flex-shrink-0" style="white-space: nowrap;"><?= $item['quantity']; ?> × <?= $currency_symbol . number_format($item['price'], 2); ?></div>
+                                                        <div class="text-button fw-bold flex-shrink-0" style="white-space: nowrap;"><?= $item['quantity']; ?> × <?= $currency_symbol . number_format(round($item['price'])); ?></div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -256,7 +256,7 @@
                                     <div class="tf-mini-cart-bottom-wrap">
                                     <div class="tf-cart-totals-discounts">
                                         <h5 class="fw-semibold">Subtotal</h5>
-                                        <h5 class="tf-totals-total-value fw-bold text-dark" id="side-cart-subtotal"><?= $currency_symbol . number_format($cart_total, 2); ?></h5>
+                                        <h5 class="tf-totals-total-value fw-bold text-dark" id="side-cart-subtotal"><?= $currency_symbol . number_format(round($cart_total)); ?></h5>
                                     </div>
                                     <div class="tf-mini-cart-view-checkout">
                                          <a href="<?= site_url('cart'); ?>" class="tf-btn w-100 btn-outline radius-4 text-decoration-none text-center"><span class="text">View cart</span></a>
@@ -474,7 +474,7 @@
 
         // Update subtotal
         if (subtotalEl) {
-            subtotalEl.textContent = currency + subtotal.toFixed(2);
+            subtotalEl.textContent = currency + Math.round(subtotal).toLocaleString('en-IN');
         }
 
         // Render items or empty message
@@ -514,7 +514,7 @@
                         '</div>' +
                         '<div class="d-flex align-items-center justify-content-between flex-nowrap gap-2">' +
                             variantText +
-                            '<div class="text-button fw-bold flex-shrink-0" style="white-space: nowrap;">' + (item.quantity || 1) + ' × ' + currency + parseFloat(item.price || 0).toFixed(2) + '</div>' +
+                            '<div class="text-button fw-bold flex-shrink-0" style="white-space: nowrap;">' + (item.quantity || 1) + ' × ' + currency + Math.round(parseFloat(item.price || 0)).toLocaleString('en-IN') + '</div>' +
                         '</div>' +
                     '</div>' +
                 '</div>';

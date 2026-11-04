@@ -68,7 +68,7 @@
                                                             <div class="small text-info mt-1"><i class="fa-solid fa-comment-dots me-1"></i> <strong>Admin:</strong> <?= html_escape($ret['admin_notes']); ?></div>
                                                         <?php endif; ?>
                                                     </td>
-                                                    <td><strong class="text-dark"><?= $currency_symbol . number_format($ret['amount'], 2); ?></strong></td>
+                                                    <td><strong class="text-dark"><?= $currency_symbol . number_format(round($ret['amount'])); ?></strong></td>
                                                     <td>
                                                         <?php
                                                             $badge_class = 'secondary';
@@ -119,7 +119,7 @@
                                                 </div>
                                                 <div class="d-flex justify-content-between align-items-baseline mb-2">
                                                     <span class="text-muted small">Refund Amount:</span>
-                                                    <span class="fw-bold text-dark fs-6"><?= $currency_symbol . number_format($ret['amount'], 2); ?></span>
+                                                    <span class="fw-bold text-dark fs-6"><?= $currency_symbol . number_format(round($ret['amount'])); ?></span>
                                                 </div>
                                                 <div class="small text-muted bg-white p-2 rounded border mb-2">
                                                     <strong>Reason:</strong> <?= html_escape($ret['reason']); ?>

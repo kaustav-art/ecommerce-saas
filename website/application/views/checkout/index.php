@@ -247,9 +247,9 @@
                                         : base_url('assets/images/products/womens/women-1.jpg');
                                     $item_key = $item['cart_key'] ?? $item['id'];
                                     $item_price = (float) $item['price'];
-                                    $item_reg = !empty($item['regular_price']) ? (float) $item['regular_price'] : round($item_price * 1.30, 2);
+                                    $item_reg = !empty($item['regular_price']) ? (float) $item['regular_price'] : round($item_price * 1.30);
                                     if ($item_reg <= $item_price) {
-                                        $item_reg = round($item_price * 1.30, 2);
+                                        $item_reg = round($item_price * 1.30);
                                     }
                                     $disc_pct = !empty($item['discount_percent']) ? $item['discount_percent'] : round((($item_reg - $item_price) / $item_reg) * 100);
 
@@ -330,9 +330,9 @@
                                             <div class="d-flex align-items-center gap-2 flex-wrap mt-1">
                                                 <?php if ($disc_pct > 0): ?>
                                                     <span class="text-success fw-bold" style="font-size: 14px;"><i class="fa-solid fa-arrow-down small"></i><?= $disc_pct; ?>%</span>
-                                                    <span class="text-muted text-decoration-line-through small" id="checkout-item-reg-<?= html_escape($item_key); ?>"><?= $currency_symbol . number_format($item_reg * $item['quantity'], 2); ?></span>
+                                                    <span class="text-muted text-decoration-line-through small" id="checkout-item-reg-<?= html_escape($item_key); ?>"><?= $currency_symbol . number_format(round($item_reg * $item['quantity'])); ?></span>
                                                 <?php endif; ?>
-                                                <span class="fw-bold text-dark fs-6" id="checkout-item-total-<?= html_escape($item_key); ?>"><?= $currency_symbol . number_format($item_price * $item['quantity'], 2); ?></span>
+                                                <span class="fw-bold text-dark fs-6" id="checkout-item-total-<?= html_escape($item_key); ?>"><?= $currency_symbol . number_format(round($item_price * $item['quantity'])); ?></span>
                                             </div>
 
                                             <!-- Stock Alert -->
@@ -385,17 +385,17 @@
                                     <span class="text-secondary" id="order-summary-mrp-label">
                                         <?= (!empty($cart_summary['tax_inclusive']) && (int)$cart_summary['tax_inclusive'] === 1) ? 'MRP (incl. of all taxes)' : 'MRP'; ?>
                                     </span>
-                                    <span class="text-dark fw-medium" id="order-summary-mrp"><?= $currency_symbol . number_format($cart_summary['mrp_total'], 2); ?></span>
+                                    <span class="text-dark fw-medium" id="order-summary-mrp"><?= $currency_symbol . number_format(round($cart_summary['mrp_total'])); ?></span>
                                 </div>
 
                                 <div class="d-flex justify-content-between align-items-center mb-2 text-success <?= (empty($cart_summary['mrp_discount']) || $cart_summary['mrp_discount'] <= 0) ? 'd-none' : ''; ?>" style="font-size: 14px;" id="order-summary-mrp-discount-row">
                                     <span>Discount on MRP</span>
-                                    <span class="fw-semibold" id="order-summary-mrp-discount">-<?= $currency_symbol . number_format($cart_summary['mrp_discount'], 2); ?></span>
+                                    <span class="fw-semibold" id="order-summary-mrp-discount">-<?= $currency_symbol . number_format(round($cart_summary['mrp_discount'])); ?></span>
                                 </div>
 
                                 <div class="d-flex justify-content-between align-items-center mb-2 text-success <?= (empty($cart_summary['discount']) || $cart_summary['discount'] <= 0) ? 'd-none' : ''; ?>" style="font-size: 14px;" id="order-summary-discount-row">
                                     <span>Coupon Discount (<span id="applied-coupon-code"><?= html_escape($cart_summary['coupon']['code'] ?? ''); ?></span>) <a href="<?= site_url('cart/remove_coupon'); ?>" class="small text-danger text-decoration-underline ms-1">Remove</a></span>
-                                    <span class="fw-semibold" id="order-summary-discount">-<?= $currency_symbol . number_format($cart_summary['discount'] ?? 0, 2); ?></span>
+                                    <span class="fw-semibold" id="order-summary-discount">-<?= $currency_symbol . number_format(round($cart_summary['discount'] ?? 0)); ?></span>
                                 </div>
 
                                 <!-- Dynamic Shipping Charges Breakdown -->
@@ -405,7 +405,7 @@
                                             <div class="d-flex justify-content-between align-items-center mb-2" style="font-size: 14px;">
                                                 <span class="text-secondary"><?= html_escape($s_charge['name']); ?></span>
                                                 <span class="<?= ((float)$s_charge['value'] <= 0) ? 'text-success fw-semibold' : 'text-dark fw-medium'; ?>">
-                                                    <?= ((float)$s_charge['value'] <= 0) ? 'FREE' : $currency_symbol . number_format($s_charge['value'], 2); ?>
+                                                    <?= ((float)$s_charge['value'] <= 0) ? 'FREE' : $currency_symbol . number_format(round($s_charge['value'])); ?>
                                                 </span>
                                             </div>
                                         <?php endforeach; ?>
@@ -413,7 +413,7 @@
                                         <div class="d-flex justify-content-between align-items-center mb-2" style="font-size: 14px;">
                                             <span class="text-secondary">Delivery Charges</span>
                                             <span class="<?= ($cart_summary['shipping'] <= 0) ? 'text-success fw-semibold' : 'text-dark fw-medium'; ?>" id="standard-shipping-price">
-                                                <?= ($cart_summary['shipping'] <= 0) ? 'FREE' : $currency_symbol . number_format($cart_summary['shipping'], 2); ?>
+                                                <?= ($cart_summary['shipping'] <= 0) ? 'FREE' : $currency_symbol . number_format(round($cart_summary['shipping'])); ?>
                                             </span>
                                         </div>
                                     <?php endif; ?>
@@ -425,17 +425,17 @@
                                 ?>
                                 <div class="d-flex justify-content-between align-items-center mb-2 <?= $show_tax_row ? '' : 'd-none'; ?>" style="font-size: 14px;" id="order-summary-tax-row">
                                     <span class="text-secondary" id="order-summary-tax-label">Tax (<?= (float)($cart_summary['tax_rate_percent'] ?? 0); ?>%)</span>
-                                    <span class="text-dark fw-medium" id="order-summary-tax"><?= $currency_symbol . number_format($cart_summary['tax'] ?? 0, 2); ?></span>
+                                    <span class="text-dark fw-medium" id="order-summary-tax"><?= $currency_symbol . number_format(round($cart_summary['tax'] ?? 0)); ?></span>
                                 </div>
 
                                 <div class="border-top pt-2 mt-2 d-flex justify-content-between align-items-center mb-3">
                                     <span class="fw-bold text-dark" style="font-size: 16px;">Total Amount</span>
-                                    <span class="fw-bold text-dark" style="font-size: 18px;" id="order-summary-grandtotal"><?= $currency_symbol . number_format($cart_summary['total'], 2); ?></span>
+                                    <span class="fw-bold text-dark" style="font-size: 18px;" id="order-summary-grandtotal"><?= $currency_symbol . number_format(round($cart_summary['total'])); ?></span>
                                 </div>
 
                                 <div class="p-2 px-3 rounded-2 d-flex align-items-center gap-2 mb-3 <?= (empty($cart_summary['total_savings']) || $cart_summary['total_savings'] <= 0) ? 'd-none' : ''; ?>" style="background-color: #e8f8f0; color: #16a34a; font-size: 13px; font-weight: 600;" id="order-summary-savings-banner">
                                     <i class="fa-solid fa-tag"></i>
-                                    <span>You'll Save <span id="order-summary-savings"><?= $currency_symbol . number_format($cart_summary['total_savings'], 2); ?></span> on this order</span>
+                                    <span>You'll Save <span id="order-summary-savings"><?= $currency_symbol . number_format(round($cart_summary['total_savings'])); ?></span> on this order</span>
                                 </div>
 
                                 <!-- Continue Button (Same as cart page Proceed To Buy) -->

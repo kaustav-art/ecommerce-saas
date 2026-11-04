@@ -101,13 +101,13 @@ class cart_model extends CI_Model {
                 }
                 if (!isset($item['base_price'])) {
                     $item['base_price'] = (float) $item['price'];
-                    $item['base_regular_price'] = !empty($item['regular_price']) ? (float) $item['regular_price'] : round($item['price'] * 1.30, 2);
+                    $item['base_regular_price'] = !empty($item['regular_price']) ? (float) $item['regular_price'] : round($item['price'] * 1.30);
                 }
                 $cart_changed = true;
             }
 
             if (!isset($item['base_regular_price']) || !is_numeric($item['base_regular_price']) || $item['base_regular_price'] <= 0) {
-                $item['base_regular_price'] = round($item['base_price'] * 1.30, 2);
+                $item['base_regular_price'] = round($item['base_price'] * 1.30);
                 $cart_changed = true;
             }
 
@@ -121,27 +121,30 @@ class cart_model extends CI_Model {
 
             $cur_reg = (isset($item['base_regular_price']) && is_numeric($item['base_regular_price']) && (float)$item['base_regular_price'] > 0)
                 ? (float)$item['base_regular_price']
-                : (!empty($item['regular_price']) ? (float)$item['regular_price'] : round($cur_selling * 1.30, 2));
+                : (!empty($item['regular_price']) ? (float)$item['regular_price'] : round($cur_selling * 1.30));
 
             if ($in_fs && !empty($fs['discount_percent'])) {
                 $disc_pct = (float)$fs['discount_percent'];
                 $item['is_flash_sale'] = 1;
-                $new_price = round($cur_selling * (1 - ($disc_pct / 100)), 2);
-                $new_reg   = $cur_reg;
+                $new_price = round($cur_selling * (1 - ($disc_pct / 100)));
+                $new_reg   = round($cur_reg);
             } else {
                 $item['is_flash_sale'] = 0;
                 if ($tax_mult > 1.0) {
-                    $new_price = round($cur_selling * $tax_mult, 2);
-                    $new_reg   = round($cur_reg * $tax_mult, 2);
+                    $new_price = round($cur_selling * $tax_mult);
+                    $new_reg   = round($cur_reg * $tax_mult);
                 } else {
-                    $new_price = (float) $cur_selling;
-                    $new_reg   = (float) $cur_reg;
+                    $new_price = round((float) $cur_selling);
+                    $new_reg   = round((float) $cur_reg);
                 }
             }
 
             if ($new_reg <= $new_price) {
-                $new_reg = round($new_price * 1.30, 2);
+                $new_reg = round($new_price * 1.30);
             }
+
+            $new_price = round($new_price);
+            $new_reg   = round($new_reg);
 
             if (!isset($item['price']) || abs((float)$item['price'] - $new_price) > 0.001) {
                 $item['price'] = $new_price;
@@ -152,7 +155,7 @@ class cart_model extends CI_Model {
                 $cart_changed = true;
             }
 
-            $new_total = round($item['price'] * (int) $item['quantity'], 2);
+            $new_total = round($item['price'] * (int) $item['quantity']);
             if (!isset($item['total']) || abs((float)$item['total'] - $new_total) > 0.001) {
                 $item['total'] = $new_total;
                 $cart_changed = true;
@@ -333,10 +336,10 @@ class cart_model extends CI_Model {
         }
 
         if ($regular_price <= $price && $base_reg <= 0) {
-            $regular_price = round($price * 1.30, 2);
+            $regular_price = round($price * 1.30);
         }
         if ($base_reg <= $base_p && $base_reg <= 0) {
-            $base_reg = round($base_p * 1.30, 2);
+            $base_reg = round($base_p * 1.30);
         }
         if ($regular_price <= $price) {
             $regular_price = $price;
@@ -387,14 +390,14 @@ class cart_model extends CI_Model {
             'sku'                => $sku,
             'image'              => $image,
             'base_price'         => (float) $base_p,
-            'base_regular_price' => (float) $base_reg,
-            'price'              => (float) $price,
-            'regular_price'      => (float) $regular_price,
+            'base_regular_price' => (float) round($base_reg),
+            'price'              => (float) round($price),
+            'regular_price'      => (float) round($regular_price),
             'discount_percent'   => $disc_pct,
             'is_flash_sale'      => $is_fs,
-            'original_selling_price' => $orig_selling ?? $base_p,
+            'original_selling_price' => round($orig_selling ?? $base_p),
             'quantity'           => $target_qty,
-            'total'              => (float) ($price * $target_qty),
+            'total'              => (float) (round($price) * $target_qty),
             'stock_max'          => $available_stock,
             'is_cod_allowed'     => isset($product['is_cod_allowed']) ? (int) $product['is_cod_allowed'] : 1,
             'short_description'  => !empty($product['short_description']) ? $product['short_description'] : ''
@@ -467,7 +470,7 @@ class cart_model extends CI_Model {
                 $quantity = $stock_max;
             }
             $cart[$cart_key]['quantity'] = $quantity;
-            $cart[$cart_key]['total']    = round($cart[$cart_key]['price'] * $quantity, 2);
+            $cart[$cart_key]['total']    = round($cart[$cart_key]['price'] * $quantity);
         }
 
         $this->set_session_cart($cart);
@@ -597,18 +600,20 @@ class cart_model extends CI_Model {
         foreach ($items as $item) {
             $subtotal += (float) $item['total'];
             $item_count += (int) $item['quantity'];
-            $reg = !empty($item['regular_price']) ? (float)$item['regular_price'] : round(((float)$item['price'] * 1.30), 2);
+            $reg = !empty($item['regular_price']) ? (float)$item['regular_price'] : round(((float)$item['price'] * 1.30));
             if ($reg <= (float)$item['price']) {
-                $reg = round((float)$item['price'] * 1.30, 2);
+                $reg = round((float)$item['price'] * 1.30);
             }
             $mrp_total += $reg * (int)$item['quantity'];
         }
+        $subtotal = round($subtotal);
+        $mrp_total = round($mrp_total);
 
         // Applied coupon
         $coupon = $this->session->userdata('applied_coupon');
         $discount = 0.00;
         if ($coupon && !empty($coupon['discount'])) {
-            $discount = min($subtotal, (float) $coupon['discount']);
+            $discount = min($subtotal, (float) round($coupon['discount']));
         }
 
         // Settings - Dynamic Shipping Charges
@@ -621,7 +626,7 @@ class cart_model extends CI_Model {
             }
         }
 
-        $flat_shipping = (float) $this->setting_model->get('shipping_flat_rate', 50.00);
+        $flat_shipping = (float) round($this->setting_model->get('shipping_flat_rate', 50.00));
         if (empty($configured_charges)) {
             $configured_charges = [
                 ['name' => 'Courier Charges', 'value' => $flat_shipping]
@@ -633,7 +638,7 @@ class cart_model extends CI_Model {
         if ($subtotal > 0) {
             foreach ($configured_charges as $c_item) {
                 $c_name = trim($c_item['name'] ?? '');
-                $c_val  = (float) ($c_item['value'] ?? 0);
+                $c_val  = (float) round($c_item['value'] ?? 0);
                 if ($c_name !== '') {
                     $shipping_charges[] = [
                         'name'  => $c_name,
@@ -658,15 +663,15 @@ class cart_model extends CI_Model {
         if ($tax_enabled && $tax_rate_percent > 0 && $taxable > 0) {
             if ($tax_inclusive == 1) {
                 // Prices are Inclusive of Tax: tax is already included in product price
-                $tax = round($taxable - ($taxable / (1 + ($tax_rate_percent / 100))), 2);
-                $total = $taxable + $shipping;
+                $tax = round($taxable - ($taxable / (1 + ($tax_rate_percent / 100))));
+                $total = round($taxable + $shipping);
             } else {
                 // Prices are Exclusive of Tax: tax is calculated & added at checkout
-                $tax = round(($taxable * $tax_rate_percent) / 100, 2);
-                $total = $taxable + $shipping + $tax;
+                $tax = round(($taxable * $tax_rate_percent) / 100);
+                $total = round($taxable + $shipping + $tax);
             }
         } else {
-            $total = $taxable + $shipping;
+            $total = round($taxable + $shipping);
         }
 
         $mrp_discount = max(0, $mrp_total - $subtotal);
@@ -763,10 +768,10 @@ class cart_model extends CI_Model {
         $tax_mult = $this->product_model->get_tax_multiplier();
         if ($tax_mult > 1.0) {
             foreach ($rows as &$r) {
-                if (isset($r['product_price'])) $r['product_price'] = round($r['product_price'] * $tax_mult, 2);
-                if (!empty($r['product_sale_price'])) $r['product_sale_price'] = round($r['product_sale_price'] * $tax_mult, 2);
-                if (isset($r['variant_price'])) $r['variant_price'] = round($r['variant_price'] * $tax_mult, 2);
-                if (!empty($r['variant_sale_price'])) $r['variant_sale_price'] = round($r['variant_sale_price'] * $tax_mult, 2);
+                if (isset($r['product_price'])) $r['product_price'] = round($r['product_price'] * $tax_mult);
+                if (!empty($r['product_sale_price'])) $r['product_sale_price'] = round($r['product_sale_price'] * $tax_mult);
+                if (isset($r['variant_price'])) $r['variant_price'] = round($r['variant_price'] * $tax_mult);
+                if (!empty($r['variant_sale_price'])) $r['variant_sale_price'] = round($r['variant_sale_price'] * $tax_mult);
             }
         }
         return $rows;
@@ -870,7 +875,7 @@ class cart_model extends CI_Model {
                 if (isset($cart[$ckey])) {
                     $item = $cart[$ckey];
                     $item['quantity'] = $info['quantity'];
-                    $item['total'] = round((float)$item['price'] * $info['quantity'], 2);
+                    $item['total'] = round((float)$item['price'] * $info['quantity']);
                     $new_cart[$ckey] = $item;
                 } else {
                     $built = $this->build_item_data($info['product_id'], $info['quantity'], $info['variant_id']);
@@ -1108,10 +1113,10 @@ class cart_model extends CI_Model {
         }
 
         if ($regular_price <= $price && $base_reg <= 0) {
-            $regular_price = round($price * 1.30, 2);
+            $regular_price = round($price * 1.30);
         }
         if ($base_reg <= $base_p && $base_reg <= 0) {
-            $base_reg = round($base_p * 1.30, 2);
+            $base_reg = round($base_p * 1.30);
         }
         if ($regular_price <= $price) {
             $regular_price = $price;

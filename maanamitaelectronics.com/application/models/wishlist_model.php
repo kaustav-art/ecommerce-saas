@@ -70,37 +70,38 @@ class wishlist_model extends CI_Model {
                              ->get('product_variants')
                              ->result_array();
         if (!empty($variants)) {
-            $min_sale = null;
-            $min_price = null;
-            $first_img = null;
-            foreach ($variants as $v) {
-                if (empty($first_img) && !empty($v['image'])) {
-                    $first_img = $v['image'];
-                }
-                $v_price = (float)($v['price'] ?? 0);
-                $v_sale = (!empty($v['sale_price']) && (float)$v['sale_price'] > 0) ? (float)$v['sale_price'] : 0;
-                if ($v_sale > 0) {
-                    if ($min_sale === null || $v_sale < $min_sale) {
-                        $min_sale = $v_sale;
-                        $min_price = $v_price > 0 ? $v_price : (float)($p['price'] ?? 0);
-                    }
-                } elseif ($min_sale === null && $v_price > 0) {
-                    if ($min_price === null || $v_price < $min_price) {
-                        $min_price = $v_price;
-                    }
+            // Select primary variant: prefer '1 kg' if present, else first variant (matching Home page product card)
+            $primaryVar = $variants[0];
+            foreach ($variants as $vCand) {
+                $vTitle = strtolower($vCand['title'] ?? '');
+                if (strpos($vTitle, '1 kg') !== false || strpos($vTitle, '1kg') !== false) {
+                    $primaryVar = $vCand;
+                    break;
                 }
             }
-            if ($min_sale !== null && $min_sale > 0) {
-                $p['sale_price'] = $min_sale;
-                if ($min_price !== null && $min_price > 0) {
-                    $p['price'] = $min_price;
+
+            $v_price = (!empty($primaryVar['price']) && (float)$primaryVar['price'] > 0) ? (float)$primaryVar['price'] : (float)($p['price'] ?? 0);
+            $v_sale = (!empty($primaryVar['sale_price']) && (float)$primaryVar['sale_price'] > 0) ? (float)$primaryVar['sale_price'] : 0;
+
+            if ($v_sale > 0 && $v_price > 0 && $v_sale < $v_price) {
+                $p['price'] = round($v_price);
+                $p['sale_price'] = round($v_sale);
+            } elseif ($v_sale > 0) {
+                $p['sale_price'] = round($v_sale);
+                if (!empty($v_price)) {
+                    $p['price'] = round($v_price);
                 }
-            } elseif ($min_price !== null && $min_price > 0 && empty($p['price'])) {
-                $p['price'] = $min_price;
+            } elseif ($v_price > 0) {
+                $p['price'] = round($v_price);
+                $p['sale_price'] = null;
             }
-            if (!empty($first_img) && (empty($p['main_image']) || $p['main_image'] === 'placeholder.jpg')) {
-                $p['main_image'] = $first_img;
+
+            if (!empty($primaryVar['image']) && (empty($p['main_image']) || $p['main_image'] === 'placeholder.jpg')) {
+                $p['main_image'] = $primaryVar['image'];
             }
+        } else {
+            if (isset($p['price'])) $p['price'] = round((float)$p['price']);
+            if (isset($p['sale_price']) && (float)$p['sale_price'] > 0) $p['sale_price'] = round((float)$p['sale_price']);
         }
     }
 

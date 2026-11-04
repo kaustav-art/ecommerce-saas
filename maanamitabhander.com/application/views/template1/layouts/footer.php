@@ -162,7 +162,9 @@
                         '[data-product-id="' + productId + '"]',
                         '.box-icon.wishlist[href*="/' + productId + '"]',
                         '.btn-icon-action[href*="/' + productId + '"]',
-                        '.wishlist-btn[onclick*="' + productId + '"]'
+                        '.wishlist-btn[onclick*="' + productId + '"]',
+                        '#btn-grid-wishlist',
+                        '#btn-mobile-wishlist'
                     ];
                     var buttons = document.querySelectorAll(selectors.join(', '));
                     buttons.forEach(function(btn) {
@@ -172,7 +174,11 @@
                             btn.classList.add('active', 'in-wishlist');
                             btn.setAttribute('title', 'Remove from Wishlist');
                             if (icon) {
-                                icon.className = 'fa-solid fa-heart text-danger';
+                                if (btn.id === 'btn-grid-wishlist') {
+                                    icon.className = 'fa-solid fa-heart text-white';
+                                } else {
+                                    icon.className = 'fa-solid fa-heart text-danger';
+                                }
                             }
                             if (tooltip) {
                                 tooltip.textContent = 'Remove';
@@ -228,6 +234,7 @@
         window.toggleProductWishlist = toggleProductWishlist;
         window.grcToggleWishlist = toggleProductWishlist;
         window.toggleWishlistItem = toggleProductWishlist;
+        window.toggleWishlist = toggleProductWishlist;
 <?php if (empty($is_user_project)): ?>
         (function() {
             var siteBase = '<?= rtrim(base_url(), "/"); ?>';

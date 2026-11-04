@@ -147,9 +147,9 @@
                                     <?php endif; ?>
                                 </td>
                                 <td><code><?= html_escape($item['product_sku'] ?? 'N/A'); ?></code></td>
-                                <td class="text-end"><?= ($store_settings['currency_symbol'] ?? '$') . number_format($item['price'], 2); ?></td>
+                                <td class="text-end"><?= ($store_settings['currency_symbol'] ?? '$') . number_format(round($item['price'])); ?></td>
                                 <td class="text-center"><?= $item['quantity']; ?></td>
-                                <td class="text-end fw-bold"><?= ($store_settings['currency_symbol'] ?? '$') . number_format($item['total'], 2); ?></td>
+                                <td class="text-end fw-bold"><?= ($store_settings['currency_symbol'] ?? '$') . number_format(round($item['total'])); ?></td>
                             </tr>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -171,25 +171,25 @@
                 <table class="table table-sm table-borderless">
                     <tr>
                         <td class="text-muted text-end">Subtotal:</td>
-                        <td class="text-end fw-semibold" style="width: 120px;"><?= ($store_settings['currency_symbol'] ?? '$') . number_format($order['subtotal'], 2); ?></td>
+                        <td class="text-end fw-semibold" style="width: 120px;"><?= ($store_settings['currency_symbol'] ?? '$') . number_format(round($order['subtotal'])); ?></td>
                     </tr>
                     <?php if ($order['discount_amount'] > 0): ?>
                         <tr>
                             <td class="text-danger text-end">Discount:</td>
-                            <td class="text-end text-danger fw-semibold">-<?= ($store_settings['currency_symbol'] ?? '$') . number_format($order['discount_amount'], 2); ?></td>
+                            <td class="text-end text-danger fw-semibold">-<?= ($store_settings['currency_symbol'] ?? '$') . number_format(round($order['discount_amount'])); ?></td>
                         </tr>
                     <?php endif; ?>
                     <tr>
                         <td class="text-muted text-end">Shipping Fee:</td>
-                        <td class="text-end fw-semibold"><?= ($order['shipping_fee'] == 0) ? 'FREE' : ($store_settings['currency_symbol'] ?? '$') . number_format($order['shipping_fee'], 2); ?></td>
+                        <td class="text-end fw-semibold"><?= ($order['shipping_fee'] == 0) ? 'FREE' : ($store_settings['currency_symbol'] ?? '$') . number_format(round($order['shipping_fee'])); ?></td>
                     </tr>
                     <tr>
                         <td class="text-muted text-end">Tax:</td>
-                        <td class="text-end fw-semibold"><?= ($store_settings['currency_symbol'] ?? '$') . number_format($order['tax_amount'], 2); ?></td>
+                        <td class="text-end fw-semibold"><?= ($store_settings['currency_symbol'] ?? '$') . number_format(round($order['tax_amount'])); ?></td>
                     </tr>
                     <tr class="border-top">
                         <td class="text-end fw-bold fs-5">Grand Total:</td>
-                        <td class="text-end fw-bold fs-5 text-primary"><?= ($store_settings['currency_symbol'] ?? '$') . number_format($order['total_amount'], 2); ?></td>
+                        <td class="text-end fw-bold fs-5 text-primary"><?= ($store_settings['currency_symbol'] ?? '$') . number_format(round($order['total_amount'])); ?></td>
                     </tr>
                 </table>
             </div>

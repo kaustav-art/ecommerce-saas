@@ -98,15 +98,30 @@ class product extends MY_Controller {
             }
         }
 
-        $related_products           = !empty($same_cat_products) ? array_slice($same_cat_products, 0, 8) : array_slice($other_products, 0, 8);
-        $frequently_bought_together = array_slice(array_merge($same_cat_products, $diff_cat_products), 0, 2);
-        $recently_viewed_products   = array_slice(array_merge($same_cat_products, $diff_cat_products), 2, 4);
+        $combined_other             = array_merge($same_cat_products, $diff_cat_products);
+        $related_products           = !empty($same_cat_products) ? array_slice($combined_other, 0, 10) : array_slice($other_products, 0, 10);
+        $frequently_bought_together = array_slice($combined_other, 0, 2);
+        $recent_pool                = count($combined_other) > 5 ? array_merge(array_slice($combined_other, 2), array_slice($combined_other, 0, 2)) : $combined_other;
+        $recently_viewed_products   = array_slice($recent_pool, 0, 10);
 
         $is_in_wishlist = FALSE;
         $prod_id = (int)($product['id'] ?? 0);
-        if ($prod_id > 0 && $this->is_logged_in() && !empty($this->current_user['id'])) {
-            $this->load->model('wishlist_model');
-            $is_in_wishlist = $this->wishlist_model->is_wishlisted((int)$this->current_user['id'], $prod_id);
+        if ($prod_id > 0) {
+            if ($this->is_logged_in() && !empty($this->current_user['id'])) {
+                $this->load->model('wishlist_model');
+                $is_in_wishlist = $this->wishlist_model->is_wishlisted((int)$this->current_user['id'], $prod_id);
+            } else {
+                $sess_key = 'guest_wishlist_t_' . $this->tenant_id;
+                $guest_wl = $this->session->userdata($sess_key);
+                if (!is_array($guest_wl)) {
+                    $guest_wl = [];
+                    if (isset($_COOKIE['guest_wishlist'])) {
+                        $c_arr = json_decode($_COOKIE['guest_wishlist'], true);
+                        if (is_array($c_arr)) $guest_wl = $c_arr;
+                    }
+                }
+                $is_in_wishlist = in_array($prod_id, array_map('intval', (array)$guest_wl), true);
+            }
         }
 
         $data = [
