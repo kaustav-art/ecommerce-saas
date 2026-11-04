@@ -890,44 +890,6 @@ class cart_model extends CI_Model {
                     }
                 }
             }
-            // Also preserve and safely merge any items that were in guest session cart into cart_items DB
-            if (!empty($cart) && is_array($cart)) {
-                foreach ($cart as $ckey => $citem) {
-                    $pid = (int) ($citem['id'] ?? 0);
-                    if ($pid <= 0 || !$this->is_valid_tenant_product($pid)) {
-                        continue;
-                    }
-                    $vid = !empty($citem['variant_id']) ? (int) $citem['variant_id'] : 0;
-                    $actual_key = (string) $pid . ($vid ? '_' . $vid : '');
-
-                    if (!isset($new_cart[$actual_key])) {
-                        $existing_db = $this->db->where('tenant_id', $tid)
-                                                ->where('user_id', (int) $user_id)
-                                                ->where('product_id', $pid)
-                                                ->where('variant_id', $vid)
-                                                ->get('cart_items')
-                                                ->row_array();
-                        if ($existing_db) {
-                            $built = $this->build_item_data($pid, (int)$existing_db['quantity'], $vid ?: null);
-                            if ($built) {
-                                $new_cart[$actual_key] = $built;
-                            }
-                        } else {
-                            $qty = max(1, (int) ($citem['quantity'] ?? 1));
-                            $this->db->insert('cart_items', [
-                                'tenant_id'  => $tid,
-                                'user_id'    => (int) $user_id,
-                                'product_id' => $pid,
-                                'variant_id' => $vid,
-                                'quantity'   => $qty,
-                                'created_at' => date('Y-m-d H:i:s'),
-                                'updated_at' => date('Y-m-d H:i:s')
-                            ]);
-                            $new_cart[$actual_key] = $citem;
-                        }
-                    }
-                }
-            }
 
             $cart = $new_cart;
             $this->set_session_cart($cart);
