@@ -2,12 +2,17 @@
 $modal_store_name = html_escape($site_name ?? ($store_settings['site_name'] ?? 'bazaro'));
 ?>
 <style>
-.aq-login-wrapper {
-    padding: 40px;
-    border-radius: 16px;
-    padding-bottom: 35px;
-    background: var(--aq-common-white);
-    /* box-shadow: 0 30px 70px 0 rgba(1, 15, 28, 0.1); */
+.aq-login-modal-style .aq-login-wrapper {
+    padding: 50px 28px 50px !important;
+    border-radius: 16px !important;
+    background: #ffffff !important;
+    margin: 0 !important;
+}
+@media (max-width: 575.98px) {
+    .aq-login-modal-style .aq-login-wrapper {
+        padding: 40px 22px 40px !important;
+        border-radius: 14px !important;
+    }
 }
 .aq-login-modal-style .modal-content {
     border-radius: 16px;

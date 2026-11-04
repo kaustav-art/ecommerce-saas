@@ -3012,6 +3012,18 @@ textarea {
   height: 30px;
   border: none;
 }
+.aq-login-modal-style .aq-login-wrapper {
+  padding: 50px 28px 50px !important;
+  border-radius: 16px !important;
+  background: #ffffff !important;
+  margin: 0 !important;
+}
+@media (max-width: 575.98px) {
+  .aq-login-modal-style .aq-login-wrapper {
+    padding: 40px 22px 40px !important;
+    border-radius: 14px !important;
+  }
+}
 
 /*----------------------------------------*/
 /*  2.10 Search css
