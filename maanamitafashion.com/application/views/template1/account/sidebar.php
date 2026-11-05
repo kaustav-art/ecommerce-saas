@@ -142,33 +142,6 @@ if ($has_user_avatar) {
             </button>
         </div>
 
-        <!-- Scrollable Horizontal Pill Tabs for Fast One-Tap Switching -->
-        <div class="fk-mobile-nav-scroll-wrap p-1 bg-white rounded-2 border shadow-sm" style="border-color: #e0e0e0 !important;">
-            <div class="fk-mobile-pills d-flex align-items-center gap-1 overflow-auto py-1 px-1" style="-webkit-overflow-scrolling: touch; scrollbar-width: none;">
-                <a href="<?= site_url('account/orders'); ?>" class="btn btn-sm text-nowrap rounded-pill px-3 py-1 fw-semibold <?= ($current_tab === 'orders') ? 'btn-primary text-white shadow-sm' : 'btn-light text-secondary'; ?>" style="font-size: 12.5px;">
-                    <i class="fa-solid fa-box-archive me-1"></i> Orders
-                </a>
-                <a href="<?= site_url('account/profile'); ?>" class="btn btn-sm text-nowrap rounded-pill px-3 py-1 fw-semibold <?= ($current_tab === 'profile') ? 'btn-primary text-white shadow-sm' : 'btn-light text-secondary'; ?>" style="font-size: 12.5px;">
-                    <i class="fa-solid fa-user me-1"></i> Profile
-                </a>
-                <a href="<?= site_url('account/address'); ?>" class="btn btn-sm text-nowrap rounded-pill px-3 py-1 fw-semibold <?= ($current_tab === 'address') ? 'btn-primary text-white shadow-sm' : 'btn-light text-secondary'; ?>" style="font-size: 12.5px;">
-                    <i class="fa-solid fa-location-dot me-1"></i> Addresses
-                </a>
-                <a href="<?= site_url('wishlist'); ?>" class="btn btn-sm text-nowrap rounded-pill px-3 py-1 fw-semibold <?= ($current_tab === 'wishlist') ? 'btn-primary text-white shadow-sm' : 'btn-light text-secondary'; ?>" style="font-size: 12.5px;">
-                    <i class="fa-solid fa-heart me-1"></i> Wishlist
-                </a>
-                <a href="<?= site_url('account/returns'); ?>" class="btn btn-sm text-nowrap rounded-pill px-3 py-1 fw-semibold <?= ($current_tab === 'returns') ? 'btn-primary text-white shadow-sm' : 'btn-light text-secondary'; ?>" style="font-size: 12.5px;">
-                    <i class="fa-solid fa-rotate-left me-1"></i> Returns
-                </a>
-                <a href="<?= site_url('account/notifications'); ?>" class="btn btn-sm text-nowrap rounded-pill px-3 py-1 fw-semibold <?= ($current_tab === 'notifications') ? 'btn-primary text-white shadow-sm' : 'btn-light text-secondary'; ?>" style="font-size: 12.5px;">
-                    <i class="fa-solid fa-bell me-1"></i> Alerts
-                </a>
-                <a href="<?= site_url('logout'); ?>" class="btn btn-sm text-nowrap rounded-pill px-3 py-1 fw-semibold btn-light text-danger" style="font-size: 12.5px;">
-                    <i class="fa-solid fa-power-off me-1"></i> Logout
-                </a>
-            </div>
-        </div>
-
         <!-- Collapsible Full Dropdown Menu for Mobile -->
         <div class="collapse mt-2" id="fkMobileMenuCollapse">
             <div class="card border rounded-2 bg-white shadow-sm overflow-hidden" style="border-color: #e0e0e0 !important;">
@@ -247,5 +220,9 @@ if ($has_user_avatar) {
 }
 .logout-link:hover i {
     color: #dc3545 !important;
+}
+.py-4 {
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
 }
 </style>

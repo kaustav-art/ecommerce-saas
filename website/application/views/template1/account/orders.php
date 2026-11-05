@@ -1,69 +1,5 @@
-        <!-- Mobile App Bar Header (Screens < 768px matching Flipkart mobile order view) -->
-        <div class="d-md-none py-2 px-3 text-white d-flex align-items-center justify-content-between sticky-top shadow-xs" style="background-color: #2874f0; z-index: 1020;">
-            <div class="d-flex align-items-center gap-3">
-                <a href="<?= site_url('account/profile'); ?>" class="text-white text-decoration-none d-flex align-items-center" aria-label="Go Back">
-                    <i class="fa-solid fa-arrow-left fs-5"></i>
-                </a>
-                <span class="fw-bold fs-6" style="letter-spacing: 0.2px;">My Orders</span>
-            </div>
-            <div class="d-flex align-items-center gap-3">
-                <button type="button" class="btn text-white p-0 border-0 shadow-none" onclick="focusMobileSearch()" aria-label="Search Orders">
-                    <i class="fa-solid fa-magnifying-glass fs-5"></i>
-                </button>
-                <a href="<?= site_url('cart'); ?>" class="text-white text-decoration-none position-relative" aria-label="Cart">
-                    <i class="fa-solid fa-cart-shopping fs-5"></i>
-                    <?php 
-                    $cart_items_count = isset($cart_count) ? $cart_count : (isset($total_cart_items) ? $total_cart_items : 0);
-                    if ($cart_items_count > 0): 
-                    ?>
-                        <span class="badge bg-warning text-dark position-absolute top-0 start-100 translate-middle rounded-pill fw-bold" style="font-size: 10px; padding: 2px 5px;"><?= $cart_items_count; ?></span>
-                    <?php endif; ?>
-                </a>
-            </div>
-        </div>
-
-        <!-- Mobile Search Bar (Below Header on Mobile) -->
-        <div class="d-md-none bg-white p-2 border-bottom shadow-xs">
-            <div class="position-relative d-flex align-items-center">
-                <i class="fa-solid fa-magnifying-glass position-absolute text-muted" style="left: 14px; font-size: 13px;"></i>
-                <input type="text" id="mobile-order-search-input" class="form-control form-control-sm border-0 rounded-pill ps-5 pe-5 py-2" placeholder="Search your orders here" style="font-size: 13px; background-color: #f1f3f6;">
-                <button type="button" id="mobile-search-clear-btn" class="btn btn-sm text-muted position-absolute end-0 me-2 d-none p-0 border-0" onclick="clearMobileOrderSearch()" style="width: 24px; height: 24px;">
-                    <i class="fa-solid fa-circle-xmark fs-6"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- Mobile Horizontal Quick Filter Chips Bar -->
-        <div class="d-md-none bg-white border-bottom px-2 py-2 fk-mobile-chips-wrapper" style="overflow-x: auto; white-space: nowrap; scrollbar-width: none; -webkit-overflow-scrolling: touch;">
-            <div class="d-inline-flex align-items-center gap-2">
-                <!-- Filters Drawer Button -->
-                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-1 fw-semibold d-inline-flex align-items-center gap-1 fk-mobile-chip-filter-btn" data-bs-toggle="offcanvas" data-bs-target="#mobileFilterDrawer" aria-controls="mobileFilterDrawer" style="font-size: 12px; border-color: #d1d5db; color: #212121; background-color: #fff;">
-                    <i class="fa-solid fa-sliders text-primary me-1"></i>
-                    <span>Filters</span>
-                    <span id="mobile-filter-badge" class="badge bg-primary text-white rounded-pill ms-1 d-none" style="font-size: 10px;">0</span>
-                </button>
-
-                <!-- Quick Filter Chips -->
-                <button type="button" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold fk-quick-chip active" data-filter="all" onclick="selectQuickFilter('all', this)">
-                    All Orders
-                </button>
-                <button type="button" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold fk-quick-chip" data-filter="on_the_way" onclick="selectQuickFilter('on_the_way', this)">
-                    On the way
-                </button>
-                <button type="button" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold fk-quick-chip" data-filter="delivered" onclick="selectQuickFilter('delivered', this)">
-                    Delivered
-                </button>
-                <button type="button" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold fk-quick-chip" data-filter="cancelled" onclick="selectQuickFilter('cancelled', this)">
-                    Cancelled
-                </button>
-                <button type="button" class="btn btn-sm rounded-pill px-3 py-1 fw-semibold fk-quick-chip" data-filter="returned" onclick="selectQuickFilter('returned', this)">
-                    Returned
-                </button>
-            </div>
-        </div>
-
-        <!-- Desktop Breadcrumb (Hidden on Mobile) -->
-        <div class="d-none d-md-block py-2 border-bottom" style="background-color: #f1f3f6;">
+        <!-- breadcrumb -->
+        <div class="py-2 border-bottom" style="background-color: #f1f3f6;">
             <div class="fk-orders-container px-3">
                 <nav aria-label="breadcrumb">
                     <ol class="breadcrumb mb-0" style="font-size: 12px;">
@@ -77,81 +13,90 @@
         <!-- /breadcrumb -->
 
         <!-- orders-section -->
-        <section class="py-2 py-md-3" style="background-color: #f1f3f6; min-height: 85vh;">
-            <div class="fk-orders-container px-2 px-md-3">
-                <div class="row g-3">
-                    <!-- Left Filters Sidebar (Desktop screens >= 768px matching new_order_page.PNG) -->
-                    <div class="col-lg-3 col-md-4 col-12 d-none d-md-block fk-filter-sidebar-col">
-                        <div class="card border rounded-1 shadow-sm bg-white p-3 mb-3 mb-md-0" style="border-color: #e0e0e0 !important;">
-                            <h5 class="fw-bold mb-3 text-dark" style="font-size: 16px;">Filters</h5>
+        <section class="py-4" style="background-color: #f1f3f6; min-height: 85vh;">
+            <div class="fk-orders-container px-3">
+                <div class="row">
+                    <!-- Left Filters Sidebar (Matching new_order_page.PNG) -->
+                    <div class="col-lg-3 col-md-4 col-12 fk-filter-sidebar-col">
+                        <!-- Mobile Filter Toggle Button (Screens < 768px) -->
+                        <button class="btn btn-white border w-100 d-md-none mb-2 d-flex align-items-center justify-content-between py-2 px-3 bg-white shadow-sm rounded-1" type="button" data-bs-toggle="collapse" data-bs-target="#orderFilterCollapse" aria-expanded="false" style="border-color: #e0e0e0 !important;">
+                            <span class="fw-semibold text-dark"><i class="fa-solid fa-sliders text-primary me-2"></i>Filter Orders</span>
+                            <i class="fa-solid fa-chevron-down text-muted small"></i>
+                        </button>
 
-                            <!-- ORDER STATUS -->
-                            <div class="filter-section mb-3">
-                                <div class="fw-bold text-uppercase text-dark mb-2" style="font-size: 12px; letter-spacing: 0.3px;">
-                                    ORDER STATUS
-                                </div>
-                                <div class="d-flex flex-column gap-2">
-                                    <label class="d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-size: 13px;">
-                                        <input type="checkbox" class="fk-filter-status form-check-input mt-0 rounded-0" value="on_the_way" onchange="filterOrders()">
-                                        <span>On the way</span>
-                                    </label>
-                                    <label class="d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-size: 13px;">
-                                        <input type="checkbox" class="fk-filter-status form-check-input mt-0 rounded-0" value="delivered" onchange="filterOrders()">
-                                        <span>Delivered</span>
-                                    </label>
-                                    <label class="d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-size: 13px;">
-                                        <input type="checkbox" class="fk-filter-status form-check-input mt-0 rounded-0" value="cancelled" onchange="filterOrders()">
-                                        <span>Cancelled</span>
-                                    </label>
-                                    <label class="d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-size: 13px;">
-                                        <input type="checkbox" class="fk-filter-status form-check-input mt-0 rounded-0" value="returned" onchange="filterOrders()">
-                                        <span>Returned</span>
-                                    </label>
-                                </div>
-                            </div>
+                        <div class="collapse d-md-block" id="orderFilterCollapse">
+                            <div class="card border rounded-1 shadow-sm bg-white p-3 mb-3 mb-md-0" style="border-color: #e0e0e0 !important;">
+                                <h5 class="fw-bold mb-3 text-dark" style="font-size: 16px;">Filters</h5>
 
-                            <hr class="my-3" style="border-color: #f0f0f0;">
-
-                            <!-- ORDER TIME -->
-                            <div class="filter-section">
-                                <div class="fw-bold text-uppercase text-dark mb-2" style="font-size: 12px; letter-spacing: 0.3px;">
-                                    ORDER TIME
+                                <!-- ORDER STATUS -->
+                                <div class="filter-section mb-3">
+                                    <div class="fw-bold text-uppercase text-dark mb-2" style="font-size: 12px; letter-spacing: 0.3px;">
+                                        ORDER STATUS
+                                    </div>
+                                    <div class="d-flex flex-column gap-2">
+                                        <label class="d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-size: 13px;">
+                                            <input type="checkbox" class="fk-filter-status form-check-input mt-0 rounded-0" value="on_the_way" onchange="filterOrders()">
+                                            <span>On the way</span>
+                                        </label>
+                                        <label class="d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-size: 13px;">
+                                            <input type="checkbox" class="fk-filter-status form-check-input mt-0 rounded-0" value="delivered" onchange="filterOrders()">
+                                            <span>Delivered</span>
+                                        </label>
+                                        <label class="d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-size: 13px;">
+                                            <input type="checkbox" class="fk-filter-status form-check-input mt-0 rounded-0" value="cancelled" onchange="filterOrders()">
+                                            <span>Cancelled</span>
+                                        </label>
+                                        <label class="d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-size: 13px;">
+                                            <input type="checkbox" class="fk-filter-status form-check-input mt-0 rounded-0" value="returned" onchange="filterOrders()">
+                                            <span>Returned</span>
+                                        </label>
+                                    </div>
                                 </div>
-                                <div class="d-flex flex-column gap-2">
-                                    <label class="d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-size: 13px;">
-                                        <input type="checkbox" class="fk-filter-time form-check-input mt-0 rounded-0" value="last_30" onchange="filterOrders()">
-                                        <span>Last 30 days</span>
-                                    </label>
-                                    <label class="d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-size: 13px;">
-                                        <input type="checkbox" class="fk-filter-time form-check-input mt-0 rounded-0" value="2026" onchange="filterOrders()">
-                                        <span>2026</span>
-                                    </label>
-                                    <label class="d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-size: 13px;">
-                                        <input type="checkbox" class="fk-filter-time form-check-input mt-0 rounded-0" value="2025" onchange="filterOrders()">
-                                        <span>2025</span>
-                                    </label>
-                                    <label class="d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-size: 13px;">
-                                        <input type="checkbox" class="fk-filter-time form-check-input mt-0 rounded-0" value="2024" onchange="filterOrders()">
-                                        <span>2024</span>
-                                    </label>
-                                    <label class="d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-size: 13px;">
-                                        <input type="checkbox" class="fk-filter-time form-check-input mt-0 rounded-0" value="older" onchange="filterOrders()">
-                                        <span>Older</span>
-                                    </label>
+
+                                <hr class="my-3" style="border-color: #f0f0f0;">
+
+                                <!-- ORDER TIME -->
+                                <div class="filter-section">
+                                    <div class="fw-bold text-uppercase text-dark mb-2" style="font-size: 12px; letter-spacing: 0.3px;">
+                                        ORDER TIME
+                                    </div>
+                                    <div class="d-flex flex-column gap-2">
+                                        <label class="d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-size: 13px;">
+                                            <input type="checkbox" class="fk-filter-time form-check-input mt-0 rounded-0" value="last_30" onchange="filterOrders()">
+                                            <span>Last 30 days</span>
+                                        </label>
+                                        <label class="d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-size: 13px;">
+                                            <input type="checkbox" class="fk-filter-time form-check-input mt-0 rounded-0" value="2026" onchange="filterOrders()">
+                                            <span>2026</span>
+                                        </label>
+                                        <label class="d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-size: 13px;">
+                                            <input type="checkbox" class="fk-filter-time form-check-input mt-0 rounded-0" value="2025" onchange="filterOrders()">
+                                            <span>2025</span>
+                                        </label>
+                                        <label class="d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-size: 13px;">
+                                            <input type="checkbox" class="fk-filter-time form-check-input mt-0 rounded-0" value="2024" onchange="filterOrders()">
+                                            <span>2024</span>
+                                        </label>
+                                        <label class="d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-size: 13px;">
+                                            <input type="checkbox" class="fk-filter-time form-check-input mt-0 rounded-0" value="older" onchange="filterOrders()">
+                                            <span>Older</span>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Right Orders Content (Matching new_order_page.PNG on desktop, dedicated mobile cards on mobile) -->
+                    <!-- Right Orders Content (Matching new_order_page.PNG) -->
                     <div class="col-lg-9 col-md-8 col-12" style="flex: 1;">
-                        <!-- Desktop Search Bar (Hidden on Mobile) -->
-                        <div class="card border rounded-1 shadow-none p-0 mb-3 bg-white d-none d-md-block" style="border-color: #e0e0e0 !important;">
+                        <!-- Search Bar matching new_order_page.PNG -->
+                        <div class="card border rounded-1 shadow-none p-0 mb-3 bg-white" style="border-color: #e0e0e0 !important;">
                             <div class="d-flex align-items-center">
                                 <input type="text" id="order-search-input" class="form-control border-0 shadow-none px-3" placeholder="Search your orders here" style="font-size: 14px; height: 44px;">
                                 <button type="button" class="btn btn-primary px-3 px-sm-4 fw-semibold rounded-0 rounded-end d-flex align-items-center gap-2 flex-shrink-0" onclick="filterOrders()" style="background-color: #2874f0; border-color: #2874f0; height: 44px; font-size: 14px;">
                                     <i class="fa-solid fa-magnifying-glass"></i>
-                                    <span>Search Orders</span>
+                                    <span class="d-none d-sm-inline">Search Orders</span>
+                                    <span class="d-sm-none">Search</span>
                                 </button>
                             </div>
                         </div>
@@ -241,7 +186,7 @@
                                         // Search keywords for this item
                                         $item_search_keywords = strtolower($ord['order_number'] . ' ' . ($item['product_title'] ?? '') . ' ' . ($item['variant_title'] ?? '') . ' ' . $item_color . ' ' . $item_size);
                             ?>
-                                        <!-- Individual Order Item Card -->
+                                        <!-- Individual Order Item Card (Matching order_page.png) -->
                                         <div class="card border rounded-1 mb-2 mb-md-3 bg-white shadow-none fk-order-card" 
                                              onclick="window.location.href='<?= $it_track_url; ?>'"
                                              style="border-color: #e0e0e0 !important; overflow: hidden; cursor: pointer; transition: box-shadow 0.2s, border-color 0.2s;" 
@@ -250,7 +195,7 @@
                                              data-year="<?= $order_year; ?>"
                                              data-created-ts="<?= $order_ts; ?>">
 
-                                            <!-- 1. MOBILE VIEW ONLY (< 768px): Native Flipkart Mobile Orders Card -->
+                                            <!-- 1. MOBILE VIEW ONLY (< 768px): Tailored Mobile Card -->
                                             <div class="d-md-none p-3">
                                                 <!-- Top Delivery Status Line with colored dot & chevron -->
                                                 <div class="d-flex align-items-center justify-content-between mb-2">
@@ -272,19 +217,19 @@
                                                     <i class="fa-solid fa-chevron-right text-muted flex-shrink-0" style="font-size: 11px;"></i>
                                                 </div>
 
-                                                <!-- Product Info Row (Thumbnail + Title + Variant + Price) -->
+                                                <!-- Product Info Row (Inline CSS & Spacing as requested) -->
                                                 <div class="d-flex align-items-start gap-3">
                                                     <div class="flex-shrink-0">
-                                                        <img src="<?= $img_src; ?>" alt="<?= html_escape($item['product_title']); ?>" class="border rounded-1" style="width: 64px; height: 64px; object-fit: contain; background-color: #fafafa;" onerror="this.src='<?= base_url('assets/images/products/womens/women-1.jpg'); ?>'">
+                                                        <img src="<?= $img_src; ?>" alt="<?= html_escape($item['product_title']); ?>" class="border rounded-1" style="width: 80px;height: 80px;object-fit: cover;background-color: #fafafa;" onerror="this.src='<?= base_url('assets/images/products/womens/women-1.jpg'); ?>'">
                                                     </div>
-                                                    <div class="flex-grow-1" style="min-width: 0;">
-                                                        <div class="fw-bold text-dark mb-1 fk-item-title text-line-clamp-2" style="font-size: 13.5px; line-height: 1.35;">
+                                                    <div class="flex-grow-1" style="min-width: 0;line-height: 22px;">
+                                                        <div class="fw-bold text-dark fk-item-title text-line-clamp-2" style="font-size: 13.5px; line-height: 1.35;">
                                                             <?= html_escape($item['product_title']); ?>
                                                         </div>
                                                         <?php if (!empty($var_info)): ?>
-                                                            <div class="text-muted small mb-1" style="font-size: 11.5px; color: #878787 !important;"><?= implode(', ', $var_info); ?></div>
+                                                            <div class="text-muted small" style="font-size: 11.5px; color: #878787 !important;"><?= implode(', ', $var_info); ?></div>
                                                         <?php endif; ?>
-                                                        <div class="d-flex align-items-center gap-2 mt-1">
+                                                        <div class="d-flex align-items-center gap-2">
                                                             <span class="fw-bold text-dark" style="font-size: 14.5px;"><?= $currency_symbol . number_format($item['price'], 0); ?></span>
                                                             <?php if ((int)($item['quantity'] ?? 1) > 1): ?>
                                                                 <span class="text-muted small" style="font-size: 11.5px;">• Qty: <?= (int)$item['quantity']; ?></span>
@@ -293,7 +238,7 @@
                                                     </div>
                                                 </div>
 
-                                                <!-- Mobile Bottom Action Row -->
+                                                <!-- Mobile Bottom Action Row for Delivered Items -->
                                                 <?php if (in_array($it_status, ['delivered', 'completed'])): ?>
                                                     <div class="mt-2 pt-2 border-top border-light d-flex align-items-center justify-content-between">
                                                         <a href="<?= site_url('account/rate_review/' . $ord['order_number'] . '/' . $pid); ?>" onclick="event.stopPropagation();" class="fw-semibold text-decoration-none d-inline-flex align-items-center gap-1" style="color: #2874f0 !important; font-size: 12.5px;">
@@ -390,14 +335,14 @@
 
                             if (!$has_items):
                             ?>
-                                <div class="card border rounded-1 p-4 p-md-5 bg-white text-center shadow-none" style="border-color: #e0e0e0 !important;">
+                                <div class="card border rounded-1 p-5 bg-white text-center shadow-none" style="border-color: #e0e0e0 !important;">
                                     <div class="mb-3 text-muted">
                                         <i class="fa-solid fa-box-open" style="font-size: 48px; color: #b0bec5;"></i>
                                     </div>
-                                    <h5 class="fw-bold text-dark mb-1" style="font-size: 16px;">No orders found</h5>
+                                    <h5 class="fw-bold text-dark mb-1">No orders found</h5>
                                     <p class="text-muted small mb-4">You haven't placed any orders yet. Discover items and place your first order.</p>
                                     <div>
-                                        <a href="<?= site_url('shop'); ?>" class="btn btn-primary px-4 py-2 rounded-1 fw-semibold" style="background-color: #2874f0; border-color: #2874f0; font-size: 13.5px;">
+                                        <a href="<?= site_url('shop'); ?>" class="btn btn-primary px-4 py-2 rounded-1 fw-semibold" style="background-color: #2874f0; border-color: #2874f0;">
                                             Shop Now
                                         </a>
                                     </div>
@@ -406,91 +351,19 @@
                         </div>
 
                         <!-- No Search Results Container -->
-                        <div id="no-search-results" class="card border rounded-1 p-4 p-md-5 bg-white text-center shadow-none d-none" style="border-color: #e0e0e0 !important;">
+                        <div id="no-search-results" class="card border rounded-1 p-5 bg-white text-center shadow-none d-none" style="border-color: #e0e0e0 !important;">
                             <div class="mb-2 text-muted">
                                 <i class="fa-solid fa-magnifying-glass fs-1 text-muted"></i>
                             </div>
                             <h6 class="fw-bold text-dark mb-1">No matching orders found</h6>
                             <p class="text-muted small mb-3">Try searching with a different product name or adjusting your filters.</p>
-                            <button type="button" class="btn btn-outline-primary btn-sm rounded-1" onclick="resetAllFilters()">Clear All Filters</button>
+                            <button type="button" class="btn btn-outline-primary btn-sm rounded-1" onclick="resetSearch()">Clear All Filters</button>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
         <!-- /orders-section -->
-
-        <!-- Mobile Filter Bottom Sheet Offcanvas (< 768px) -->
-        <div class="offcanvas offcanvas-bottom rounded-top-4 border-0 shadow-lg d-md-none" tabindex="-1" id="mobileFilterDrawer" aria-labelledby="mobileFilterDrawerLabel" style="height: auto; max-height: 82vh;">
-            <div class="offcanvas-header border-bottom py-3 px-3">
-                <h6 class="offcanvas-title fw-bold text-dark d-flex align-items-center gap-2 mb-0" id="mobileFilterDrawerLabel" style="font-size: 15px;">
-                    <i class="fa-solid fa-sliders text-primary"></i>
-                    <span>Filter Orders</span>
-                </h6>
-                <button type="button" class="btn-close text-reset shadow-none" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-            </div>
-            <div class="offcanvas-body p-3" style="overflow-y: auto;">
-                <!-- ORDER STATUS -->
-                <div class="mb-3">
-                    <div class="fw-bold text-uppercase text-secondary mb-2" style="font-size: 11.5px; letter-spacing: 0.5px;">
-                        ORDER STATUS
-                    </div>
-                    <div class="d-flex flex-column gap-2">
-                        <label class="d-flex align-items-center gap-2 mb-0 p-2 rounded-2 bg-light" style="cursor: pointer; font-size: 13.5px;">
-                            <input type="checkbox" class="fk-filter-status fk-mobile-drawer-status form-check-input mt-0 rounded-1" value="on_the_way" onchange="syncDrawerFilters()">
-                            <span>On the way</span>
-                        </label>
-                        <label class="d-flex align-items-center gap-2 mb-0 p-2 rounded-2 bg-light" style="cursor: pointer; font-size: 13.5px;">
-                            <input type="checkbox" class="fk-filter-status fk-mobile-drawer-status form-check-input mt-0 rounded-1" value="delivered" onchange="syncDrawerFilters()">
-                            <span>Delivered</span>
-                        </label>
-                        <label class="d-flex align-items-center gap-2 mb-0 p-2 rounded-2 bg-light" style="cursor: pointer; font-size: 13.5px;">
-                            <input type="checkbox" class="fk-filter-status fk-mobile-drawer-status form-check-input mt-0 rounded-1" value="cancelled" onchange="syncDrawerFilters()">
-                            <span>Cancelled</span>
-                        </label>
-                        <label class="d-flex align-items-center gap-2 mb-0 p-2 rounded-2 bg-light" style="cursor: pointer; font-size: 13.5px;">
-                            <input type="checkbox" class="fk-filter-status fk-mobile-drawer-status form-check-input mt-0 rounded-1" value="returned" onchange="syncDrawerFilters()">
-                            <span>Returned</span>
-                        </label>
-                    </div>
-                </div>
-
-                <hr class="my-3" style="border-color: #eee;">
-
-                <!-- ORDER TIME -->
-                <div class="mb-3">
-                    <div class="fw-bold text-uppercase text-secondary mb-2" style="font-size: 11.5px; letter-spacing: 0.5px;">
-                        ORDER TIME
-                    </div>
-                    <div class="d-flex flex-column gap-2">
-                        <label class="d-flex align-items-center gap-2 mb-0 p-2 rounded-2 bg-light" style="cursor: pointer; font-size: 13.5px;">
-                            <input type="checkbox" class="fk-filter-time fk-mobile-drawer-time form-check-input mt-0 rounded-1" value="last_30" onchange="syncDrawerFilters()">
-                            <span>Last 30 days</span>
-                        </label>
-                        <label class="d-flex align-items-center gap-2 mb-0 p-2 rounded-2 bg-light" style="cursor: pointer; font-size: 13.5px;">
-                            <input type="checkbox" class="fk-filter-time fk-mobile-drawer-time form-check-input mt-0 rounded-1" value="2026" onchange="syncDrawerFilters()">
-                            <span>2026</span>
-                        </label>
-                        <label class="d-flex align-items-center gap-2 mb-0 p-2 rounded-2 bg-light" style="cursor: pointer; font-size: 13.5px;">
-                            <input type="checkbox" class="fk-filter-time fk-mobile-drawer-time form-check-input mt-0 rounded-1" value="2025" onchange="syncDrawerFilters()">
-                            <span>2025</span>
-                        </label>
-                        <label class="d-flex align-items-center gap-2 mb-0 p-2 rounded-2 bg-light" style="cursor: pointer; font-size: 13.5px;">
-                            <input type="checkbox" class="fk-filter-time fk-mobile-drawer-time form-check-input mt-0 rounded-1" value="2024" onchange="syncDrawerFilters()">
-                            <span>2024</span>
-                        </label>
-                        <label class="d-flex align-items-center gap-2 mb-0 p-2 rounded-2 bg-light" style="cursor: pointer; font-size: 13.5px;">
-                            <input type="checkbox" class="fk-filter-time fk-mobile-drawer-time form-check-input mt-0 rounded-1" value="older" onchange="syncDrawerFilters()">
-                            <span>Older</span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-            <div class="border-top p-3 bg-white d-flex align-items-center gap-2">
-                <button type="button" class="btn btn-outline-secondary w-50 py-2 fw-semibold rounded-2" onclick="resetAllFilters()" style="font-size: 13.5px;">Clear All</button>
-                <button type="button" class="btn btn-primary w-50 py-2 fw-semibold rounded-2" data-bs-dismiss="offcanvas" onclick="filterOrders()" style="background-color: #2874f0; border-color: #2874f0; font-size: 13.5px;">Apply</button>
-            </div>
-        </div>
 
         <style>
         .fk-orders-container {
@@ -518,92 +391,27 @@
         .fk-item-title:hover {
             color: #2874f0 !important;
         }
-
-        /* Mobile-Specific Styles */
-        .fk-quick-chip {
-            background-color: #f1f3f6;
-            color: #212121;
-            border: 1px solid #e0e0e0;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-        .fk-quick-chip.active {
-            background-color: #2874f0 !important;
-            color: #ffffff !important;
-            border-color: #2874f0 !important;
-        }
-        .fk-quick-chip:hover {
-            background-color: #e4e7eb;
-        }
-        .fk-quick-chip.active:hover {
-            background-color: #1a64dc !important;
-        }
-        .fk-mobile-chips-wrapper::-webkit-scrollbar {
-            display: none;
-        }
-        @media (max-width: 767.98px) {
-            /* Hide heavy global navbar on mobile orders view to show native app bar */
-            #header.store-header-nav,
-            .store-header-nav {
-                display: none !important;
-            }
-            body {
-                background-color: #f1f3f6 !important;
-            }
-            .fk-orders-container {
-                padding-left: 8px !important;
-                padding-right: 8px !important;
-            }
-            .fk-order-card {
-                margin-bottom: 8px !important;
-                border-radius: 6px !important;
-                border-color: #e0e0e0 !important;
-            }
-            .fk-order-card:active {
-                background-color: #f9f9f9 !important;
-            }
+        .py-4 {
+            padding-top: 10px !important;
+            padding-bottom: 10px !important;
         }
         </style>
 
         <script>
-        function getActiveSearchQuery() {
-            var desktopInput = document.getElementById('order-search-input');
-            var mobileInput = document.getElementById('mobile-order-search-input');
-            var qDesktop = desktopInput ? desktopInput.value.trim().toLowerCase() : '';
-            var qMobile = mobileInput ? mobileInput.value.trim().toLowerCase() : '';
-            return qMobile || qDesktop;
-        }
-
         function filterOrders() {
-            var query = getActiveSearchQuery();
+            var query = document.getElementById('order-search-input').value.trim().toLowerCase();
 
             // Checked status filters
             var checkedStatuses = [];
             document.querySelectorAll('.fk-filter-status:checked').forEach(function(el) {
-                if (checkedStatuses.indexOf(el.value) === -1) {
-                    checkedStatuses.push(el.value);
-                }
+                checkedStatuses.push(el.value);
             });
 
             // Checked time filters
             var checkedTimes = [];
             document.querySelectorAll('.fk-filter-time:checked').forEach(function(el) {
-                if (checkedTimes.indexOf(el.value) === -1) {
-                    checkedTimes.push(el.value);
-                }
+                checkedTimes.push(el.value);
             });
-
-            // Update mobile filter badge
-            var totalFilters = checkedStatuses.length + checkedTimes.length;
-            var badgeEl = document.getElementById('mobile-filter-badge');
-            if (badgeEl) {
-                if (totalFilters > 0) {
-                    badgeEl.textContent = totalFilters;
-                    badgeEl.classList.remove('d-none');
-                } else {
-                    badgeEl.classList.add('d-none');
-                }
-            }
 
             var now = Math.floor(Date.now() / 1000);
             var thirtyDaysAgo = now - (30 * 86400);
@@ -662,106 +470,15 @@
             }
         }
 
-        // Quick Filter Chip selection
-        function selectQuickFilter(filterValue, btnEl) {
-            document.querySelectorAll('.fk-quick-chip').forEach(function(b) {
-                b.classList.remove('active');
-            });
-            if (btnEl) btnEl.classList.add('active');
-
-            // Uncheck all status filters first
-            document.querySelectorAll('.fk-filter-status').forEach(function(cb) {
-                cb.checked = false;
-            });
-
-            if (filterValue !== 'all') {
-                document.querySelectorAll('.fk-filter-status[value="' + filterValue + '"]').forEach(function(cb) {
-                    cb.checked = true;
-                });
-            }
-
+        document.getElementById('order-search-input').addEventListener('keyup', function(e) {
             filterOrders();
-        }
+        });
 
-        // Sync desktop and drawer checkboxes
-        function syncDrawerFilters() {
-            var activeStatuses = [];
-            document.querySelectorAll('.fk-mobile-drawer-status:checked').forEach(function(cb) {
-                activeStatuses.push(cb.value);
+        function resetSearch() {
+            document.getElementById('order-search-input').value = '';
+            document.querySelectorAll('.fk-filter-status:checked, .fk-filter-time:checked').forEach(function(el) {
+                el.checked = false;
             });
-            document.querySelectorAll('.fk-filter-status').forEach(function(cb) {
-                if (!cb.classList.contains('fk-mobile-drawer-status')) {
-                    cb.checked = (activeStatuses.indexOf(cb.value) !== -1);
-                }
-            });
-
-            // Update quick chips active state
-            document.querySelectorAll('.fk-quick-chip').forEach(function(b) {
-                b.classList.remove('active');
-            });
-            if (activeStatuses.length === 0) {
-                var allBtn = document.querySelector('.fk-quick-chip[data-filter="all"]');
-                if (allBtn) allBtn.classList.add('active');
-            } else if (activeStatuses.length === 1) {
-                var singleBtn = document.querySelector('.fk-quick-chip[data-filter="' + activeStatuses[0] + '"]');
-                if (singleBtn) singleBtn.classList.add('active');
-            }
-        }
-
-        // Mobile Search Input Handlers
-        var mobInput = document.getElementById('mobile-order-search-input');
-        var deskInput = document.getElementById('order-search-input');
-        var clearBtn = document.getElementById('mobile-search-clear-btn');
-
-        if (mobInput) {
-            mobInput.addEventListener('input', function() {
-                if (deskInput) deskInput.value = mobInput.value;
-                if (clearBtn) {
-                    if (mobInput.value.length > 0) {
-                        clearBtn.classList.remove('d-none');
-                    } else {
-                        clearBtn.classList.add('d-none');
-                    }
-                }
-                filterOrders();
-            });
-        }
-
-        if (deskInput) {
-            deskInput.addEventListener('input', function() {
-                if (mobInput) mobInput.value = deskInput.value;
-                filterOrders();
-            });
-        }
-
-        function focusMobileSearch() {
-            if (mobInput) {
-                mobInput.focus();
-                mobInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        }
-
-        function clearMobileOrderSearch() {
-            if (mobInput) mobInput.value = '';
-            if (deskInput) deskInput.value = '';
-            if (clearBtn) clearBtn.classList.add('d-none');
-            filterOrders();
-        }
-
-        function resetAllFilters() {
-            if (mobInput) mobInput.value = '';
-            if (deskInput) deskInput.value = '';
-            if (clearBtn) clearBtn.classList.add('d-none');
-            document.querySelectorAll('.fk-filter-status, .fk-filter-time').forEach(function(cb) {
-                cb.checked = false;
-            });
-            document.querySelectorAll('.fk-quick-chip').forEach(function(b) {
-                b.classList.remove('active');
-            });
-            var allBtn = document.querySelector('.fk-quick-chip[data-filter="all"]');
-            if (allBtn) allBtn.classList.add('active');
-            var badgeEl = document.getElementById('mobile-filter-badge');
-            if (badgeEl) badgeEl.classList.add('d-none');
             filterOrders();
         }
         </script>

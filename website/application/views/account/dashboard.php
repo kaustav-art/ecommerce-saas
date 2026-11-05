@@ -14,7 +14,7 @@
         <!-- Account Dashboard -->
         <section class="py-4" style="background-color: #f1f3f6; min-height: 80vh;">
             <div class="container" style="max-width: 1240px;">
-                <div class="row g-3">
+                <div class="row">
                     <!-- Left Menu -->
                     <div class="col-lg-3 col-md-4">
                         <?php $this->load->view('account/sidebar'); ?>

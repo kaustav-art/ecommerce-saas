@@ -206,7 +206,7 @@
         <!-- /breadcrumb -->
 
         <!-- order-details-section -->
-        <section class="py-3" style="background-color: #f1f3f6; min-height: 85vh;">
+        <section class="py-4" style="background-color: #f1f3f6; min-height: 85vh;">
             <div class="fk-orders-container px-3">
 
                 <!-- Flash Messages -->
@@ -227,7 +227,7 @@
                     </div>
                 <?php endif; ?>
 
-                <div class="row g-3">
+                <div class="row">
                     <!-- Left Column: Individual Product Selector, Courier AWB Card, 3-Step Stepper, Items List (Col 8) -->
                     <div class="col-lg-8 col-md-8 col-12">
 
@@ -918,6 +918,10 @@
         .other-order-item-card:hover .other-item-chevron {
             transform: translateX(3px);
             color: #2874f0 !important;
+        }
+        .py-4 {
+            padding-top: 10px !important;
+            padding-bottom: 10px !important;
         }
         </style>
 
