@@ -772,13 +772,62 @@
                                     <span><?= $currency_symbol . number_format($total, 0); ?></span>
                                 </div>
 
-                                <!-- Paid By -->
-                                <div class="d-flex justify-content-between align-items-center text-secondary <?= $is_any_delivered ? 'mb-3' : 'mb-0'; ?>" style="font-size: 13px;">
-                                    <span>Paid By</span>
-                                    <span class="badge bg-light text-dark border px-2 py-1 fw-bold">
-                                        <i class="fa-solid fa-wallet text-primary me-1"></i> <?= strtoupper($order['payment_method'] ?? 'UPI'); ?>
-                                    </span>
+                                <!-- Payment Method & Status -->
+                                <?php 
+                                    $pay_method = strtolower($order['payment_method'] ?? 'cod');
+                                    $pay_status = strtolower($order['payment_status'] ?? 'pending');
+                                    $is_cod = ($pay_method === 'cod');
+                                    $is_paid = ($pay_status === 'paid');
+                                    $can_pay_online = ($is_cod && !$is_paid && $overall_status !== 'cancelled');
+                                ?>
+                                <div class="d-flex justify-content-between align-items-center text-secondary mb-2" style="font-size: 13px;">
+                                    <span>Payment Method</span>
+                                    <?php if ($is_cod): ?>
+                                        <span class="badge <?= $is_paid ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-warning-subtle text-dark border border-warning-subtle'; ?> px-2 py-1 fw-bold">
+                                            <i class="fa-solid <?= $is_paid ? 'fa-circle-check text-success' : 'fa-hand-holding-dollar text-warning'; ?> me-1"></i>
+                                            <?= $is_paid ? 'COD (Paid Online)' : 'Cash on Delivery'; ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="badge bg-light text-dark border px-2 py-1 fw-bold">
+                                            <i class="fa-solid fa-wallet text-primary me-1"></i> <?= strtoupper($pay_method); ?>
+                                        </span>
+                                    <?php endif; ?>
                                 </div>
+
+                                <div class="d-flex justify-content-between align-items-center text-secondary <?= ($is_any_delivered || $can_pay_online) ? 'mb-3' : 'mb-0'; ?>" style="font-size: 13px;">
+                                    <span>Payment Status</span>
+                                    <?php if ($is_paid): ?>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 fw-bold">
+                                            <i class="fa-solid fa-circle-check me-1"></i> Paid
+                                        </span>
+                                    <?php elseif ($pay_status === 'failed'): ?>
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 fw-bold">
+                                            <i class="fa-solid fa-circle-xmark me-1"></i> Failed
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="badge bg-warning-subtle text-dark border border-warning-subtle px-2 py-1 fw-bold">
+                                            <i class="fa-solid fa-clock me-1"></i> <?= $is_cod ? 'Due on Delivery' : 'Pending'; ?>
+                                        </span>
+                                    <?php endif; ?>
+                                </div>
+
+                                <?php if ($can_pay_online): ?>
+                                    <!-- Pay Online Anytime Option for COD Orders -->
+                                    <div class="mt-3 p-3 rounded-2 bg-light border border-primary-subtle" id="cod-online-pay-box">
+                                        <div class="d-flex align-items-start gap-2 mb-2">
+                                            <i class="fa-solid fa-shield-heart text-primary mt-1 fs-6"></i>
+                                            <div>
+                                                <div class="fw-bold text-dark" style="font-size: 13px;">Pay Online Anytime</div>
+                                                <div class="text-muted" style="font-size: 12px; line-height: 1.4;">Switch to online payment now using UPI, Card, or Netbanking for contactless delivery.</div>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-primary btn-sm w-100 fw-bold py-2 mt-2 shadow-sm d-flex align-items-center justify-content-center gap-2" id="btn-cod-pay-now" onclick="launchCodOnlinePayment('<?= html_escape($order['order_number']); ?>')">
+                                            <i class="fa-solid fa-bolt"></i>
+                                            <span>Pay <?= $currency_symbol . number_format($total, 2); ?> Online Now</span>
+                                        </button>
+                                        <div id="cod-pay-alert-msg" class="small mt-2 d-none"></div>
+                                    </div>
+                                <?php endif; ?>
 
                                 <?php // Download Invoice Button (Shown after order items are delivered) ?>
                                 <?php if ($is_any_delivered): ?>
@@ -1162,4 +1211,130 @@
                 }
             });
         });
+
+        function launchCodOnlinePayment(orderNumber) {
+            var btn = document.getElementById('btn-cod-pay-now');
+            var alertBox = document.getElementById('cod-pay-alert-msg');
+            var origHtml = btn ? btn.innerHTML : '';
+
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Initializing Payment...';
+            }
+            if (alertBox) {
+                alertBox.className = 'small mt-2 d-none';
+                alertBox.innerHTML = '';
+            }
+
+            var formData = new FormData();
+            formData.append('order_number', orderNumber);
+
+            fetch('<?= site_url("checkout/init_cod_pay_online_ajax"); ?>', {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: formData
+            })
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (!data.success) {
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = origHtml;
+                    }
+                    if (alertBox) {
+                        alertBox.className = 'small mt-2 text-danger';
+                        alertBox.innerHTML = '<i class="fa-solid fa-circle-exclamation me-1"></i> ' + (data.message || 'Failed to start online payment.');
+                    }
+                    return;
+                }
+
+                var rzp = data.razorpay;
+                var order = data.order || {};
+                var options = {
+                    "key": rzp.key_id,
+                    "amount": rzp.amount_subunit,
+                    "currency": rzp.currency || "INR",
+                    "name": <?= json_encode($seller_name); ?>,
+                    "description": "Pay Online for Order #" + orderNumber,
+                    "order_id": rzp.razorpay_order_id,
+                    "prefill": {
+                        "name": order.customer_name || "",
+                        "email": order.customer_email || "",
+                        "contact": order.customer_phone || ""
+                    },
+                    "theme": {
+                        "color": "#2874f0"
+                    },
+                    "handler": function(response) {
+                        if (btn) {
+                            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Verifying Payment...';
+                        }
+                        var verifyData = new FormData();
+                        verifyData.append('order_number', orderNumber);
+                        verifyData.append('razorpay_payment_id', response.razorpay_payment_id);
+                        verifyData.append('razorpay_order_id', response.razorpay_order_id || (rzp.razorpay_order_id || ''));
+                        verifyData.append('razorpay_signature', response.razorpay_signature || '');
+
+                        fetch('<?= site_url("checkout/verify_cod_pay_online_ajax"); ?>', {
+                            method: 'POST',
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                            body: verifyData
+                        })
+                        .then(function(r) { return r.json(); })
+                        .then(function(res) {
+                            if (res.success) {
+                                if (alertBox) {
+                                    alertBox.className = 'small mt-2 text-success fw-bold';
+                                    alertBox.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i> Payment successful! Updating order...';
+                                }
+                                setTimeout(function() {
+                                    window.location.reload();
+                                }, 1200);
+                            } else {
+                                if (btn) {
+                                    btn.disabled = false;
+                                    btn.innerHTML = origHtml;
+                                }
+                                if (alertBox) {
+                                    alertBox.className = 'small mt-2 text-danger';
+                                    alertBox.innerHTML = '<i class="fa-solid fa-circle-xmark me-1"></i> ' + (res.message || 'Payment verification failed.');
+                                }
+                            }
+                        })
+                        .catch(function(err) {
+                            if (btn) {
+                                btn.disabled = false;
+                                btn.innerHTML = origHtml;
+                            }
+                            if (alertBox) {
+                                alertBox.className = 'small mt-2 text-danger';
+                                alertBox.innerHTML = '<i class="fa-solid fa-circle-xmark me-1"></i> Verification network error.';
+                            }
+                        });
+                    },
+                    "modal": {
+                        "ondismiss": function() {
+                            if (btn) {
+                                btn.disabled = false;
+                                btn.innerHTML = origHtml;
+                            }
+                        }
+                    }
+                };
+
+                var rzpInstance = new Razorpay(options);
+                rzpInstance.open();
+            })
+            .catch(function(err) {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = origHtml;
+                }
+                if (alertBox) {
+                    alertBox.className = 'small mt-2 text-danger';
+                    alertBox.innerHTML = '<i class="fa-solid fa-circle-exclamation me-1"></i> An unexpected network error occurred.';
+                }
+            });
+        }
         </script>
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>

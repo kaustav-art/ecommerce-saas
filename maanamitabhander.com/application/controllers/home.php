@@ -57,9 +57,9 @@ class home extends MY_Controller {
         $flash_sale = null;
         if (isset($this->db) && $this->db->table_exists('flash_sales')) {
             $flash_sale = $this->db->where('tenant_id', $this->tenant_id)
-                                   ->where('status !=', 'terminated')
-                                   ->where('start_time <=', $now_str)
-                                   ->where('end_time >=', $now_str)
+                                   ->where('status', 'running')
+                                   ->where('start_time <= NOW()', NULL, FALSE)
+                                   ->where('end_time >= NOW()', NULL, FALSE)
                                    ->order_by('start_time', 'ASC')
                                    ->get('flash_sales')
                                    ->row_array();

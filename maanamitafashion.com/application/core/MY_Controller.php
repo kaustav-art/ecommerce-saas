@@ -27,12 +27,18 @@ class MY_Controller extends CI_Controller {
     public function __construct()
     {
         parent::__construct();
+        if (function_exists('date_default_timezone_set')) {
+            @date_default_timezone_set('Asia/Kolkata');
+        }
         $this->load->database();
         $this->load->helper(['url', 'html', 'form', 'text', 'string', 'security', 'date']);
         $this->load->library(['session', 'form_validation', 'template_registry']);
 
         // 1. Resolve Active Tenant & Template from URL / Database
         $this->_resolve_tenant_and_template();
+
+        // Synchronize flash sale lifecycle for current tenant (scheduled -> running -> ended)
+        $this->_sync_flash_sale_lifecycle();
 
         // 2. Load customer profile:
         //    - In a user-taken project, load from session if logged in (or NULL for guest)
@@ -547,6 +553,45 @@ class MY_Controller extends CI_Controller {
             }
             return !empty($guest_wl) ? array_values(array_map('intval', array_filter($guest_wl))) : [];
         }
+    }
+
+    /**
+     * Automatically synchronize flash sale lifecycle states.
+     * Transitions scheduled -> running when start_time arrives, and running -> ended when end_time passes.
+     */
+    protected function _sync_flash_sale_lifecycle($tenant_id = null)
+    {
+        if (!isset($this->db) || !$this->db->table_exists('flash_sales')) {
+            return;
+        }
+
+        $tid = $tenant_id !== null ? (int)$tenant_id : (int)($this->tenant_id ?? 0);
+
+        // 1. Automatically end expired campaigns (leave 'terminated' intact)
+        // Using MySQL NOW() guarantees timezone alignment with DB datetime fields
+        $this->db->where('end_time < NOW()', NULL, FALSE)
+                 ->where_not_in('status', ['terminated', 'ended']);
+        if ($tid > 0) {
+            $this->db->where('tenant_id', $tid);
+        }
+        $this->db->update('flash_sales', ['status' => 'ended']);
+
+        // 2. Automatically activate scheduled campaigns whose start_time has arrived
+        $this->db->where('start_time <= NOW()', NULL, FALSE)
+                 ->where('end_time >= NOW()', NULL, FALSE)
+                 ->where_not_in('status', ['terminated', 'running']);
+        if ($tid > 0) {
+            $this->db->where('tenant_id', $tid);
+        }
+        $this->db->update('flash_sales', ['status' => 'running']);
+
+        // 3. Automatically set upcoming future campaigns to scheduled
+        $this->db->where('start_time > NOW()', NULL, FALSE)
+                 ->where_not_in('status', ['terminated', 'scheduled']);
+        if ($tid > 0) {
+            $this->db->where('tenant_id', $tid);
+        }
+        $this->db->update('flash_sales', ['status' => 'scheduled']);
     }
 
 }

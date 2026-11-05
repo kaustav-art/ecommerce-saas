@@ -28,9 +28,13 @@ class order_model extends CI_Model {
             }
         }
 
-        // Generate unique human-readable order number
-        $order_number = 'ORD-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -4));
-        $order_data['order_number'] = $order_number;
+        // Generate or retain unique human-readable order number
+        if (empty($order_data['order_number'])) {
+            $order_number = 'ORD-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -4));
+            $order_data['order_number'] = $order_number;
+        } else {
+            $order_number = $order_data['order_number'];
+        }
         $order_data['tenant_id']    = $tid;
         if (empty($order_data['user_id'])) {
             unset($order_data['user_id']);

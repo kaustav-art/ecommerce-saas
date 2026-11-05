@@ -461,10 +461,11 @@ class checkout extends MY_Controller {
             'notes'            => $this->input->post('order_notes', TRUE) ?: ''
         ];
 
-        // 1. RAZORPAY GATEWAY
+        // 1. RAZORPAY GATEWAY (Do NOT create order in database before payment is verified)
         if ($payment_method === 'razorpay') {
+            $temp_order_number = 'ORD-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -4));
             $temp_order = $order_data;
-            $temp_order['order_number'] = 'ORD-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 4));
+            $temp_order['order_number'] = $temp_order_number;
             $temp_order['items'] = $items;
 
             $razorpay_data = $this->payment_model->init_razorpay($temp_order);
@@ -475,28 +476,42 @@ class checkout extends MY_Controller {
                 ], 400);
             }
 
-            // Create order with pending status
-            $order_number = $this->order_model->create_order($order_data, $items);
-            $order = $this->order_model->get_by_order_number($order_number);
-            $razorpay_data['order_number'] = $order_number;
+            // Save pending checkout intent in DB and Session (no order or stock deducted yet)
+            $pending_record = [
+                'tenant_id'         => (int)$this->tenant_id,
+                'temp_order_number' => $temp_order_number,
+                'gateway'           => 'razorpay',
+                'gateway_order_id'  => $razorpay_data['razorpay_order_id'] ?? NULL,
+                'user_id'           => !empty($this->current_user['id']) ? (int)$this->current_user['id'] : NULL,
+                'order_data'        => json_encode($order_data),
+                'items_data'        => json_encode($items),
+                'is_buy_now'        => $is_buy_now ? 1 : 0,
+                'buy_now_key'       => $matched_buy_now_key,
+                'status'            => 'pending'
+            ];
 
-            if ($is_buy_now && $matched_buy_now_key) {
-                $this->session->set_userdata('buy_now_for_order_' . $order_number, $matched_buy_now_key);
+            if ($this->db->table_exists('pending_checkouts')) {
+                $this->db->where('tenant_id', $this->tenant_id)->where('temp_order_number', $temp_order_number)->delete('pending_checkouts');
+                $this->db->insert('pending_checkouts', $pending_record);
             }
+            $this->session->set_userdata('pending_checkout_' . $temp_order_number, $pending_record);
+
+            $razorpay_data['order_number'] = $temp_order_number;
 
             return $this->json_response([
                 'success'      => true,
                 'gateway'      => 'razorpay',
-                'order_number' => $order_number,
-                'order'        => $order,
+                'order_number' => $temp_order_number,
+                'order'        => $temp_order,
                 'razorpay'     => $razorpay_data
             ]);
         }
 
         // 2. STRIPE GATEWAY
         if ($payment_method === 'stripe') {
+            $temp_order_number = 'ORD-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -4));
             $temp_order = $order_data;
-            $temp_order['order_number'] = 'ORD-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 4));
+            $temp_order['order_number'] = $temp_order_number;
             $temp_order['items'] = $items;
 
             $stripe_data = $this->payment_model->init_stripe($temp_order);
@@ -507,19 +522,32 @@ class checkout extends MY_Controller {
                 ], 400);
             }
 
-            $order_number = $this->order_model->create_order($order_data, $items);
-            $order = $this->order_model->get_by_order_number($order_number);
-            $redirect_url = !empty($stripe_data['checkout_url']) ? $stripe_data['checkout_url'] : site_url('payment/stripe/' . $order_number);
+            $pending_record = [
+                'tenant_id'         => (int)$this->tenant_id,
+                'temp_order_number' => $temp_order_number,
+                'gateway'           => 'stripe',
+                'gateway_order_id'  => $stripe_data['session_id'] ?? NULL,
+                'user_id'           => !empty($this->current_user['id']) ? (int)$this->current_user['id'] : NULL,
+                'order_data'        => json_encode($order_data),
+                'items_data'        => json_encode($items),
+                'is_buy_now'        => $is_buy_now ? 1 : 0,
+                'buy_now_key'       => $matched_buy_now_key,
+                'status'            => 'pending'
+            ];
 
-            if ($is_buy_now && $matched_buy_now_key) {
-                $this->session->set_userdata('buy_now_for_order_' . $order_number, $matched_buy_now_key);
+            if ($this->db->table_exists('pending_checkouts')) {
+                $this->db->where('tenant_id', $this->tenant_id)->where('temp_order_number', $temp_order_number)->delete('pending_checkouts');
+                $this->db->insert('pending_checkouts', $pending_record);
             }
+            $this->session->set_userdata('pending_checkout_' . $temp_order_number, $pending_record);
+
+            $redirect_url = !empty($stripe_data['checkout_url']) ? $stripe_data['checkout_url'] : site_url('payment/stripe/' . $temp_order_number);
 
             return $this->json_response([
                 'success'      => true,
                 'gateway'      => 'stripe',
-                'order_number' => $order_number,
-                'order'        => $order,
+                'order_number' => $temp_order_number,
+                'order'        => $temp_order,
                 'redirect_url' => $redirect_url,
                 'stripe'       => $stripe_data
             ]);
@@ -527,8 +555,9 @@ class checkout extends MY_Controller {
 
         // 3. PAYU GATEWAY
         if ($payment_method === 'payu') {
+            $temp_order_number = 'ORD-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -4));
             $temp_order = $order_data;
-            $temp_order['order_number'] = 'ORD-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 4));
+            $temp_order['order_number'] = $temp_order_number;
             $temp_order['items'] = $items;
 
             $payu_data = $this->payment_model->init_payu($temp_order);
@@ -539,23 +568,35 @@ class checkout extends MY_Controller {
                 ], 400);
             }
 
-            $order_number = $this->order_model->create_order($order_data, $items);
-            $order = $this->order_model->get_by_order_number($order_number);
+            $pending_record = [
+                'tenant_id'         => (int)$this->tenant_id,
+                'temp_order_number' => $temp_order_number,
+                'gateway'           => 'payu',
+                'gateway_order_id'  => $payu_data['txnid'] ?? NULL,
+                'user_id'           => !empty($this->current_user['id']) ? (int)$this->current_user['id'] : NULL,
+                'order_data'        => json_encode($order_data),
+                'items_data'        => json_encode($items),
+                'is_buy_now'        => $is_buy_now ? 1 : 0,
+                'buy_now_key'       => $matched_buy_now_key,
+                'status'            => 'pending'
+            ];
 
-            if ($is_buy_now && $matched_buy_now_key) {
-                $this->session->set_userdata('buy_now_for_order_' . $order_number, $matched_buy_now_key);
+            if ($this->db->table_exists('pending_checkouts')) {
+                $this->db->where('tenant_id', $this->tenant_id)->where('temp_order_number', $temp_order_number)->delete('pending_checkouts');
+                $this->db->insert('pending_checkouts', $pending_record);
             }
+            $this->session->set_userdata('pending_checkout_' . $temp_order_number, $pending_record);
 
             return $this->json_response([
                 'success'      => true,
                 'gateway'      => 'payu',
-                'order_number' => $order_number,
-                'order'        => $order,
+                'order_number' => $temp_order_number,
+                'order'        => $temp_order,
                 'payu'         => $payu_data
             ]);
         }
 
-        // 4. CASH ON DELIVERY (COD)
+        // 4. CASH ON DELIVERY (COD) - Immediately place order with COD status
         $order_number = $this->order_model->create_order($order_data, $items);
         if ($is_buy_now && $matched_buy_now_key) {
             $this->cart_model->remove_item($matched_buy_now_key);
@@ -579,42 +620,196 @@ class checkout extends MY_Controller {
         $this->load->model('payment_model');
         $this->load->model('order_model');
 
-        $order_number = $this->input->post('order_number', TRUE);
-        $order = $this->order_model->get_by_order_number($order_number);
-        if (!$order) {
-            return $this->json_response(['success' => false, 'message' => 'Order not found.'], 404);
+        $order_number = trim((string)$this->input->post('order_number', TRUE));
+        $payment_id   = trim((string)$this->input->post('razorpay_payment_id', TRUE));
+        $order_id     = trim((string)$this->input->post('razorpay_order_id', TRUE));
+        $signature    = trim((string)$this->input->post('razorpay_signature', TRUE));
+
+        if (empty($order_number) || empty($payment_id)) {
+            return $this->json_response(['success' => false, 'message' => 'Invalid payment response data.'], 400);
         }
 
-        $payment_id = $this->input->post('razorpay_payment_id', TRUE);
-        $order_id   = $this->input->post('razorpay_order_id', TRUE);
-        $signature  = $this->input->post('razorpay_signature', TRUE);
-
-        $verified = $this->payment_model->verify_razorpay_signature($order_id, $payment_id, $signature);
-        if ($verified) {
-            $this->order_model->update_payment(
-                $order_number,
-                'paid',
-                $payment_id,
-                [
+        // 1. Check if the order was already finalized (e.g. by Webhook)
+        $existing = $this->order_model->get_by_order_number($order_number);
+        if ($existing) {
+            if ($existing['payment_status'] !== 'paid') {
+                $this->order_model->update_payment($order_number, 'paid', $payment_id, [
                     'gateway'             => 'razorpay',
                     'razorpay_order_id'   => $order_id,
                     'razorpay_payment_id' => $payment_id,
                     'razorpay_signature'  => $signature,
                     'verified_at'         => date('Y-m-d H:i:s')
-                ]
-            );
-            $this->order_model->update_status($order_number, 'processing');
+                ]);
+                $this->order_model->update_status($order_number, 'processing');
+            }
             $this->cart_model->clear_cart();
-
             return $this->json_response([
                 'success'      => true,
                 'order_number' => $order_number,
                 'redirect_url' => site_url('account/order/' . $order_number)
             ]);
-        } else {
-            $this->order_model->update_payment($order_number, 'failed');
-            return $this->json_response(['success' => false, 'message' => 'Razorpay payment verification failed.'], 400);
         }
+
+        // 2. Fetch pending checkout record
+        $pending = null;
+        if ($this->db->table_exists('pending_checkouts')) {
+            $pending = $this->db->where('tenant_id', $this->tenant_id)
+                                ->where('temp_order_number', $order_number)
+                                ->where('status', 'pending')
+                                ->get('pending_checkouts')
+                                ->row_array();
+        }
+
+        if (!$pending) {
+            $sess_p = $this->session->userdata('pending_checkout_' . $order_number);
+            if (!empty($sess_p) && is_array($sess_p)) {
+                $pending = $sess_p;
+            }
+        }
+
+        if (!$pending) {
+            return $this->json_response(['success' => false, 'message' => 'Pending checkout session not found or already completed.'], 404);
+        }
+
+        // 3. Verify Razorpay cryptographic signature
+        $verified = $this->payment_model->verify_razorpay_signature($order_id, $payment_id, $signature);
+        if (!$verified) {
+            return $this->json_response(['success' => false, 'message' => 'Razorpay payment signature verification failed.'], 400);
+        }
+
+        // 4. Signature is VALID! Now create the real order in database & deduct stock
+        $order_data = is_array($pending['order_data']) ? $pending['order_data'] : json_decode($pending['order_data'], true);
+        $items      = is_array($pending['items_data']) ? $pending['items_data'] : json_decode($pending['items_data'], true);
+
+        $order_data['order_number']           = $order_number;
+        $order_data['payment_status']         = 'paid';
+        $order_data['order_status']           = 'processing';
+        $order_data['payment_method']         = 'razorpay';
+        $order_data['payment_transaction_id'] = $payment_id;
+        $order_data['payment_details']        = json_encode([
+            'gateway'             => 'razorpay',
+            'razorpay_order_id'   => $order_id,
+            'razorpay_payment_id' => $payment_id,
+            'razorpay_signature'  => $signature,
+            'verified_at'         => date('Y-m-d H:i:s')
+        ]);
+
+        $this->order_model->create_order($order_data, $items);
+
+        // Mark pending checkout as completed
+        if ($this->db->table_exists('pending_checkouts')) {
+            $this->db->where('tenant_id', $this->tenant_id)
+                     ->where('temp_order_number', $order_number)
+                     ->update('pending_checkouts', ['status' => 'completed']);
+        }
+        $this->session->unset_userdata('pending_checkout_' . $order_number);
+
+        // Clear cart or buy-now item
+        if (!empty($pending['is_buy_now']) && !empty($pending['buy_now_key'])) {
+            $this->cart_model->remove_item($pending['buy_now_key']);
+            $this->session->unset_userdata('checkout_buy_now_item');
+        } else {
+            $this->cart_model->clear_cart();
+        }
+
+        return $this->json_response([
+            'success'      => true,
+            'order_number' => $order_number,
+            'redirect_url' => site_url('account/order/' . $order_number)
+        ]);
+    }
+
+    public function init_cod_pay_online_ajax()
+    {
+        if (!$this->is_logged_in() || empty($this->current_user['id'])) {
+            return $this->json_response(['success' => false, 'message' => 'Please sign in to make payments.'], 401);
+        }
+
+        $order_number = trim((string)$this->input->post('order_number', TRUE));
+        $this->load->model('order_model');
+        $this->load->model('payment_model');
+
+        $order = $this->order_model->get_by_order_number($order_number);
+        if (!$order || (int)$order['tenant_id'] !== (int)$this->tenant_id) {
+            return $this->json_response(['success' => false, 'message' => 'Order not found.'], 404);
+        }
+
+        if ((int)$order['user_id'] !== (int)$this->current_user['id']) {
+            return $this->json_response(['success' => false, 'message' => 'Access denied.'], 403);
+        }
+
+        if ($order['payment_status'] === 'paid') {
+            return $this->json_response(['success' => false, 'message' => 'This order is already paid.'], 400);
+        }
+
+        if ($order['order_status'] === 'cancelled') {
+            return $this->json_response(['success' => false, 'message' => 'This order has been cancelled.'], 400);
+        }
+
+        $rzp_data = $this->payment_model->init_razorpay($order);
+        if (empty($rzp_data['success'])) {
+            return $this->json_response([
+                'success' => false,
+                'message' => $rzp_data['message'] ?? 'Unable to initialize Razorpay payment.'
+            ], 400);
+        }
+
+        return $this->json_response([
+            'success'  => true,
+            'order'    => $order,
+            'razorpay' => $rzp_data
+        ]);
+    }
+
+    public function verify_cod_pay_online_ajax()
+    {
+        if (!$this->is_logged_in() || empty($this->current_user['id'])) {
+            return $this->json_response(['success' => false, 'message' => 'Please sign in.'], 401);
+        }
+
+        $order_number = trim((string)$this->input->post('order_number', TRUE));
+        $payment_id   = trim((string)$this->input->post('razorpay_payment_id', TRUE));
+        $order_id     = trim((string)$this->input->post('razorpay_order_id', TRUE));
+        $signature    = trim((string)$this->input->post('razorpay_signature', TRUE));
+
+        $this->load->model('order_model');
+        $this->load->model('payment_model');
+
+        $order = $this->order_model->get_by_order_number($order_number);
+        if (!$order || (int)$order['tenant_id'] !== (int)$this->tenant_id) {
+            return $this->json_response(['success' => false, 'message' => 'Order not found.'], 404);
+        }
+
+        if ((int)$order['user_id'] !== (int)$this->current_user['id']) {
+            return $this->json_response(['success' => false, 'message' => 'Access denied.'], 403);
+        }
+
+        $verified = $this->payment_model->verify_razorpay_signature($order_id, $payment_id, $signature);
+        if (!$verified) {
+            return $this->json_response(['success' => false, 'message' => 'Payment signature verification failed.'], 400);
+        }
+
+        $this->order_model->update_payment(
+            $order_number,
+            'paid',
+            $payment_id,
+            [
+                'gateway'             => 'razorpay',
+                'payment_mode'        => 'cod_paid_online',
+                'razorpay_order_id'   => $order_id,
+                'razorpay_payment_id' => $payment_id,
+                'razorpay_signature'  => $signature,
+                'paid_at'             => date('Y-m-d H:i:s')
+            ]
+        );
+        $this->db->where('tenant_id', $this->tenant_id)
+                 ->where('order_number', $order_number)
+                 ->update('orders', ['payment_method' => 'razorpay']);
+
+        return $this->json_response([
+            'success' => true,
+            'message' => 'Payment successful! Order marked as Paid Online.'
+        ]);
     }
 
     public function confirm_stripe_ajax()

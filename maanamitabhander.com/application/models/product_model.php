@@ -44,9 +44,9 @@ class product_model extends CI_Model {
         $tid = $this->tid();
         $now_str = date('Y-m-d H:i:s');
         $fs = $this->db->where('tenant_id', $tid)
-                       ->where('status !=', 'terminated')
-                       ->where('start_time <=', $now_str)
-                       ->where('end_time >=', $now_str)
+                       ->where('status', 'running')
+                       ->where('start_time <= NOW()', NULL, FALSE)
+                       ->where('end_time >= NOW()', NULL, FALSE)
                        ->order_by('start_time', 'ASC')
                        ->get('flash_sales')
                        ->row_array();
