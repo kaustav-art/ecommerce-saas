@@ -484,14 +484,17 @@
          z-index: 1040;
       }
       .grc-category-aisles-bar .grc-categories-wrap {
-         gap: 4px;
+         gap: 12px;
          flex-wrap: nowrap !important;
+         overflow-x: auto !important;
+         -webkit-overflow-scrolling: touch !important;
+         scrollbar-width: none !important;
+         -ms-overflow-style: none !important;
       }
-      @media (max-width: 1399px) {
-         .grc-category-aisles-bar .grc-categories-wrap {
-            flex-wrap: wrap !important;
-            justify-content: center !important;
-         }
+      .grc-category-aisles-bar .grc-categories-wrap::-webkit-scrollbar {
+         display: none !important;
+         width: 0 !important;
+         height: 0 !important;
       }
       .grc-category-aisles-bar .grc-categories-item {
          position: relative;
@@ -520,14 +523,17 @@
          justify-content: center;
       }
       .grc-category-aisles-bar .grc-categories-item > a .grc-categories-title {
-         display: inline-flex !important;
-         align-items: center;
-         gap: 5px;
+         display: block !important;
          font-weight: 500 !important;
-         font-size: 14px !important;
-         line-height: 1.2 !important;
+         font-size: 13.5px !important;
+         line-height: 1.25 !important;
          color: #ffffff !important;
-         white-space: nowrap;
+         white-space: nowrap !important;
+         overflow: hidden !important;
+         text-overflow: ellipsis !important;
+         text-align: center !important;
+         width: 100% !important;
+         max-width: 100% !important;
          text-transform: capitalize;
       }
       .grc-category-aisles-bar .grc-more-cats-dropdown > a {
@@ -1105,42 +1111,150 @@
          }
       }
 
-      /* Horizontal touch-scroll category aisles bar on screens < 992px */
+      /* =====================================================================
+       * Horizontal One-Line Category Aisles Bar (Strictly 1 line with scrolling & ellipsis)
+       * ===================================================================== */
+      .grc-category-aisles-bar .grc-categories-wrap,
+      .grc-categories-wrap {
+         display: flex !important;
+         flex-wrap: nowrap !important;
+         overflow-x: auto !important;
+         -webkit-overflow-scrolling: touch !important;
+         scrollbar-width: none !important;
+         -ms-overflow-style: none !important;
+      }
+      .grc-category-aisles-bar .grc-categories-wrap::-webkit-scrollbar,
+      .grc-categories-wrap::-webkit-scrollbar {
+         display: none !important;
+         width: 0 !important;
+         height: 0 !important;
+      }
+      .grc-category-aisles-bar .grc-categories-item,
+      .grc-categories-item {
+         flex: 0 0 auto !important;
+         text-align: center !important;
+      }
+      .grc-category-aisles-bar .grc-categories-item > a,
+      .grc-categories-item a {
+         display: flex !important;
+         flex-direction: column !important;
+         align-items: center !important;
+         justify-content: center !important;
+         text-decoration: none !important;
+         color: #ffffff !important;
+      }
+      .grc-category-aisles-bar .grc-categories-title,
+      .grc-categories-title,
+      .grc-category-aisles-bar .grc-categories-item > a .grc-categories-title {
+         white-space: nowrap !important;
+         overflow: hidden !important;
+         text-overflow: ellipsis !important;
+         display: block !important;
+         text-align: center !important;
+         color: #ffffff !important;
+         width: 100% !important;
+         max-width: 100% !important;
+      }
+
+      /* Mobile & Tablet (< 992px) Specific Rules */
       @media (max-width: 991.98px) {
          .grc-category-aisles-bar {
-            padding-top: 8px !important;
+            padding-top: 6px !important;
             padding-bottom: 8px !important;
          }
-         .grc-categories-wrap {
+         .grc-category-aisles-bar .container {
+            padding-left: 10px !important;
+            padding-right: 10px !important;
+            max-width: 100% !important;
+         }
+         .grc-category-aisles-bar .grc-categories-wrap {
+            gap: 12px !important;
+            padding: 2px 4px !important;
+            justify-content: flex-start !important;
+            flex-wrap: nowrap !important;
             overflow-x: auto !important;
             -webkit-overflow-scrolling: touch !important;
-            scrollbar-width: none !important;
-            gap: 14px !important;
-            padding: 2px 8px !important;
-            justify-content: flex-start !important;
          }
-         .grc-categories-wrap::-webkit-scrollbar {
-            display: none !important;
-         }
-         .grc-categories-item {
+         .grc-category-aisles-bar .grc-categories-item {
             flex: 0 0 auto !important;
+            width: 76px !important;
+            min-width: 76px !important;
+            max-width: 76px !important;
+         }
+         .grc-category-aisles-bar .grc-categories-item > a {
+            padding: 4px 2px !important;
+            width: 100% !important;
+         }
+         .grc-category-aisles-bar .grc-categories-item > a .grc-categories-icon,
+         .grc-category-aisles-bar .grc-categories-icon {
+            width: 42px !important;
+            height: 42px !important;
+            min-width: 42px !important;
+            min-height: 42px !important;
+            border-radius: 50% !important;
+            background: rgba(255, 255, 255, 0.12) !important;
+            margin: 0 auto 5px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+         }
+         .grc-category-aisles-bar .grc-categories-title,
+         .grc-categories-title,
+         .grc-category-aisles-bar .grc-categories-item > a .grc-categories-title {
+            font-size: 11px !important;
+            width: 100% !important;
+            max-width: 76px !important;
+            line-height: 1.25 !important;
+            display: block !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
             text-align: center !important;
          }
-         .grc-categories-icon {
+         .grc-category-aisles-bar .grc-more-cats-dropdown {
+            flex: 0 0 auto !important;
+            display: inline-block !important;
+         }
+      }
+
+      /* Desktop (>= 992px) Category Rules */
+      @media (min-width: 992px) {
+         .grc-category-aisles-bar .grc-categories-wrap {
+            justify-content: space-between !important;
+            overflow-x: auto !important;
+            gap: 16px !important;
+            flex-wrap: nowrap !important;
+         }
+         .grc-category-aisles-bar .grc-categories-item {
+            flex: 1 1 auto !important;
+            max-width: 150px !important;
+            min-width: 80px !important;
+         }
+         .grc-category-aisles-bar .grc-categories-item > a {
+            padding: 8px 10px !important;
+         }
+         .grc-category-aisles-bar .grc-categories-item > a .grc-categories-icon,
+         .grc-category-aisles-bar .grc-categories-icon {
             width: 44px !important;
             height: 44px !important;
             border-radius: 50% !important;
             background: rgba(255, 255, 255, 0.12) !important;
-            margin: 0 auto 4px !important;
+            margin: 0 auto 6px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
          }
-         .grc-categories-title {
-            font-size: 11.5px !important;
-            color: #ffffff !important;
-            white-space: nowrap !important;
+         .grc-category-aisles-bar .grc-categories-title,
+         .grc-categories-title,
+         .grc-category-aisles-bar .grc-categories-item > a .grc-categories-title {
+            font-size: 13px !important;
+            max-width: 140px !important;
+            line-height: 1.3 !important;
             display: block !important;
-         }
-         .grc-more-cats-dropdown {
-            display: none !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            text-align: center !important;
          }
       }
    </style>
@@ -1589,11 +1703,11 @@
                   $cat_img_url = grc_resolve_cat_img($cat, $fallback_cat_img);
             ?>
             <div class="grc-categories-item text-center">
-               <a href="<?= site_url('shop/' . $cat['slug']); ?>">
+               <a href="<?= site_url('shop/' . $cat['slug']); ?>" title="<?= html_escape($cat['name']); ?>">
                   <div class="grc-categories-icon d-flex align-items-center justify-content-center">
                      <img src="<?= html_escape($cat_img_url); ?>" alt="<?= html_escape($cat['name']); ?>" style="max-height: 28px; max-width: 28px; width: auto; height: auto; object-fit: contain;" onerror="this.onerror=null;this.src='<?= html_escape($fallback_cat_img); ?>';">
                   </div>
-                  <span class="grc-categories-title"><?= html_escape($cat['name']); ?></span>
+                  <span class="grc-categories-title" title="<?= html_escape($cat['name']); ?>"><?= html_escape($cat['name']); ?></span>
                </a>
             </div>
             <?php
