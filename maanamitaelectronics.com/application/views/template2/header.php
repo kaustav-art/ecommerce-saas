@@ -186,23 +186,53 @@ if (!function_exists('elt_resolve_img')) {
          color: #717478;
          font-size: 14px;
       }
+      @media (min-width: 768px) {
+         .store-search-col {
+            display: block !important;
+         }
+      }
       @media (max-width: 767.98px) {
          .store-search-col {
-            width: 100%;
-            max-width: 100%;
-            flex: 0 0 100%;
-            margin: 8px 0 2px 0;
+            display: none !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            flex: 0 0 100% !important;
+            margin: 10px 0 2px 0 !important;
+         }
+         .store-search-col.is-mobile-open {
+            display: block !important;
+            animation: eltSearchSlideDown 0.22s ease-out;
          }
          .store-search-input-wrap {
-            height: 40px;
-            background-color: #ffffff;
-            border: 1px solid #d4d5d9;
+            height: 42px;
+            background-color: #f8fafc;
+            border: 1px solid #cbd5e1;
             border-radius: 8px;
             padding: 0 12px;
+            display: flex;
+            align-items: center;
+         }
+         .store-search-input-wrap:focus-within {
+            background-color: #ffffff;
+            border-color: #2874f0;
+            box-shadow: 0 0 0 2px rgba(40, 116, 240, 0.15);
          }
          .store-search-input {
-            background-color: #ffffff !important;
+            background-color: transparent !important;
             font-size: 13.5px;
+            border: none;
+            width: 100%;
+            outline: none;
+         }
+      }
+      @keyframes eltSearchSlideDown {
+         from {
+            opacity: 0;
+            transform: translateY(-6px);
+         }
+         to {
+            opacity: 1;
+            transform: translateY(0);
          }
       }
 
@@ -1136,6 +1166,168 @@ if (!function_exists('elt_resolve_img')) {
          background-color: #fff5f5;
          color: #dc3545 !important;
       }
+
+      /* Prevent horizontal scroll from off-screen drawers */
+      html, body {
+         overflow-x: clip !important;
+         max-width: 100% !important;
+      }
+      .aq-cartmini-area:not(.opened) {
+         display: none !important;
+      }
+      .aq-cartmini-area.opened {
+         display: flex !important;
+         transform: translateX(0) !important;
+      }
+      @media (max-width: 767.98px) {
+         .aq-cartmini-area {
+            max-width: 88vw !important;
+            width: 340px !important;
+         }
+      }
+
+      /* Mobile Header Right Options & Search Toggle */
+      .elt-mobile-search-toggle {
+         background: transparent;
+         border: none;
+         padding: 0;
+         width: 36px;
+         height: 36px;
+         display: inline-flex;
+         align-items: center;
+         justify-content: center;
+         color: #0B0D0E;
+         border-radius: 50%;
+         cursor: pointer;
+         transition: background-color 0.15s ease, color 0.15s ease;
+      }
+      .elt-mobile-search-toggle:hover,
+      .elt-mobile-search-toggle.active {
+         background-color: #f1f5f9;
+         color: #2874f0;
+      }
+      .elt-mobile-search-toggle.active svg path {
+         stroke: #2874f0;
+      }
+      @media (max-width: 767.98px) {
+         .elt-site-header .aq-header-right-options > ul {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            margin-bottom: 0 !important;
+            padding-left: 0 !important;
+         }
+         .elt-site-header .aq-header-right-options .aq-header-top-account,
+         .elt-site-header .aq-header-right-options .aq-header-top-wishlist {
+            display: none !important;
+         }
+         .elt-site-header .aq-header-right-options .aq-header-top-search-btn,
+         .elt-site-header .aq-header-right-options .aq-header-top-cart {
+            display: inline-flex !important;
+            align-items: center !important;
+            margin-inline-end: 0 !important;
+         }
+         .aq-header-top-cart {
+            margin-right: 6px !important;
+         }
+         .aq-header-top-cart button {
+            background: transparent;
+            border: none;
+            padding: 0;
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+         }
+         .aq-header-top-cart .count-box {
+            top: -2px !important;
+            right: -8px !important;
+            width: 20px !important;
+            height: 20px !important;
+            font-size: 11px !important;
+            line-height: 20px !important;
+         }
+      }
+
+      /* Mobile Bottom Navigation Bar (5 Items: Home, Shop, Sign In, Wishlist, Cart) */
+      @media (max-width: 767.98px) {
+         .aq-bottom-menu {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            z-index: 999 !important;
+            padding: 6px 4px 8px 4px !important;
+            background-color: #ffffff !important;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08) !important;
+            border-top: 1px solid #f1f5f9 !important;
+         }
+         .aq-bottom-menu-wrap {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-around !important;
+            width: 100% !important;
+            margin: 0 !important;
+         }
+         .aq-bottom-menu-item {
+            flex: 1 1 0 !important;
+            min-width: 0 !important;
+            text-align: center !important;
+            padding: 2px 0 !important;
+         }
+         .aq-bottom-menu-item a,
+         .aq-bottom-menu-item button {
+            display: inline-flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-decoration: none !important;
+            color: #0B0D0E !important;
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            width: 100% !important;
+            cursor: pointer !important;
+            transition: color 0.15s ease !important;
+         }
+         .aq-bottom-menu-item a:hover,
+         .aq-bottom-menu-item button:hover {
+            color: #2874f0 !important;
+         }
+         .aq-bottom-menu-item a:hover svg path,
+         .aq-bottom-menu-item button:hover svg path {
+            stroke: #2874f0 !important;
+         }
+         .aq-bottom-menu-item span {
+            display: block !important;
+            font-size: 11.5px !important;
+            font-weight: 500 !important;
+            line-height: 1.2 !important;
+            margin-top: 4px !important;
+            color: inherit !important;
+            white-space: nowrap !important;
+            letter-spacing: -0.2px !important;
+         }
+         .aq-bottom-menu-item .count-box {
+            position: absolute !important;
+            top: -6px !important;
+            right: -10px !important;
+            inset-inline-end: -10px !important;
+            width: 17px !important;
+            height: 17px !important;
+            font-size: 10px !important;
+            font-weight: 700 !important;
+            line-height: 17px !important;
+            text-align: center !important;
+            border-radius: 50% !important;
+            background-color: #0B0D0E !important;
+            color: #ffffff !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
+         }
+      }
    </style>
 
    <script>
@@ -1290,52 +1482,66 @@ if (!function_exists('elt_resolve_img')) {
       <div class="aq-bottom-menu-wrap d-flex align-items-center justify-content-between">
          <div class="aq-bottom-menu-item">
             <a href="<?= site_url('home'); ?>">
-               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="19" viewBox="0 0 18 19" fill="none">
-                  <path d="M6.4 18V11.7H11.2V18M0.8 7.15L8.8 1L16.8 7.15V16.65C16.8 17.008 16.6314 17.3514 16.3314 17.6046C16.0313 17.8577 15.6243 18 15.2 18H2.4C1.97565 18 1.56869 17.8577 1.26863 17.6046C0.968571 17.3514 0.8 17.008 0.8 16.65V7.15Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-               </svg>
+               <div class="position-relative d-inline-block">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="19" viewBox="0 0 18 19" fill="none">
+                     <path d="M6.4 18V11.7H11.2V18M0.8 7.15L8.8 1L16.8 7.15V16.65C16.8 17.008 16.6314 17.3514 16.3314 17.6046C16.0313 17.8577 15.6243 18 15.2 18H2.4C1.97565 18 1.56869 17.8577 1.26863 17.6046C0.968571 17.3514 0.8 17.008 0.8 16.65V7.15Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+               </div>
                <span>Home</span>
             </a>
          </div>
          <div class="aq-bottom-menu-item">
             <a href="<?= site_url('shop'); ?>">
-               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M0.75 0.75H6.08333V6.08333H0.75V0.75ZM9.41667 0.75H14.75V6.08333H9.41667V0.75ZM9.41667 9.41667H14.75V14.75H9.41667V9.41667ZM0.75 9.41667H6.08333V14.75H0.75V9.41667Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-               </svg>
+               <div class="position-relative d-inline-block">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                     <path d="M0.75 0.75H6.08333V6.08333H0.75V0.75ZM9.41667 0.75H14.75V6.08333H9.41667V0.75ZM9.41667 9.41667H14.75V14.75H9.41667V9.41667ZM0.75 9.41667H6.08333V14.75H0.75V9.41667Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+               </div>
                <span>Shop</span>
             </a>
          </div>
          <div class="aq-bottom-menu-item">
-            <button type="button" onclick="var s=document.getElementById('storeNavSearchInput');if(s){window.scrollTo({top:0,behavior:'smooth'});s.focus();}">
-               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path d="M18.7504 18.7499L14.4004 14.3999M16.75 8.75C16.75 13.1683 13.1683 16.75 8.75 16.75C4.33172 16.75 0.75 13.1683 0.75 8.75C0.75 4.33172 4.33172 0.75 8.75 0.75C13.1683 0.75 16.75 4.33172 16.75 8.75Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-               </svg>
-               <span>Search</span>
-            </button>
-         </div>
-         <div class="aq-bottom-menu-item">
-            <a href="<?= site_url('wishlist'); ?>">
-               <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 21 20" fill="none">
-                  <path d="M6.50726 4.80303C5.44195 5.14334 4.68503 6.09974 4.59044 7.22502M10.4856 18.6038C12.6562 17.2679 14.6755 15.6957 16.5073 13.9152C17.7951 12.633 18.7756 11.0698 19.3735 9.3454C20.4494 6.00032 19.1927 2.17084 15.6755 1.03753C13.827 0.442448 11.8081 0.782566 10.2505 1.95149C8.69225 0.783989 6.67412 0.443991 4.82552 1.03753C1.30833 2.17084 0.0425004 6.00032 1.11845 9.3454C1.71636 11.0698 2.69679 12.633 3.98465 13.9152C5.81647 15.6957 7.83575 17.2679 10.0064 18.6038L10.2414 18.75L10.4856 18.6038Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-               </svg>
-               <span>Wishlist</span>
-            </a>
-         </div>
-         <div class="aq-bottom-menu-item">
             <?php if (!empty($is_logged_in)): ?>
-            <a href="<?= site_url('account'); ?>">
-               <svg xmlns="http://www.w3.org/2000/svg" width="17" height="20" viewBox="0 0 17 20" fill="none">
-                  <path d="M16.212 18.75C16.212 15.267 12.747 12.45 8.481 12.45C4.215 12.45 0.75 15.267 0.75 18.75M12.9805 5.25C12.9805 7.73528 10.9657 9.75 8.48047 9.75C5.99519 9.75 3.98047 7.73528 3.98047 5.25C3.98047 2.76472 5.99519 0.75 8.48047 0.75C10.9657 0.75 12.9805 2.76472 12.9805 5.25Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-               </svg>
+            <a href="<?= site_url('account/profile'); ?>">
+               <div class="position-relative d-inline-block">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="17" height="20" viewBox="0 0 17 20" fill="none">
+                     <path d="M16.212 18.75C16.212 15.267 12.747 12.45 8.481 12.45C4.215 12.45 0.75 15.267 0.75 18.75M12.9805 5.25C12.9805 7.73528 10.9657 9.75 8.48047 9.75C5.99519 9.75 3.98047 7.73528 3.98047 5.25C3.98047 2.76472 5.99519 0.75 8.48047 0.75C10.9657 0.75 12.9805 2.76472 12.9805 5.25Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+               </div>
                <span>Account</span>
             </a>
             <?php else: ?>
             <a href="#exampleModalToggle" data-bs-toggle="modal">
-               <svg xmlns="http://www.w3.org/2000/svg" width="17" height="20" viewBox="0 0 17 20" fill="none">
-                  <path d="M16.212 18.75C16.212 15.267 12.747 12.45 8.481 12.45C4.215 12.45 0.75 15.267 0.75 18.75M12.9805 5.25C12.9805 7.73528 10.9657 9.75 8.48047 9.75C5.99519 9.75 3.98047 7.73528 3.98047 5.25C3.98047 2.76472 5.99519 0.75 8.48047 0.75C10.9657 0.75 12.9805 2.76472 12.9805 5.25Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-               </svg>
+               <div class="position-relative d-inline-block">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="17" height="20" viewBox="0 0 17 20" fill="none">
+                     <path d="M16.212 18.75C16.212 15.267 12.747 12.45 8.481 12.45C4.215 12.45 0.75 15.267 0.75 18.75M12.9805 5.25C12.9805 7.73528 10.9657 9.75 8.48047 9.75C5.99519 9.75 3.98047 7.73528 3.98047 5.25C3.98047 2.76472 5.99519 0.75 8.48047 0.75C10.9657 0.75 12.9805 2.76472 12.9805 5.25Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+               </div>
                <span>Sign In</span>
             </a>
             <?php endif; ?>
+         </div>
+         <div class="aq-bottom-menu-item">
+            <a href="<?= site_url('wishlist'); ?>">
+               <div class="position-relative d-inline-block">
+                  <span class="count-box wishlist-count"><?= $wish_cnt; ?></span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 21 20" fill="none">
+                     <path d="M6.50726 4.80303C5.44195 5.14334 4.68503 6.09974 4.59044 7.22502M10.4856 18.6038C12.6562 17.2679 14.6755 15.6957 16.5073 13.9152C17.7951 12.633 18.7756 11.0698 19.3735 9.3454C20.4494 6.00032 19.1927 2.17084 15.6755 1.03753C13.827 0.442448 11.8081 0.782566 10.2505 1.95149C8.69225 0.783989 6.67412 0.443991 4.82552 1.03753C1.30833 2.17084 0.0425004 6.00032 1.11845 9.3454C1.71636 11.0698 2.69679 12.633 3.98465 13.9152C5.81647 15.6957 7.83575 17.2679 10.0064 18.6038L10.2414 18.75L10.4856 18.6038Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+               </div>
+               <span>Wishlist</span>
+            </a>
+         </div>
+         <div class="aq-bottom-menu-item">
+            <a href="javascript:void(0);" class="aq-cart-btn" aria-label="Cart">
+               <div class="position-relative d-inline-block">
+                  <span class="count-box cart-count"><?= $cart_cnt; ?></span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="21" viewBox="0 0 20 21" fill="none">
+                     <path d="M5.48681 5.07041C5.48681 2.68433 7.4211 0.750039 9.80717 0.750039C10.9562 0.74517 12.0598 1.1982 12.874 2.00895C13.6882 2.81971 14.1459 3.92139 14.1458 5.07041M6.84107 9.57384H6.88684M12.6721 9.57388H12.7179M5.62368 19.972H13.9715C17.0379 19.972 19.3903 18.8645 18.7221 14.4068L17.944 8.3656C17.5321 6.14134 16.1134 5.29008 14.8685 5.29008H4.69004C3.42688 5.29008 2.0905 6.20542 1.61453 8.3656L0.836493 14.4068C0.268988 18.361 2.55732 19.972 5.62368 19.972Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+               </div>
+               <span>Cart</span>
+            </a>
          </div>
       </div>
    </div>
@@ -1371,6 +1577,9 @@ if (!function_exists('elt_resolve_img')) {
                                placeholder="Search for Products, Brands and More"
                                value="<?= html_escape($search_query ?? ($this->input->get('q') ?: '')); ?>"
                                autocomplete="off">
+                        <button type="button" class="store-search-close-btn d-md-none" onclick="window.toggleEltMobileSearch && window.toggleEltMobileSearch(false);" aria-label="Close search" style="background:none;border:none;padding:4px 6px;color:#94a3b8;font-size:14px;cursor:pointer;">
+                           <i class="fa-solid fa-xmark"></i>
+                        </button>
                      </div>
                   </form>
                   <!-- Search Autocomplete Dropdown -->
@@ -1380,7 +1589,7 @@ if (!function_exists('elt_resolve_img')) {
                <!-- Right Options -->
                <div class="aq-header-right-options text-end order-2 order-md-3">
                   <ul>
-                     <li class="aq-header-top-account store-nav-account position-relative d-inline-flex">
+                     <li class="aq-header-top-account store-nav-account position-relative d-none d-md-inline-flex">
                         <?php if (!empty($is_logged_in)):
                             $u_first = !empty($current_user['first_name']) ? $current_user['first_name'] : 'Member';
                             $u_name  = trim(($current_user['first_name'] ?? '') . ' ' . ($current_user['last_name'] ?? ''));
@@ -1449,7 +1658,7 @@ if (!function_exists('elt_resolve_img')) {
                         </a>
                         <?php endif; ?>
                      </li>
-                     <li class="aq-header-top-wishlist d-inline-flex">
+                     <li class="aq-header-top-wishlist d-none d-md-inline-flex">
                         <a href="<?= site_url('wishlist'); ?>" class="text-decoration-none" title="My Wishlist" aria-label="My Wishlist">
                            <span class="count-box wishlist-count"><?= $wish_cnt; ?></span>
                            <i>
@@ -1458,6 +1667,15 @@ if (!function_exists('elt_resolve_img')) {
                               </svg>
                            </i>
                         </a>
+                     </li>
+                     <li class="aq-header-top-search-btn d-inline-flex d-md-none">
+                        <button type="button" class="elt-mobile-search-toggle" id="eltMobileSearchToggle" onclick="window.toggleEltMobileSearch && window.toggleEltMobileSearch();" aria-label="Search">
+                           <i>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                 <path d="M18.7504 18.7499L14.4004 14.3999M16.75 8.75C16.75 13.1683 13.1683 16.75 8.75 16.75C4.33172 16.75 0.75 13.1683 0.75 8.75C0.75 4.33172 4.33172 0.75 8.75 0.75C13.1683 0.75 16.75 4.33172 16.75 8.75Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                           </i>
+                        </button>
                      </li>
                      <li class="aq-header-top-cart aq-cart-btn">
                         <button type="button">
@@ -1960,7 +2178,8 @@ if (!function_exists('elt_resolve_img')) {
          }
          @media (max-width: 767.98px) {
             header.elt-site-header {
-               padding-top: 122px;
+               padding-top: 74px;
+               transition: padding-top 0.2s ease;
             }
          }
       </style>
@@ -2085,9 +2304,51 @@ if (!function_exists('elt_resolve_img')) {
                }
             }
          }
+         window.syncStickyHeaderOffset = syncStickyHeaderOffset;
          syncStickyHeaderOffset();
          window.addEventListener('resize', syncStickyHeaderOffset);
          window.addEventListener('load', syncStickyHeaderOffset);
+
+         // Mobile Search Toggle & Outside Click / Escape Listeners
+         window.toggleEltMobileSearch = function(forceState) {
+            var sc = document.querySelector('.store-search-col');
+            var btn = document.getElementById('eltMobileSearchToggle');
+            if (!sc) return;
+            var shouldOpen = typeof forceState === 'boolean' ? forceState : !sc.classList.contains('is-mobile-open');
+            if (shouldOpen) {
+               sc.classList.add('is-mobile-open');
+               if (btn) btn.classList.add('active');
+               var inp = document.getElementById('storeNavSearchInput');
+               if (inp) {
+                  setTimeout(function() { inp.focus(); }, 120);
+               }
+            } else {
+               sc.classList.remove('is-mobile-open');
+               if (btn) btn.classList.remove('active');
+            }
+            if (typeof syncStickyHeaderOffset === 'function') {
+               syncStickyHeaderOffset();
+            }
+         };
+
+         document.addEventListener('click', function(e) {
+            if (window.innerWidth >= 768) return;
+            var sc = document.querySelector('.store-search-col');
+            if (!sc || !sc.classList.contains('is-mobile-open')) return;
+            var stickyBar = document.querySelector('.aq-header-area.elt-sticky-top-bar');
+            if (stickyBar && !stickyBar.contains(e.target)) {
+               window.toggleEltMobileSearch(false);
+            }
+         });
+
+         document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+               var sc = document.querySelector('.store-search-col');
+               if (sc && sc.classList.contains('is-mobile-open')) {
+                  window.toggleEltMobileSearch(false);
+               }
+            }
+         });
 
          // 1. All Categories Split Flyout Hover Switching
          var deptItems = document.querySelectorAll('.elt-v2-dept-item[data-v2-pane]');
