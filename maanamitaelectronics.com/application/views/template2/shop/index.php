@@ -72,13 +72,23 @@ if (!function_exists('elt_get_product_swatches')) {
                 }
             }
         }
-        if (empty($swatches) && empty($is_user_project)) {
-            $swatches = [
-                ['name' => 'Brown',   'color_code' => '#8D694A', 'image' => $default_img],
-                ['name' => 'Iridium', 'color_code' => '#3A3F32', 'image' => $default_img],
-                ['name' => 'Darb',    'color_code' => '#7B7C4C', 'image' => $default_img],
-                ['name' => 'Wine',    'color_code' => '#73272D', 'image' => $default_img],
-            ];
+        if (empty($swatches) && !empty($p['attributes']) && is_array($p['attributes'])) {
+            foreach ($p['attributes'] as $attr_slug => $attr_data) {
+                $isCol = ($attr_slug === 'color' || ($attr_data['type'] ?? '') === 'color' || strpos($attr_slug, 'color-') === 0 || strcasecmp($attr_data['name'] ?? '', 'color') === 0);
+                if ($isCol && !empty($attr_data['values']) && is_array($attr_data['values'])) {
+                    foreach ($attr_data['values'] as $val) {
+                        $vName = $val['value'] ?? ($val['attribute_value'] ?? 'Color');
+                        if (!isset($seen[$vName])) {
+                            $seen[$vName] = true;
+                            $swatches[] = [
+                                'name'       => $vName,
+                                'color_code' => !empty($val['color_code']) ? $val['color_code'] : '#111827',
+                                'image'      => !empty($val['image']) ? elt_shop_prod_img($val['image']) : $default_img,
+                            ];
+                        }
+                    }
+                }
+            }
         }
         return $swatches;
     }
@@ -536,6 +546,53 @@ if (!empty($is_user_project)) {
       color: #0B0D0E;
    }
 
+   /* Product Card Color Swatches & Proper Containment */
+   .aq-product-color {
+      margin-top: auto;
+      padding-top: 6px;
+      width: 100%;
+   }
+   .aq-product-color ul {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+   }
+   .aq-product-color-item {
+      position: relative;
+      height: 20px;
+      width: 20px;
+      margin: 0;
+      cursor: pointer;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid rgba(15, 23, 42, 0.2) !important;
+      background: #ffffff;
+      padding: 2px;
+      box-sizing: border-box;
+      transition: all 0.2s ease-out;
+      flex-shrink: 0;
+   }
+   .aq-product-color-item:hover, .aq-product-color-item.active {
+      border-color: #0B0D0E !important;
+   }
+   .aq-product-color-item .aq-product-color-value {
+      position: relative;
+      height: 100% !important;
+      width: 100% !important;
+      display: block;
+      border-radius: 50%;
+      transition: transform 0.2s ease-out;
+   }
+   .aq-product-color-item:hover .aq-product-color-value, .aq-product-color-item.active .aq-product-color-value {
+      transform: scale(0.72);
+   }
+
    /* List View Mode: Left Image, Right Product Details */
    #eltProductsGrid.is-list-view > .elt-product-col {
       width: 100% !important;
@@ -634,9 +691,13 @@ if (!empty($is_user_project)) {
          margin-bottom: 14px !important;
       }
       #eltProductsGrid .aq-product-item.aq-product-main {
-         height: 330px;
+         height: auto !important;
+         min-height: 330px;
          padding: 8px;
          margin-bottom: 4px !important;
+         display: flex;
+         flex-direction: column;
+         justify-content: space-between;
       }
       #eltProductsGrid .aq-product-item.aq-product-main .aq-product-thumb {
          height: 165px;
@@ -848,8 +909,8 @@ if (!empty($is_user_project)) {
                      $p_name     = $p['name'] ?? ($p['title'] ?? 'Electronics Product');
                      $p_slug     = !empty($p['slug']) ? site_url('product/' . $p['slug'] . $elt_qs) : site_url('product/' . $p_id . $elt_qs);
                      $p_img      = elt_shop_prod_img($p, $pi++);
-                     $p_hover    = elt_get_hover_img($p, $p_img);
-                     $p_swatches = elt_get_product_swatches($p, $p_img);
+                     $p_swatches = elt_get_product_swatches($p, $p_img, !empty($is_user_project));
+                     $p_hover    = elt_get_hover_img($p, $p_img, $p_swatches);
                      $p_cat      = !empty($p['category_name']) ? $p['category_name'] : ($selected_category['name'] ?? 'Electronics');
                      $p_price    = (!empty($p['sale_price']) && (float)$p['sale_price'] > 0 && (float)$p['sale_price'] < (float)$p['price'])
                                  ? (float)$p['sale_price']

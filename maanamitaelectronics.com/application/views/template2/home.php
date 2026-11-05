@@ -76,13 +76,23 @@ if (!function_exists('elt_get_product_swatches')) {
                 }
             }
         }
-        if (empty($swatches) && empty($is_user_project)) {
-            $swatches = [
-                ['name' => 'Brown',   'color_code' => '#8D694A', 'image' => $default_img],
-                ['name' => 'Iridium', 'color_code' => '#3A3F32', 'image' => $default_img],
-                ['name' => 'Darb',    'color_code' => '#7B7C4C', 'image' => $default_img],
-                ['name' => 'Wine',    'color_code' => '#73272D', 'image' => $default_img],
-            ];
+        if (empty($swatches) && !empty($p['attributes']) && is_array($p['attributes'])) {
+            foreach ($p['attributes'] as $attr_slug => $attr_data) {
+                $isCol = ($attr_slug === 'color' || ($attr_data['type'] ?? '') === 'color' || strpos($attr_slug, 'color-') === 0 || strcasecmp($attr_data['name'] ?? '', 'color') === 0);
+                if ($isCol && !empty($attr_data['values']) && is_array($attr_data['values'])) {
+                    foreach ($attr_data['values'] as $val) {
+                        $vName = $val['value'] ?? ($val['attribute_value'] ?? 'Color');
+                        if (!isset($seen[$vName])) {
+                            $seen[$vName] = true;
+                            $swatches[] = [
+                                'name'       => $vName,
+                                'color_code' => !empty($val['color_code']) ? $val['color_code'] : '#111827',
+                                'image'      => !empty($val['image']) ? elt_product_img($val['image']) : $default_img,
+                            ];
+                        }
+                    }
+                }
+            }
         }
         return $swatches;
     }
@@ -175,13 +185,144 @@ $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empt
          }
          @media (max-width: 767.98px) {
             .elt-slider-content .aq-section-title {
-               font-size: 30px !important;
+               font-size: 24px !important;
                line-height: 1.25 !important;
+               margin-bottom: 12px !important;
             }
-            .elt-slider-content .aq-section-subtitle,
+            .elt-slider-content .aq-section-subtitle {
+               font-size: 13px !important;
+               line-height: 20px !important;
+               margin-bottom: 8px !important;
+            }
             .elt-slider-content .elt-slider-price {
-               font-size: 15px !important;
-               line-height: 26px !important;
+               font-size: 14px !important;
+               line-height: 20px !important;
+               margin-bottom: 16px !important;
+            }
+            .elt-slider-item {
+               padding: 25px 10px !important;
+            }
+            .elt-slider-arrow {
+               display: none !important;
+            }
+            .elt-slider-area.mb-60 {
+               margin-bottom: 25px !important;
+            }
+
+            /* 2x2 Feature Box on Mobile */
+            .aqf-shop-feature-ptb {
+               padding-bottom: 20px !important;
+            }
+            .aqf-shop-feature-wrap {
+               padding: 14px 10px 4px !important;
+               gap: 8px !important;
+            }
+            .aqf-shop-feature-item {
+               flex: 0 0 calc(50% - 4px) !important;
+               width: calc(50% - 4px) !important;
+               margin-bottom: 10px !important;
+               gap: 6px !important;
+            }
+            .aqf-shop-feature-icon span {
+               width: 34px !important;
+               height: 34px !important;
+            }
+            .aqf-shop-feature-icon span svg {
+               width: 18px !important;
+               height: 18px !important;
+            }
+            .aqf-shop-feature-content h4 {
+               font-size: 12px !important;
+               line-height: 1.2 !important;
+               margin-bottom: 0 !important;
+            }
+            .aqf-shop-feature-content p {
+               display: none !important;
+            }
+
+            /* Categories Carousel on Mobile */
+            .aqf-categories-area {
+               padding-top: 10px !important;
+               padding-bottom: 15px !important;
+            }
+            .aqf-categories-wrap.mb-60 {
+               margin-bottom: 15px !important;
+            }
+            .aqf-categories-img {
+               width: 58px !important;
+               height: 58px !important;
+               margin: 0 auto 6px !important;
+            }
+            .aqf-categories-item span {
+               font-size: 11px !important;
+            }
+            .aqf-categories-arrow {
+               display: none !important;
+            }
+
+            /* Section Headings */
+            .elt-arrival-title-box h4 {
+               font-size: 20px !important;
+            }
+            .elt-arrival-top.mb-35 {
+               margin-bottom: 12px !important;
+            }
+
+            /* Today's Best Deals Area */
+            .aq-product-3-area.pt-100.pb-120 {
+               padding-top: 30px !important;
+               padding-bottom: 30px !important;
+            }
+            .aq-product-3-title-box h4 {
+               font-size: 20px !important;
+               margin-bottom: 8px !important;
+            }
+            .aq-product-3-top.mb-35 {
+               margin-bottom: 16px !important;
+            }
+            .aq-countdown-style-2 .count-box span {
+               height: 30px !important;
+               width: 30px !important;
+               font-size: 12px !important;
+               line-height: 30px !important;
+            }
+            .aq-countdown-style-2 .count-box i {
+               margin: 0 2px !important;
+               font-size: 13px !important;
+            }
+            .aq-countdown-text {
+               display: none !important;
+            }
+            .aq-product-3-item {
+               padding: 8px !important;
+               border: 1px solid #f0f0f0 !important;
+               border-radius: 8px !important;
+               margin-bottom: 10px !important;
+            }
+            .aq-product-3-thumb {
+               width: 85px !important;
+               height: 85px !important;
+               flex: 0 0 85px !important;
+            }
+            .aq-product-3-thumb img {
+               max-height: 100% !important;
+               object-fit: contain !important;
+            }
+            .aq-product-3-content {
+               padding-left: 10px !important;
+            }
+            .aq-product-3-content .aq-product-title {
+               font-size: 13px !important;
+               line-height: 1.3 !important;
+               margin-bottom: 4px !important;
+            }
+
+            /* Popular Products & Brand */
+            .elt-arrival-area.pb-120 {
+               padding-bottom: 30px !important;
+            }
+            .aq-brand-area.mb-120 {
+               margin-bottom: 30px !important;
             }
          }
       </style>
@@ -285,7 +426,6 @@ $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empt
                      <div class="elt-slider-content z-index-1">
                         <span class="aq-section-subtitle ff-satoshi-reg mb-15"><?= $slide['subtitle']; ?></span>
                         <h3 class="aq-section-title ff-onest-bold fs-56 mb-30"><?= $slide['title']; ?></h3>
-                        <span class="elt-slider-price mb-40"><?= $slide['price']; ?></span>
                         <a class="aq-btn-black radius-30" href="<?= $slide['link']; ?>">Shop Now</a>
                      </div>
                   </div>
@@ -446,7 +586,7 @@ $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empt
                </div>
             </div>
             <?php endif; ?>
-            <div class="row gx-15 row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-1">
+            <div class="row gx-2 gx-md-3 row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-2">
                <?php if (empty($arrivals_list)): ?>
                <div class="col-12 w-100 py-5 text-center text-muted">
                   <p class="mb-0">No products available at the moment.</p>
@@ -724,7 +864,7 @@ $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empt
                </div>
             </div>
             <?php endif; ?>
-            <div class="row gx-15 row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-1">
+            <div class="row gx-2 gx-md-3 row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-2">
                <?php if (empty($popular_list)): ?>
                <div class="col-12 w-100 py-5 text-center text-muted">
                   <p class="mb-0">No products available at the moment.</p>

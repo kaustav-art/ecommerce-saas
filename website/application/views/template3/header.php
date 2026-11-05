@@ -920,6 +920,75 @@
          background-color: #fff5f5;
          color: #dc3545 !important;
       }
+
+      /* =====================================================================
+       * Mobile Header, Category Scroll & Drawer Responsive Rules (< 768px)
+       * ===================================================================== */
+      @media (max-width: 767.98px) {
+         .grc-header-main-nav {
+            padding-top: 10px !important;
+            padding-bottom: 10px !important;
+         }
+         .aq-header-top-account-content {
+            display: none !important;
+         }
+         .grc-option-style {
+            width: 38px !important;
+            height: 38px !important;
+         }
+         .grc-option-style i svg {
+            width: 17px !important;
+            height: 17px !important;
+         }
+         .aq-header-right-options ul {
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+         }
+         .after-login-drawer-menu {
+            right: -60px !important;
+            width: 260px !important;
+         }
+      }
+
+      /* Horizontal touch-scroll category aisles bar on screens < 992px */
+      @media (max-width: 991.98px) {
+         .grc-category-aisles-bar {
+            padding-top: 8px !important;
+            padding-bottom: 8px !important;
+         }
+         .grc-categories-wrap {
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            scrollbar-width: none !important;
+            gap: 14px !important;
+            padding: 2px 8px !important;
+            justify-content: flex-start !important;
+         }
+         .grc-categories-wrap::-webkit-scrollbar {
+            display: none !important;
+         }
+         .grc-categories-item {
+            flex: 0 0 auto !important;
+            text-align: center !important;
+         }
+         .grc-categories-icon {
+            width: 44px !important;
+            height: 44px !important;
+            border-radius: 50% !important;
+            background: rgba(255, 255, 255, 0.12) !important;
+            margin: 0 auto 4px !important;
+         }
+         .grc-categories-title {
+            font-size: 11.5px !important;
+            color: #ffffff !important;
+            white-space: nowrap !important;
+            display: block !important;
+         }
+         .grc-more-cats-dropdown {
+            display: none !important;
+         }
+      }
    </style>
 
    <script>
@@ -1188,7 +1257,7 @@
                   <div class="col-lg-3 col-md-4 col-6">
                      <div class="aq-header-right-options grc-header-right-option text-end">
                         <ul>
-                           <li class="aq-header-top-account store-nav-account position-relative d-none d-md-inline-flex">
+                           <li class="aq-header-top-account store-nav-account position-relative d-inline-flex">
                               <?php if (!empty($is_logged_in)):
                                   $u_first = !empty($current_user['first_name']) ? $current_user['first_name'] : 'Member';
                                   $u_name  = trim(($current_user['first_name'] ?? '') . ' ' . ($current_user['last_name'] ?? ''));
@@ -1313,7 +1382,7 @@
    <!-- Department Category Bar (Dark Green) -->
    <nav class="grc-category-aisles-bar grc-header-ptb pt-10 pb-15" data-bg-color="#003D29" style="background-color:#003D29;">
       <div class="container container-1630">
-         <div class="grc-categories-wrap d-lg-flex d-none justify-content-between align-items-center">
+         <div class="grc-categories-wrap d-flex justify-content-between align-items-center">
             <?php
             $dept_icons = ['fa-apple-whole', 'fa-carrot', 'fa-cheese', 'fa-bread-slice', 'fa-mug-hot', 'fa-jar', 'fa-Seedling', 'fa-fish', 'fa-cookie-bite', 'fa-bottle-water', 'fa-bowl-rice', 'fa-egg'];
             $dept_default_imgs = [

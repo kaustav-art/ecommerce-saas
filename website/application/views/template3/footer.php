@@ -3,6 +3,19 @@ $bazaro = isset($tpl_assets) ? rtrim($tpl_assets, '/') . '/' : base_url('assets/
 $curr   = isset($currency_symbol) ? $currency_symbol : '$';
 ?>
    <footer>
+      <style>
+      @media (max-width: 767.98px) {
+         .aq-footer-area.grc-footer-style {
+            padding-top: 35px !important;
+         }
+         .aq-footer-widget.mb-90 {
+            margin-bottom: 25px !important;
+         }
+         .aq-footer-widget-wrap {
+            padding-bottom: 10px !important;
+         }
+      }
+      </style>
 
       <!-- footer area start -->
       <div class="aq-footer-area grc-footer-style pt-100" data-bg-color="#003D29" style="background-color:#003D29;">

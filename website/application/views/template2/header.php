@@ -82,6 +82,10 @@ if (!function_exists('elt_resolve_img')) {
          --bs-primary: #0B0D0E;
          --bs-primary-rgb: 11, 13, 14;
       }
+      html, body {
+         overflow-x: hidden;
+         max-width: 100%;
+      }
       /* Preload Spinner (Matching Fashion Template) */
       #loading { display: none !important; }
       .preload-container {
@@ -519,7 +523,9 @@ if (!function_exists('elt_resolve_img')) {
       .aq-product-item.aq-product-main {
          display: flex;
          flex-direction: column;
-         height: 465px;
+         justify-content: space-between;
+         height: auto !important;
+         min-height: 450px;
          background-color: #ffffff !important;
          border: 1px solid #e2e8f0;
          border-radius: 16px;
@@ -602,14 +608,101 @@ if (!function_exists('elt_resolve_img')) {
          overflow: hidden;
          text-overflow: ellipsis;
       }
+
+      /* Product Card Color Swatches */
+      .aq-product-color {
+         margin-top: auto;
+         padding-top: 6px;
+         width: 100%;
+      }
+      .aq-product-color ul {
+         display: flex;
+         align-items: center;
+         flex-wrap: wrap;
+         gap: 5px;
+         margin: 0;
+         padding: 0;
+         list-style: none;
+      }
+      .aq-product-color-item {
+         position: relative;
+         height: 20px;
+         width: 20px;
+         margin: 0;
+         cursor: pointer;
+         border-radius: 50%;
+         display: inline-flex;
+         align-items: center;
+         justify-content: center;
+         border: 1.5px solid rgba(15, 23, 42, 0.2) !important;
+         background: #ffffff;
+         padding: 2px;
+         box-sizing: border-box;
+         transition: all 0.2s ease-out;
+         flex-shrink: 0;
+      }
+      .aq-product-color-item:hover, .aq-product-color-item.active {
+         border-color: #0B0D0E !important;
+      }
+      .aq-product-color-item .aq-product-color-value {
+         position: relative;
+         height: 100% !important;
+         width: 100% !important;
+         display: block;
+         border-radius: 50%;
+         transition: transform 0.2s ease-out;
+      }
+      .aq-product-color-item:hover .aq-product-color-value, .aq-product-color-item.active .aq-product-color-value {
+         transform: scale(0.72);
+      }
+
       @media (max-width: 575.98px) {
          .aq-product-item.aq-product-main {
-            height: 405px;
-            padding: 10px;
+            height: auto !important;
+            min-height: 290px !important;
+            padding: 8px !important;
+            margin-bottom: 12px !important;
          }
          .aq-product-item.aq-product-main .aq-product-thumb {
-            height: 215px;
-            flex: 0 0 215px;
+            height: 145px !important;
+            flex: 0 0 145px !important;
+            margin-bottom: 6px !important;
+         }
+         .aq-product-item.aq-product-main .aq-product-thumb img {
+            max-height: 100% !important;
+            object-fit: contain !important;
+         }
+         .aq-product-item.aq-product-main .aq-product-title {
+            font-size: 13px !important;
+            line-height: 1.3 !important;
+            height: 34px !important;
+            display: -webkit-box !important;
+            -webkit-line-clamp: 2 !important;
+            -webkit-box-orient: vertical !important;
+            overflow: hidden !important;
+            margin-bottom: 4px !important;
+         }
+         .aq-product-item.aq-product-main .aq-product-title a {
+            font-size: 13px !important;
+         }
+         .aq-product-item.aq-product-main .aq-product-new-price {
+            font-size: 14px !important;
+            font-weight: 700 !important;
+         }
+         .aq-product-item.aq-product-main .aq-product-old-price {
+            font-size: 11px !important;
+         }
+         .aq-product-badge span {
+            font-size: 9.5px !important;
+            padding: 2px 6px !important;
+         }
+         .aq-product-color-item {
+            width: 20px !important;
+            height: 20px !important;
+            padding: 2px !important;
+         }
+         .aq-header-top-account-content {
+            display: none !important;
          }
       }
 
@@ -1287,7 +1380,7 @@ if (!function_exists('elt_resolve_img')) {
                <!-- Right Options -->
                <div class="aq-header-right-options text-end order-2 order-md-3">
                   <ul>
-                     <li class="aq-header-top-account store-nav-account position-relative d-none d-md-inline-flex">
+                     <li class="aq-header-top-account store-nav-account position-relative d-inline-flex">
                         <?php if (!empty($is_logged_in)):
                             $u_first = !empty($current_user['first_name']) ? $current_user['first_name'] : 'Member';
                             $u_name  = trim(($current_user['first_name'] ?? '') . ' ' . ($current_user['last_name'] ?? ''));
@@ -1356,7 +1449,7 @@ if (!function_exists('elt_resolve_img')) {
                         </a>
                         <?php endif; ?>
                      </li>
-                     <li class="aq-header-top-wishlist d-none d-md-inline-block">
+                     <li class="aq-header-top-wishlist d-inline-flex">
                         <a href="<?= site_url('wishlist'); ?>" class="text-decoration-none" title="My Wishlist" aria-label="My Wishlist">
                            <span class="count-box wishlist-count"><?= $wish_cnt; ?></span>
                            <i>
@@ -1833,7 +1926,12 @@ if (!function_exists('elt_resolve_img')) {
             transform: translateX(0);
          }
          @media (max-width: 991.98px) {
+            .elt-v2-inner {
+               overflow: hidden;
+            }
             .elt-v2-nav-list {
+               min-width: 0;
+               flex: 1 1 auto;
                overflow-x: auto;
                justify-content: flex-start;
                scrollbar-width: none;

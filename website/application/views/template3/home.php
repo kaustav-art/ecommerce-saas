@@ -235,6 +235,201 @@ if (!function_exists('grc_product_img')) {
                width: 20% !important;
             }
          }
+
+         /* Mobile Responsive Home Enhancements (< 768px & < 576px) */
+         @media (max-width: 767.98px) {
+            .grc-hero-content {
+               padding-top: 25px !important;
+               padding-bottom: 20px !important;
+               text-align: center !important;
+            }
+            .grc-hero-title {
+               font-size: 24px !important;
+               line-height: 1.25 !important;
+               margin-bottom: 14px !important;
+            }
+            .grc-hero-subtitle {
+               font-size: 13px !important;
+               margin-bottom: 8px !important;
+            }
+            .grc-hero-shapes {
+               display: none !important;
+            }
+            .grc-hero-thumb-wrap {
+               padding-top: 10px !important;
+               padding-bottom: 25px !important;
+               text-align: center !important;
+            }
+            .grc-hero-thumb-wrap img {
+               max-height: 180px !important;
+               width: auto !important;
+               margin: 0 auto !important;
+            }
+            .elt-slider-arrow.grc-slider-arrow {
+               display: none !important;
+            }
+
+            /* Feature 2x2 grid on mobile */
+            .aqf-shop-feature-wrap {
+               padding: 14px 10px 4px !important;
+               gap: 8px !important;
+            }
+            .aqf-shop-feature-item {
+               flex: 0 0 calc(50% - 4px) !important;
+               width: calc(50% - 4px) !important;
+               margin-bottom: 10px !important;
+               gap: 6px !important;
+            }
+            .aqf-shop-feature-icon span {
+               width: 34px !important;
+               height: 34px !important;
+            }
+            .aqf-shop-feature-icon span i {
+               font-size: 14px !important;
+            }
+            .aqf-shop-feature-content h4 {
+               font-size: 12px !important;
+               line-height: 1.2 !important;
+               margin-bottom: 0 !important;
+            }
+            .aqf-shop-feature-content p {
+               display: none !important;
+            }
+
+            /* Headings and spacing */
+            .grc-product-heading h4 {
+               font-size: 20px !important;
+            }
+            .grc-product-top {
+               padding-bottom: 10px !important;
+            }
+            .grc-product-ptb {
+               padding-bottom: 25px !important;
+            }
+
+            /* Flash Sales / Deal of the Week */
+            .aqf-deals-area.pb-80 {
+               padding-bottom: 30px !important;
+            }
+            .aqf-deals-wrap.grc-deals-style {
+               padding: 14px 10px !important;
+            }
+            .aqf-deals-wrap.grc-deals-style .row.gx-50 {
+               --bs-gutter-x: 0 !important;
+            }
+            .grc-deals-wrapper.mt-60 {
+               margin-top: 10px !important;
+            }
+            .aqf-banner-2-box {
+               height: 130px !important;
+               border-radius: 10px !important;
+               overflow: hidden !important;
+               margin-bottom: 12px !important;
+            }
+            .aqf-banner-2-content {
+               padding: 15px !important;
+            }
+            .aqf-banner-2-content .aq-section-title.fs-40 {
+               font-size: 24px !important;
+               margin-bottom: 6px !important;
+            }
+            .aq-countdown-style-2 .count-box span {
+               height: 30px !important;
+               width: 30px !important;
+               font-size: 12px !important;
+               line-height: 30px !important;
+            }
+            .aq-countdown-style-2 .count-box i {
+               margin: 0 2px !important;
+               font-size: 13px !important;
+            }
+            .aq-countdown-text {
+               display: none !important;
+            }
+            .grc-deals-heading h4 {
+               font-size: 19px !important;
+               margin-bottom: 6px !important;
+               text-align: center !important;
+            }
+            .aq-product-3-top-right {
+               justify-content: center !important;
+            }
+
+            /* Marquee & Brand */
+            .aqf-text-slide-area {
+               overflow: hidden !important;
+            }
+            .aqf-text-slide-item p {
+               font-size: 12px !important;
+            }
+            .aq-brand-ptb {
+               padding-top: 25px !important;
+               padding-bottom: 25px !important;
+            }
+         }
+
+         /* 2-Column Product Cards on Mobile (< 576px) */
+         @media (max-width: 575.98px) {
+            .aq-product-item.aq-product-main {
+               margin-bottom: 12px !important;
+            }
+            .aq-product-thumb {
+               margin-bottom: 6px !important;
+            }
+            .aq-product-thumb img.aq-product-img-hover {
+               height: 145px !important;
+               width: 100% !important;
+               object-fit: contain !important;
+               background-color: #fafafa !important;
+            }
+            .aq-product-content {
+               padding: 0 2px !important;
+            }
+            .aq-product-title {
+               font-size: 13px !important;
+               line-height: 1.3 !important;
+               height: 34px !important;
+               display: -webkit-box !important;
+               -webkit-line-clamp: 2 !important;
+               -webkit-box-orient: vertical !important;
+               overflow: hidden !important;
+               margin-bottom: 4px !important;
+            }
+            .aq-product-title a {
+               font-size: 13px !important;
+            }
+            .aq-product-new-price {
+               font-size: 14px !important;
+               font-weight: 700 !important;
+            }
+            .aq-product-old-price {
+               font-size: 11px !important;
+            }
+            .product-btn-green {
+               font-size: 12px !important;
+               height: 32px !important;
+               line-height: 32px !important;
+               padding: 0 6px !important;
+               border-radius: 6px !important;
+               font-weight: 600 !important;
+            }
+            .grc-unit-pill {
+               font-size: 9.5px !important;
+               padding: 1px 6px !important;
+               margin-bottom: 2px !important;
+            }
+            .aqf-product-3-category {
+               font-size: 10.5px !important;
+            }
+            .aq-product-badge span.clr-sale {
+               font-size: 9px !important;
+               padding: 2px 6px !important;
+            }
+            .aq-product-ratting {
+               font-size: 10px !important;
+               margin-bottom: 2px !important;
+            }
+         }
       </style>
       <div class="grc-product-ptb pb-50">
          <div class="container container-1630">
@@ -272,7 +467,7 @@ if (!function_exists('grc_product_img')) {
                       $p_url  = site_url('product/' . $p['slug']);
                       $p_unit = !empty($p['unit_label']) ? $p['unit_label'] : '1 Pack';
                    ?>
-                   <div class="col-lg-4 col-sm-6 grc-col-5">
+                   <div class="col-6 col-sm-6 col-lg-4 grc-col-5 px-1 px-sm-2 mb-2 mb-sm-4">
                       <div class="aq-product-item aq-product-main mb-40">
                          <div class="aq-product-thumb p-relative mb-10">
                             <?php if (!empty($p['is_flash_sale']) || $p_pct > 0 || !empty($p['is_new'])): ?>
