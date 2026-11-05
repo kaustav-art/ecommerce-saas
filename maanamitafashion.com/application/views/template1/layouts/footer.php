@@ -7,9 +7,12 @@
                         <div class="footer-logo mb-3">
                             <a href="<?= site_url('home'); ?>" class="d-inline-block mb-3">
                                 <?php
-                                  $footer_logo = !empty($store_settings['site_logo'])
-                                    ? base_url('assets/images/logo/' . $store_settings['site_logo'])
-                                    : base_url('assets/images/logo/logo.webp');
+                                  $raw_f_logo = trim((string)($store_settings['site_logo'] ?? ''));
+                                  if ($raw_f_logo !== '') {
+                                      $footer_logo = (strpos($raw_f_logo, 'assets/') === 0) ? base_url($raw_f_logo) : base_url('assets/images/logo/' . $raw_f_logo);
+                                  } else {
+                                      $footer_logo = base_url('assets/images/logo/logo.webp');
+                                  }
                                 ?>
                                 <img src="<?= $footer_logo; ?>" alt="<?= html_escape($site_name ?? ($store_settings['site_name'] ?? 'Store')); ?>" style="max-height: 42px; width: auto; background: #ffffff; padding: 5px 12px; border-radius: 6px;" onerror="this.src='<?= base_url('assets/images/logo/logo.webp'); ?>'">
                             </a>

@@ -9,9 +9,12 @@
                         <div class="store-logo-col flex-shrink-0 order-1">
                             <a href="<?= site_url('home'); ?>" class="logo-header d-inline-block">
                                 <?php
-                                  $web_logo = !empty($store_settings['site_logo'])
-                                    ? base_url('assets/images/logo/' . $store_settings['site_logo'])
-                                    : base_url('assets/images/logo/logo.webp');
+                                  $raw_logo = trim((string)($store_settings['site_logo'] ?? ''));
+                                  if ($raw_logo !== '') {
+                                      $web_logo = (strpos($raw_logo, 'assets/') === 0) ? base_url($raw_logo) : base_url('assets/images/logo/' . $raw_logo);
+                                  } else {
+                                      $web_logo = base_url('assets/images/logo/logo.webp');
+                                  }
                                 ?>
                                 <img src="<?= $web_logo; ?>" alt="<?= html_escape($site_name ?? ($store_settings['site_name'] ?? 'Store')); ?>" class="logo" style="max-height: 42px; width: auto; object-fit: contain;" onerror="this.src='<?= base_url('assets/images/logo/logo.webp'); ?>'">
                             </a>
@@ -20,6 +23,13 @@
                         <!-- Right Actions (Login / User Account, Wishlist & Cart) -->
                         <div class="store-actions-col flex-shrink-0 d-flex align-items-center gap-3 gap-md-4 order-2 order-md-3">
                             
+                            <!-- Mobile Search Toggle (Mobile Only) -->
+                            <div class="store-nav-mobile-search-toggle d-md-none">
+                                <button type="button" class="btn p-0 border-0 bg-transparent store-nav-action-link d-flex align-items-center justify-content-center" onclick="toggleFashionMobileSearch()" title="Search products" aria-label="Search products" style="width: 36px; height: 36px;">
+                                    <i class="fa-solid fa-magnifying-glass store-action-icon" style="font-size: 19px;"></i>
+                                </button>
+                            </div>
+
                             <!-- User Account / Login -->
                             <div class="store-nav-account position-relative">
                                 <?php if (!empty($is_logged_in)):
@@ -94,7 +104,7 @@
 
                         </div>
 
-                        <!-- Centered Wide Search Box (Store style, wraps to 2nd row on mobile) -->
+                        <!-- Centered Wide Search Box (Store style, slides under header on mobile search icon click) -->
                         <div class="store-search-col flex-grow-1 order-3 order-md-2 position-relative">
                             <form action="<?= site_url('shop'); ?>" method="GET" class="store-search-form" id="storeNavSearchForm">
                                 <div class="store-search-input-wrap">
@@ -108,6 +118,9 @@
                                            placeholder="Search for sarees, t-shirts &amp; more" 
                                            value="<?= html_escape($search_query ?? ($this->input->get('q') ?: '')); ?>" 
                                            autocomplete="off">
+                                    <button type="button" class="store-search-close-btn d-md-none" onclick="toggleFashionMobileSearch(false)" aria-label="Close search" title="Close search" style="border: none; background: transparent; color: #717478; padding: 0 4px; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
                                 </div>
                             </form>
                             <!-- Search Autocomplete Dropdown -->
@@ -215,6 +228,72 @@
             <!-- /Category Bar -->
         </header>
         <!-- /Header -->
+
+        <!-- Mobile Bottom Navigation Bar (5 items strictly: Home, Shop, Sign In, Wishlist, Cart) -->
+        <div class="aq-bottom-menu d-md-none">
+            <div class="container">
+                <div class="row row-cols-5">
+                    <!-- 1. Home -->
+                    <div class="col">
+                        <a href="<?= site_url('home'); ?>" class="<?= (isset($active_page) && $active_page === 'home') ? 'active' : ''; ?>">
+                            <div class="aq-bottom-menu-item">
+                                <i class="fa-solid fa-house"></i>
+                                <span>Home</span>
+                            </div>
+                        </a>
+                    </div>
+                    <!-- 2. Shop -->
+                    <div class="col">
+                        <a href="<?= site_url('shop'); ?>" class="<?= (isset($active_page) && $active_page === 'shop') ? 'active' : ''; ?>">
+                            <div class="aq-bottom-menu-item">
+                                <i class="fa-solid fa-store"></i>
+                                <span>Shop</span>
+                            </div>
+                        </a>
+                    </div>
+                    <!-- 3. Sign In / Account -->
+                    <div class="col">
+                        <?php if (!empty($is_logged_in)): ?>
+                        <a href="<?= site_url('account/profile'); ?>" class="<?= (isset($active_page) && strpos($active_page, 'account') === 0) ? 'active' : ''; ?>">
+                            <div class="aq-bottom-menu-item">
+                                <i class="fa-regular fa-user"></i>
+                                <span>Account</span>
+                            </div>
+                        </a>
+                        <?php else: ?>
+                        <a href="#exampleModalToggle" data-bs-toggle="modal">
+                            <div class="aq-bottom-menu-item">
+                                <i class="fa-regular fa-user"></i>
+                                <span>Sign In</span>
+                            </div>
+                        </a>
+                        <?php endif; ?>
+                    </div>
+                    <!-- 4. Wishlist -->
+                    <div class="col">
+                        <a href="<?= site_url('wishlist'); ?>" class="<?= (isset($active_page) && $active_page === 'wishlist') ? 'active' : ''; ?>">
+                            <div class="aq-bottom-menu-item">
+                                <div class="position-relative d-inline-flex align-items-center justify-content-center">
+                                    <span class="count-box wishlist-count" id="wishlist-counter-bottom"><?= (int)($wishlist_count ?? 0); ?></span>
+                                    <i class="fa-regular fa-heart"></i>
+                                </div>
+                                <span>Wishlist</span>
+                            </div>
+                        </a>
+                    </div>
+                    <!-- 5. Cart -->
+                    <div class="col">
+                        <div class="aq-bottom-menu-item" data-bs-toggle="modal" data-bs-target="#shoppingCart">
+                            <div class="position-relative d-inline-flex align-items-center justify-content-center">
+                                <span class="count-box cart-count" id="cart-counter-bottom"><?= (int)($cart_count ?? 0); ?></span>
+                                <i class="fa-solid fa-bag-shopping"></i>
+                            </div>
+                            <span>Cart</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Flash Messages (Only on pages that do not have their own contextual message container) -->
         <?php if (!isset($active_page) || !in_array($active_page, ['account', 'cart', 'checkout'])): ?>
@@ -792,22 +871,61 @@
             transform: translateX(2px);
         }
 
+        /* Prevent body blowout from off-screen elements */
+        html, body {
+            overflow-x: clip !important;
+            max-width: 100vw !important;
+        }
+
         @media (max-width: 767.98px) {
+            body {
+                padding-bottom: 60px !important;
+            }
+
             /* Responsive header padding fallback */
             header.store-header-nav,
             #header.store-header-nav,
             .store-header-nav {
-                padding-top: 112px !important;
+                padding-top: 58px !important;
+            }
+
+            .store-nav-header-row {
+                display: flex !important;
+                flex-wrap: wrap !important;
+                align-items: center !important;
+                justify-content: space-between !important;
             }
 
             /* Brand logo mobile sizing */
+            .store-logo-col {
+                flex: 0 0 auto !important;
+                max-width: 60% !important;
+            }
             .store-logo-col .logo {
                 max-height: 36px !important;
+                width: auto !important;
+                max-width: 100% !important;
+                object-fit: contain !important;
             }
 
-            /* Actions (User, Wishlist, Cart only) */
+            /* Actions: Hide Account & Wishlist, Show Mobile Search Toggle + Cart */
             .store-actions-col {
-                gap: 16px !important;
+                margin-left: auto !important;
+                flex: 0 0 auto !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: flex-end !important;
+                gap: 14px !important;
+            }
+            .store-actions-col .store-nav-account,
+            .store-actions-col .store-nav-wishlist {
+                display: none !important;
+            }
+            .store-actions-col .store-nav-mobile-search-toggle,
+            .store-actions-col .store-nav-cart {
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
             }
             .store-action-icon {
                 font-size: 20px !important;
@@ -824,6 +942,10 @@
                 display: flex !important;
                 align-items: center !important;
             }
+            .store-nav-mobile-search-toggle button.active,
+            .store-nav-mobile-search-toggle button:hover {
+                color: #2874f0 !important;
+            }
             .store-cart-badge {
                 position: absolute !important;
                 top: -3px !important;
@@ -837,13 +959,18 @@
                 margin-left: 0 !important;
             }
 
-            /* Search bar matching mobie_view.jpeg */
+            /* Search bar hidden by default on mobile, expands on click */
             .store-search-col {
+                display: none !important;
                 width: 100% !important;
                 max-width: 100% !important;
                 flex-basis: 100% !important;
-                margin: 16px 0 2px 0 !important;
+                margin: 10px 0 2px 0 !important;
                 padding: 0 !important;
+            }
+            .store-search-col.is-mobile-open {
+                display: block !important;
+                animation: fashSearchSlideDown 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             }
             .store-search-input-wrap {
                 background-color: #ffffff !important;
@@ -871,6 +998,117 @@
                 padding: 0 8px !important;
                 border-radius: 4px;
             }
+
+            /* Bottom navigation bar */
+            .aq-bottom-menu {
+                position: fixed !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                width: 100vw !important;
+                max-width: 100% !important;
+                background: #ffffff !important;
+                box-shadow: 0 -2px 14px rgba(0, 0, 0, 0.08) !important;
+                z-index: 9999 !important;
+                padding: 6px 0 env(safe-area-inset-bottom, 6px) !important;
+                border-top: 1px solid #f0f0f0 !important;
+            }
+            .aq-bottom-menu .container {
+                padding-left: 8px !important;
+                padding-right: 8px !important;
+                max-width: 100% !important;
+            }
+            .aq-bottom-menu .row {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                display: flex !important;
+                flex-wrap: nowrap !important;
+            }
+            .aq-bottom-menu .col {
+                padding-left: 2px !important;
+                padding-right: 2px !important;
+                flex: 1 1 20% !important;
+                max-width: 20% !important;
+                text-align: center !important;
+            }
+            .aq-bottom-menu-item {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                text-align: center !important;
+                color: #666666 !important;
+                text-decoration: none !important;
+                padding: 4px 0 !important;
+                cursor: pointer;
+            }
+            .aq-bottom-menu-item i {
+                font-size: 19px !important;
+                line-height: 1 !important;
+                margin-bottom: 3px !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                color: inherit !important;
+            }
+            .aq-bottom-menu-item span {
+                font-size: 10.5px !important;
+                font-weight: 500 !important;
+                line-height: 1.1 !important;
+                display: block !important;
+                white-space: nowrap !important;
+                color: inherit !important;
+            }
+                line-height: 1.1 !important;
+                display: block !important;
+                white-space: nowrap !important;
+            }
+            .aq-bottom-menu-item button {
+                background: transparent !important;
+                border: none !important;
+                padding: 0 !important;
+                color: inherit !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+            .aq-bottom-menu-item .count-box {
+                position: absolute !important;
+                top: -6px !important;
+                right: -9px !important;
+                background: #e53e3e !important;
+                color: #ffffff !important;
+                font-size: 9px !important;
+                font-weight: 700 !important;
+                min-width: 15px !important;
+                height: 15px !important;
+                line-height: 15px !important;
+                padding: 0 3px !important;
+                border-radius: 10px !important;
+                display: inline-block !important;
+                text-align: center !important;
+            }
+            .aq-bottom-menu a {
+                text-decoration: none !important;
+                color: inherit !important;
+                display: block !important;
+            }
+            .aq-bottom-menu a.active .aq-bottom-menu-item,
+            .aq-bottom-menu a:hover .aq-bottom-menu-item {
+                color: #2874f0 !important;
+            }
+        }
+
+        @keyframes fashSearchSlideDown {
+            0% {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
             .store-search-input:focus,
             #storeNavSearchInput:focus,
             .store-search-input-wrap:focus-within .store-search-input {
@@ -1215,6 +1453,45 @@
                     }
                 });
             }
+
+            // 8. Mobile Search Toggle Dropdown
+            window.toggleFashionMobileSearch = function(forceState) {
+                var searchCol = document.querySelector('.store-search-col');
+                var toggleBtn = document.querySelector('.store-nav-mobile-search-toggle button');
+                if (!searchCol) return;
+                var shouldOpen = typeof forceState === 'boolean' ? forceState : !searchCol.classList.contains('is-mobile-open');
+                if (shouldOpen) {
+                    searchCol.classList.add('is-mobile-open');
+                    if (toggleBtn) toggleBtn.classList.add('active');
+                    var input = document.getElementById('storeNavSearchInput');
+                    if (input) {
+                        setTimeout(function() { input.focus(); }, 80);
+                    }
+                } else {
+                    searchCol.classList.remove('is-mobile-open');
+                    if (toggleBtn) toggleBtn.classList.remove('active');
+                    var autoResults = document.getElementById('storeAutocompleteResults');
+                    if (autoResults) autoResults.classList.add('d-none');
+                }
+                if (typeof syncTopNavHeight === 'function') {
+                    syncTopNavHeight();
+                }
+            };
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    if (window.toggleFashionMobileSearch) window.toggleFashionMobileSearch(false);
+                }
+            });
+
+            document.addEventListener('click', function(e) {
+                var searchCol = document.querySelector('.store-search-col');
+                var toggleWrap = document.querySelector('.store-nav-mobile-search-toggle');
+                if (!searchCol || !searchCol.classList.contains('is-mobile-open')) return;
+                if (!searchCol.contains(e.target) && (!toggleWrap || !toggleWrap.contains(e.target))) {
+                    window.toggleFashionMobileSearch(false);
+                }
+            });
         });
         </script>
 

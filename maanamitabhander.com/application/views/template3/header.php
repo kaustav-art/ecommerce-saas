@@ -921,6 +921,15 @@
          color: #dc3545 !important;
       }
 
+      /* Prevent horizontal scroll / blowout caused by offscreen fixed drawers */
+      html, body {
+         overflow-x: clip !important;
+         max-width: 100vw !important;
+      }
+      .aq-cartmini-area:not(.opened) {
+         display: none !important;
+      }
+
       /* =====================================================================
        * Mobile Header, Category Scroll & Drawer Responsive Rules (< 768px)
        * ===================================================================== */
@@ -940,14 +949,159 @@
             width: 17px !important;
             height: 17px !important;
          }
+         /* Header Right Actions on Mobile: Search + Cart ONLY, Hide Account & Wishlist */
+         .aq-header-right-options .aq-header-top-account,
+         .aq-header-right-options .aq-header-top-wishlist {
+            display: none !important;
+         }
+         .aq-header-right-options .aq-header-top-search-btn {
+            display: inline-flex !important;
+         }
+         .aq-header-right-options .aq-header-top-cart {
+            display: inline-flex !important;
+         }
          .aq-header-right-options ul {
             display: flex !important;
             align-items: center !important;
-            gap: 8px !important;
+            justify-content: flex-end !important;
+            gap: 10px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            list-style: none !important;
+         }
+         .grc-mobile-search-toggle {
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            background: rgba(255, 255, 255, 0.12) !important;
+            color: #ffffff !important;
+            border-radius: 50% !important;
+            width: 38px !important;
+            height: 38px !important;
+            cursor: pointer !important;
+            padding: 0 !important;
+            transition: all 0.2s ease !important;
+         }
+         .grc-mobile-search-toggle.active,
+         .grc-mobile-search-toggle:hover {
+            background: #108910 !important;
+            color: #ffffff !important;
+            border-color: #108910 !important;
+         }
+
+         /* Mobile Dropdown Search Bar Container (Hidden by default, slides down on click) */
+         .grc-mobile-search-col {
+            display: none !important;
+         }
+         .grc-mobile-search-col.is-mobile-open {
+            display: block !important;
+            animation: grcSearchSlideDown 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+         }
+
+         /* Mobile Bottom Navigation Bar (5 items strictly: Home, Shop, Sign In, Wishlist, Cart) */
+         .aq-bottom-menu {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100vw !important;
+            max-width: 100% !important;
+            background: #ffffff !important;
+            box-shadow: 0 -2px 14px rgba(0, 0, 0, 0.08) !important;
+            z-index: 9999 !important;
+            padding: 6px 0 env(safe-area-inset-bottom, 6px) !important;
+            border-top: 1px solid #f0f0f0 !important;
+         }
+         .aq-bottom-menu .container {
+            padding-left: 8px !important;
+            padding-right: 8px !important;
+            max-width: 100% !important;
+         }
+         .aq-bottom-menu .row {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            display: flex !important;
+            flex-wrap: nowrap !important;
+         }
+         .aq-bottom-menu .col {
+            padding-left: 2px !important;
+            padding-right: 2px !important;
+            flex: 1 1 20% !important;
+            max-width: 20% !important;
+            text-align: center !important;
+         }
+         .aq-bottom-menu-item {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+            color: #666666 !important;
+            text-decoration: none !important;
+            padding: 4px 0 !important;
+            cursor: pointer;
+         }
+         .aq-bottom-menu-item i {
+            font-size: 17px !important;
+            line-height: 1 !important;
+            margin-bottom: 3px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+         }
+         .aq-bottom-menu-item span {
+            font-size: 10.5px !important;
+            font-weight: 500 !important;
+            line-height: 1.1 !important;
+            display: block !important;
+            white-space: nowrap !important;
+         }
+         .aq-bottom-menu-item button {
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            color: inherit !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+         }
+         .aq-bottom-menu-item .count-box {
+            position: absolute !important;
+            top: -6px !important;
+            right: -9px !important;
+            background: #108910 !important;
+            color: #ffffff !important;
+            font-size: 9px !important;
+            font-weight: 700 !important;
+            min-width: 15px !important;
+            height: 15px !important;
+            line-height: 15px !important;
+            padding: 0 3px !important;
+            border-radius: 10px !important;
+            display: inline-block !important;
+            text-align: center !important;
+         }
+         .aq-bottom-menu a {
+            text-decoration: none !important;
+            color: inherit !important;
+            display: block !important;
+         }
+         .aq-bottom-menu a.active .aq-bottom-menu-item,
+         .aq-bottom-menu a:hover .aq-bottom-menu-item {
+            color: #108910 !important;
          }
          .after-login-drawer-menu {
             right: -60px !important;
             width: 260px !important;
+         }
+      }
+
+      @keyframes grcSearchSlideDown {
+         0% {
+            opacity: 0;
+            transform: translateY(-8px);
+         }
+         100% {
+            opacity: 1;
+            transform: translateY(0);
          }
       }
 
@@ -1154,12 +1308,12 @@
    <div class="body-overlay" onclick="closeGrcCartDrawer()"></div>
    <!-- offcanvas area end -->
 
-   <!-- bottom-sticky header -->
+   <!-- bottom-sticky header (mobile only: Home, Shop, Sign In, Wishlist, Cart) -->
    <div class="aq-bottom-menu d-md-none">
       <div class="container">
          <div class="row row-cols-5">
             <div class="col">
-               <a href="<?= site_url('home'); ?>">
+               <a href="<?= site_url('home'); ?>" class="<?= (isset($active_page) && $active_page === 'home') ? 'active' : ''; ?>">
                   <div class="aq-bottom-menu-item">
                      <i><i class="fa-solid fa-house"></i></i>
                      <span>Home</span>
@@ -1167,8 +1321,16 @@
                </a>
             </div>
             <div class="col">
+               <a href="<?= site_url('shop'); ?>" class="<?= (isset($active_page) && $active_page === 'shop') ? 'active' : ''; ?>">
+                  <div class="aq-bottom-menu-item">
+                     <i><i class="fa-solid fa-store"></i></i>
+                     <span>Shop</span>
+                  </div>
+               </a>
+            </div>
+            <div class="col">
                <?php if (!empty($is_logged_in)): ?>
-               <a href="<?= site_url('account'); ?>">
+               <a href="<?= site_url('account'); ?>" class="<?= (isset($active_page) && strpos($active_page, 'account') === 0) ? 'active' : ''; ?>">
                   <div class="aq-bottom-menu-item">
                      <i><i class="fa-regular fa-user"></i></i>
                      <span>Account</span>
@@ -1184,17 +1346,9 @@
                <?php endif; ?>
             </div>
             <div class="col">
-               <a href="<?= site_url('shop'); ?>">
+               <a href="<?= site_url('wishlist'); ?>" class="<?= (isset($active_page) && $active_page === 'wishlist') ? 'active' : ''; ?>">
                   <div class="aq-bottom-menu-item">
-                     <i><i class="fa-solid fa-store"></i></i>
-                     <span>Aisles</span>
-                  </div>
-               </a>
-            </div>
-            <div class="col">
-               <a href="<?= site_url('wishlist'); ?>">
-                  <div class="aq-bottom-menu-item">
-                     <button class="p-relative">
+                     <button type="button" class="position-relative d-inline-block">
                         <span class="count-box wishlist-count"><?= (int)($wishlist_count ?? 0); ?></span>
                         <i><i class="fa-regular fa-heart"></i></i>
                      </button>
@@ -1204,11 +1358,11 @@
             </div>
             <div class="col">
                <div class="aq-bottom-menu-item aq-cart-btn" onclick="openGrcCartDrawer()">
-                  <button class="p-relative">
+                  <button type="button" class="position-relative d-inline-block">
                      <span class="count-box cart-count"><?= (int)($cart_count ?? 0); ?></span>
                      <i><i class="fa-solid fa-basket-shopping"></i></i>
                   </button>
-                  <span>Bag</span>
+                  <span>Cart</span>
                </div>
             </div>
          </div>
@@ -1257,6 +1411,17 @@
                   <div class="col-lg-3 col-md-4 col-6">
                      <div class="aq-header-right-options grc-header-right-option text-end">
                         <ul>
+                           <!-- Mobile Search Toggle (Visible on Mobile Only) -->
+                           <li class="aq-header-top-search-btn d-none">
+                              <button type="button" class="grc-option-style grc-mobile-search-toggle d-inline-flex align-items-center justify-content-center" onclick="toggleGrcMobileSearch()" title="Search groceries" aria-label="Search groceries">
+                                 <i>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                       <circle cx="11" cy="11" r="8"></circle>
+                                       <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                    </svg>
+                                 </i>
+                              </button>
+                           </li>
                            <li class="aq-header-top-account store-nav-account position-relative d-inline-flex">
                               <?php if (!empty($is_logged_in)):
                                   $u_first = !empty($current_user['first_name']) ? $current_user['first_name'] : 'Member';
@@ -1349,8 +1514,8 @@
                         </ul>
                      </div>
                   </div>
-                  <!-- Mobile Search Bar (under logo & cart on small screens) -->
-                  <div class="col-12 d-md-none mt-2">
+                  <!-- Mobile Search Bar (under logo & cart on small screens, expands when search icon clicked) -->
+                  <div class="col-12 d-md-none mt-2 grc-mobile-search-col" id="grcMobileSearchCol">
                      <div class="grc-header-search-wrap">
                         <form action="<?= site_url('shop'); ?>" method="GET" class="grc-search-form" autocomplete="off">
                            <div class="grc-search-pill-container" style="height: 42px;">
@@ -1362,9 +1527,12 @@
                                      id="grcMobileSearchInput"
                                      class="grc-search-input"
                                      value="<?= html_escape($this->input->get('q') ?? ''); ?>"
-                                     placeholder="Search groceries..."
+                                     placeholder="Search fresh groceries..."
                                      autocomplete="off"
                                      style="font-size: 13.5px !important; padding-left: 38px !important; padding-right: 90px !important;">
+                              <button type="button" class="grc-search-clear-btn" id="grcMobileSearchCloseBtn" onclick="toggleGrcMobileSearch(false)" title="Close search" style="right: 80px; display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: #f3f4f6; color: #6b7280; border: none; font-size: 13px;">
+                                 <i class="fa-solid fa-xmark"></i>
+                              </button>
                               <button type="submit" class="grc-search-btn-submit" style="padding: 0 16px; font-size: 13px;">
                                  <span>Search</span>
                               </button>
@@ -1583,6 +1751,40 @@
          initSearchAutocomplete('grcHeaderSearchInput', 'grcSearchAutocomplete', 'grcSearchClearBtn');
          initSearchAutocomplete('grcMobileSearchInput', 'grcMobileSearchAutocomplete', null);
       }
+
+      window.toggleGrcMobileSearch = function(forceState) {
+         var col = document.getElementById('grcMobileSearchCol');
+         var btn = document.querySelector('.grc-mobile-search-toggle');
+         if (!col) return;
+         var shouldOpen = typeof forceState === 'boolean' ? forceState : !col.classList.contains('is-mobile-open');
+         if (shouldOpen) {
+            col.classList.add('is-mobile-open');
+            if (btn) btn.classList.add('active');
+            var input = document.getElementById('grcMobileSearchInput');
+            if (input) {
+               setTimeout(function() { input.focus(); }, 80);
+            }
+         } else {
+            col.classList.remove('is-mobile-open');
+            if (btn) btn.classList.remove('active');
+            var dropdown = document.getElementById('grcMobileSearchAutocomplete');
+            if (dropdown) dropdown.style.display = 'none';
+         }
+      };
+
+      document.addEventListener('keydown', function(e) {
+         if (e.key === 'Escape') {
+            if (window.toggleGrcMobileSearch) window.toggleGrcMobileSearch(false);
+         }
+      });
+      document.addEventListener('click', function(e) {
+         var col = document.getElementById('grcMobileSearchCol');
+         var btn = document.querySelector('.grc-mobile-search-toggle');
+         if (!col || !col.classList.contains('is-mobile-open')) return;
+         if (!col.contains(e.target) && (!btn || !btn.contains(e.target))) {
+            window.toggleGrcMobileSearch(false);
+         }
+      });
    })();
    </script>
 
