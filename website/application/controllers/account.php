@@ -38,6 +38,9 @@ class account extends MY_Controller {
                                       ->order_by('oi.id', 'ASC')
                                       ->get()
                                       ->result_array();
+                if (method_exists($this->order_model, 'enrich_items')) {
+                    $this->order_model->enrich_items($raw_items);
+                }
                 $items = [];
                 foreach ($raw_items as $oi) {
                     $img = !empty($oi['product_image']) ? $oi['product_image'] : ($oi['prod_main_image'] ?? '');

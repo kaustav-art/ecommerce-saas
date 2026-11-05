@@ -625,11 +625,30 @@ class Static_template_data {
                 WHERE oi.tenant_id = ? AND oi.order_id IN ($oInSql)
                 ORDER BY oi.id ASC");
             $oiStmt->execute([$tenantId]);
+            $rawItems = $oiStmt->fetchAll();
+
+            $varIds = array_filter(array_unique(array_map(function($i) { return (int)($i['variant_id'] ?? 0); }, $rawItems)));
+            $varAttrs = [];
+            if (!empty($varIds)) {
+                $vInSql = implode(',', $varIds);
+                $vaStmt = $pdo->prepare("SELECT pvv.variant_id, a.slug as attr_slug, a.name as attr_name, av.value as attr_val
+                    FROM `product_variant_values` pvv
+                    JOIN `attributes` a ON a.id = pvv.attribute_id
+                    JOIN `attribute_values` av ON av.id = pvv.attribute_value_id
+                    WHERE pvv.variant_id IN ($vInSql)");
+                $vaStmt->execute();
+                foreach ($vaStmt->fetchAll() as $va) {
+                    $vid = (int)$va['variant_id'];
+                    $varAttrs[$vid][] = $va;
+                }
+            }
+
             $itemsByOrd = [];
-            foreach ($oiStmt->fetchAll() as $oi) {
+            foreach ($rawItems as $oi) {
                 $oi['id'] = (int)$oi['id'];
                 $oi['order_id'] = (int)$oi['order_id'];
                 $oi['product_id'] = (int)$oi['product_id'];
+                $oi['variant_id'] = !empty($oi['variant_id']) ? (int)$oi['variant_id'] : 0;
                 $oi['sku'] = $oi['product_sku'] ?? '';
                 $oi['product_slug'] = $oi['product_slug'] ?: 'product';
                 $oi['product_image'] = self::normalize_img($oi['product_image']);
@@ -637,6 +656,41 @@ class Static_template_data {
                 $oi['regular_price'] = !empty($oi['reg_price']) ? (float)$oi['reg_price'] : $oi['price'];
                 $oi['quantity'] = (int)$oi['quantity'];
                 $oi['total'] = (float)$oi['total'];
+
+                $resolved_color = '';
+                $resolved_size = '';
+                $vid = $oi['variant_id'];
+                if ($vid > 0 && isset($varAttrs[$vid])) {
+                    foreach ($varAttrs[$vid] as $ar) {
+                        $slug = strtolower($ar['attr_slug'] ?: $ar['attr_name']);
+                        if (strpos($slug, 'color') !== false || strpos($slug, 'colour') !== false) {
+                            $resolved_color = $ar['attr_val'];
+                        } elseif (strpos($slug, 'size') !== false) {
+                            $resolved_size = $ar['attr_val'];
+                        }
+                    }
+                }
+                if ($vid > 0 && empty($resolved_color) && empty($resolved_size) && !empty($oi['variant_title'])) {
+                    $vt = trim($oi['variant_title']);
+                    if (strpos($vt, ' - ') !== false) {
+                        $parts = explode(' - ', $vt);
+                        $vt = trim(end($parts));
+                    }
+                    if (strpos($vt, '/') !== false) {
+                        $parts = array_map('trim', explode('/', $vt));
+                        $sizes_known = ['xs', 's', 'm', 'l', 'xl', 'xxl', 'xxxl', '28', '30', '32', '34', '36', '38', '40', '42'];
+                        foreach ($parts as $p) {
+                            if (in_array(strtolower($p), $sizes_known)) {
+                                if (empty($resolved_size)) $resolved_size = $p;
+                            } else {
+                                if (empty($resolved_color)) $resolved_color = $p;
+                            }
+                        }
+                    }
+                }
+                $oi['color'] = $resolved_color;
+                $oi['size'] = $resolved_size;
+
                 $itemsByOrd[$oi['order_id']][] = $oi;
             }
             foreach ($rawOrders as $o) {

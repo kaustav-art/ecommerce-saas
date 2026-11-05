@@ -235,17 +235,35 @@
                         <?php 
                         $cur_img = !empty($current_item['product_image']) ? base_url('assets/images/' . $current_item['product_image']) : base_url('assets/images/products/womens/women-1.jpg');
                         $cur_pid = (int) ($current_item['product_id'] ?? 0);
-                        $cur_variant = '';
-                        if (!empty($current_item['variant_title'])) {
-                            $vt = trim($current_item['variant_title']);
-                            if (strpos($vt, '/') !== false) {
-                                $parts = explode('/', $vt);
-                                $color_part = trim($parts[0]);
-                                $size_part = trim($parts[1] ?? '');
-                                $cur_variant = 'Color: ' . $color_part . (!empty($size_part) ? ' Size: ' . $size_part : '');
-                            } else {
-                                $cur_variant = $vt;
+                        // Current item color & size
+                        $cur_color = !empty($current_item['color']) ? trim($current_item['color']) : '';
+                        $cur_size  = !empty($current_item['size']) ? trim($current_item['size']) : '';
+                        if (empty($cur_color) && empty($cur_size) && !empty($current_item['variant_id'])) {
+                            $ci =& get_instance();
+                            if (isset($ci->db)) {
+                                $attr_rows = $ci->db->select('a.slug as attr_slug, a.name as attr_name, av.value as attr_val')
+                                                    ->from('product_variant_values pvv')
+                                                    ->join('attributes a', 'a.id = pvv.attribute_id')
+                                                    ->join('attribute_values av', 'av.id = pvv.attribute_value_id')
+                                                    ->where('pvv.variant_id', (int) $current_item['variant_id'])
+                                                    ->get()
+                                                    ->result_array();
+                                foreach ($attr_rows as $ar) {
+                                    $slug = strtolower($ar['attr_slug'] ?: $ar['attr_name']);
+                                    if (strpos($slug, 'color') !== false || strpos($slug, 'colour') !== false) {
+                                        $cur_color = $ar['attr_val'];
+                                    } elseif (strpos($slug, 'size') !== false) {
+                                        $cur_size = $ar['attr_val'];
+                                    }
+                                }
                             }
+                        }
+                        $cur_var_info = [];
+                        if (!empty($cur_color)) {
+                            $cur_var_info[] = 'Color: <span class="text-dark fw-semibold">' . html_escape($cur_color) . '</span>';
+                        }
+                        if (!empty($cur_size)) {
+                            $cur_var_info[] = 'Size: <span class="text-dark fw-semibold">' . html_escape($cur_size) . '</span>';
                         }
 
                         $cur_badge_class = 'bg-warning text-dark';
@@ -269,8 +287,8 @@
                                         <h6 class="fw-bold text-dark mb-1" style="font-size: 15px; line-height: 1.4;">
                                             <?= html_escape($current_item['product_title']); ?>
                                         </h6>
-                                        <?php if (!empty($cur_variant)): ?>
-                                            <div class="text-secondary small mb-1" style="font-size: 12px; color: #878787 !important;"><?= html_escape($cur_variant); ?></div>
+                                        <?php if (!empty($cur_var_info)): ?>
+                                            <div class="text-secondary small mb-1" style="font-size: 12px; color: #878787 !important;"><?= implode(', ', $cur_var_info); ?></div>
                                         <?php endif; ?>
                                         <div class="text-secondary small mb-1" style="font-size: 12px; color: #878787 !important;">
                                             Seller: <?= $seller_name; ?>
@@ -563,17 +581,35 @@
                                     $it_img = !empty($it['product_image']) ? base_url('assets/images/' . $it['product_image']) : base_url('assets/images/products/womens/women-1.jpg');
                                     $it_pid = (int) ($it['product_id'] ?? 0);
 
-                                    $it_variant = '';
-                                    if (!empty($it['variant_title'])) {
-                                        $vt = trim($it['variant_title']);
-                                        if (strpos($vt, '/') !== false) {
-                                            $parts = explode('/', $vt);
-                                            $color_part = trim($parts[0]);
-                                            $size_part = trim($parts[1] ?? '');
-                                            $it_variant = 'Color: ' . $color_part . (!empty($size_part) ? ' Size: ' . $size_part : '');
-                                        } else {
-                                            $it_variant = $vt;
+                                    // Order item color & size
+                                    $it_color = !empty($it['color']) ? trim($it['color']) : '';
+                                    $it_size  = !empty($it['size']) ? trim($it['size']) : '';
+                                    if (empty($it_color) && empty($it_size) && !empty($it['variant_id'])) {
+                                        $ci =& get_instance();
+                                        if (isset($ci->db)) {
+                                            $attr_rows = $ci->db->select('a.slug as attr_slug, a.name as attr_name, av.value as attr_val')
+                                                                ->from('product_variant_values pvv')
+                                                                ->join('attributes a', 'a.id = pvv.attribute_id')
+                                                                ->join('attribute_values av', 'av.id = pvv.attribute_value_id')
+                                                                ->where('pvv.variant_id', (int) $it['variant_id'])
+                                                                ->get()
+                                                                ->result_array();
+                                            foreach ($attr_rows as $ar) {
+                                                $slug = strtolower($ar['attr_slug'] ?: $ar['attr_name']);
+                                                if (strpos($slug, 'color') !== false || strpos($slug, 'colour') !== false) {
+                                                    $it_color = $ar['attr_val'];
+                                                } elseif (strpos($slug, 'size') !== false) {
+                                                    $it_size = $ar['attr_val'];
+                                                }
+                                            }
                                         }
+                                    }
+                                    $it_var_info = [];
+                                    if (!empty($it_color)) {
+                                        $it_var_info[] = 'Color: <span class="text-dark fw-semibold">' . html_escape($it_color) . '</span>';
+                                    }
+                                    if (!empty($it_size)) {
+                                        $it_var_info[] = 'Size: <span class="text-dark fw-semibold">' . html_escape($it_size) . '</span>';
                                     }
 
                                     $dot_color = '#f39c12';
@@ -610,9 +646,9 @@
                                                     <?= html_escape($it['product_title']); ?>
                                                 </div>
 
-                                                <?php if (!empty($it_variant)): ?>
+                                                <?php if (!empty($it_var_info)): ?>
                                                     <div class="text-muted small text-truncate mb-1" style="font-size: 12px; color: #878787 !important;">
-                                                        <?= html_escape($it_variant); ?>
+                                                        <?= implode(', ', $it_var_info); ?>
                                                     </div>
                                                 <?php endif; ?>
 

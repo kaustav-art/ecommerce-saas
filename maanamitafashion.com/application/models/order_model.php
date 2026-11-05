@@ -106,12 +106,75 @@ class order_model extends CI_Model {
         return $order_number;
     }
 
+    public function enrich_items(&$items)
+    {
+        if (empty($items) || !is_array($items)) {
+            return;
+        }
+        $var_ids = [];
+        foreach ($items as $it) {
+            if (!empty($it['variant_id'])) {
+                $var_ids[] = (int) $it['variant_id'];
+            }
+        }
+        $var_attrs = [];
+        if (!empty($var_ids)) {
+            $rows = $this->db->select('pvv.variant_id, a.slug as attr_slug, a.name as attr_name, av.value as attr_val')
+                             ->from('product_variant_values pvv')
+                             ->join('attributes a', 'a.id = pvv.attribute_id')
+                             ->join('attribute_values av', 'av.id = pvv.attribute_value_id')
+                             ->where_in('pvv.variant_id', array_unique($var_ids))
+                             ->get()
+                             ->result_array();
+            foreach ($rows as $r) {
+                $var_attrs[(int)$r['variant_id']][] = $r;
+            }
+        }
+
+        foreach ($items as &$it) {
+            $color = '';
+            $size = '';
+            $vid = (int) ($it['variant_id'] ?? 0);
+            if ($vid > 0 && isset($var_attrs[$vid])) {
+                foreach ($var_attrs[$vid] as $ar) {
+                    $slug = strtolower($ar['attr_slug'] ?: $ar['attr_name']);
+                    if (strpos($slug, 'color') !== false || strpos($slug, 'colour') !== false) {
+                        $color = $ar['attr_val'];
+                    } elseif (strpos($slug, 'size') !== false) {
+                        $size = $ar['attr_val'];
+                    }
+                }
+            }
+            if ($vid > 0 && empty($color) && empty($size) && !empty($it['variant_title'])) {
+                $vt = trim($it['variant_title']);
+                if (strpos($vt, ' - ') !== false) {
+                    $parts = explode(' - ', $vt);
+                    $vt = trim(end($parts));
+                }
+                if (strpos($vt, '/') !== false) {
+                    $parts = array_map('trim', explode('/', $vt));
+                    $sizes_known = ['xs', 's', 'm', 'l', 'xl', 'xxl', 'xxxl', '28', '30', '32', '34', '36', '38', '40', '42'];
+                    foreach ($parts as $p) {
+                        if (in_array(strtolower($p), $sizes_known)) {
+                            if (empty($size)) $size = $p;
+                        } else {
+                            if (empty($color)) $color = $p;
+                        }
+                    }
+                }
+            }
+            $it['color'] = $color;
+            $it['size'] = $size;
+        }
+    }
+
     public function get_by_order_number($order_number)
     {
         $tid = $this->tid();
         $order = $this->db->where('tenant_id', $tid)->where('order_number', $order_number)->get('orders')->row_array();
         if ($order) {
             $order['items'] = $this->db->where('order_id', $order['id'])->get('order_items')->result_array();
+            $this->enrich_items($order['items']);
             $order['returns'] = $this->db->table_exists('order_returns') 
                 ? $this->db->where('order_id', $order['id'])->get('order_returns')->result_array() 
                 : [];
@@ -126,6 +189,7 @@ class order_model extends CI_Model {
         foreach ($orders as &$ord) {
             $ord['items_count'] = $this->db->where('order_id', $ord['id'])->count_all_results('order_items');
             $ord['items'] = $this->db->where('order_id', $ord['id'])->get('order_items')->result_array();
+            $this->enrich_items($ord['items']);
             $ord['returns_count'] = $this->db->table_exists('order_returns') 
                 ? $this->db->where('order_id', $ord['id'])->count_all_results('order_returns') 
                 : 0;

@@ -150,22 +150,41 @@
                                             $status_group = 'returned';
                                         }
 
-                                        // Format color & size variant line nicely
-                                        $variant_str = '';
-                                        if (!empty($item['variant_title'])) {
-                                            $vt = trim($item['variant_title']);
-                                            if (strpos($vt, '/') !== false) {
-                                                $parts = explode('/', $vt);
-                                                $color_part = trim($parts[0]);
-                                                $size_part = trim($parts[1] ?? '');
-                                                $variant_str = 'Color: ' . $color_part . (!empty($size_part) ? ' Size: ' . $size_part : '');
-                                            } else {
-                                                $variant_str = $vt;
+                                        // Extract Color & Size (matching cart page logic)
+                                        $item_color = !empty($item['color']) ? trim($item['color']) : '';
+                                        $item_size  = !empty($item['size']) ? trim($item['size']) : '';
+
+                                        if (empty($item_color) && empty($item_size) && !empty($item['variant_id'])) {
+                                            $ci =& get_instance();
+                                            if (isset($ci->db)) {
+                                                $attr_rows = $ci->db->select('a.slug as attr_slug, a.name as attr_name, av.value as attr_val')
+                                                                    ->from('product_variant_values pvv')
+                                                                    ->join('attributes a', 'a.id = pvv.attribute_id')
+                                                                    ->join('attribute_values av', 'av.id = pvv.attribute_value_id')
+                                                                    ->where('pvv.variant_id', (int) $item['variant_id'])
+                                                                    ->get()
+                                                                    ->result_array();
+                                                foreach ($attr_rows as $ar) {
+                                                    $slug = strtolower($ar['attr_slug'] ?: $ar['attr_name']);
+                                                    if (strpos($slug, 'color') !== false || strpos($slug, 'colour') !== false) {
+                                                        $item_color = $ar['attr_val'];
+                                                    } elseif (strpos($slug, 'size') !== false) {
+                                                        $item_size = $ar['attr_val'];
+                                                    }
+                                                }
                                             }
                                         }
 
+                                        $var_info = [];
+                                        if (!empty($item_color)) {
+                                            $var_info[] = 'Color: <span class="text-dark fw-semibold">' . html_escape($item_color) . '</span>';
+                                        }
+                                        if (!empty($item_size)) {
+                                            $var_info[] = 'Size: <span class="text-dark fw-semibold">' . html_escape($item_size) . '</span>';
+                                        }
+
                                         // Search keywords for this item
-                                        $item_search_keywords = strtolower($ord['order_number'] . ' ' . ($item['product_title'] ?? '') . ' ' . ($item['variant_title'] ?? ''));
+                                        $item_search_keywords = strtolower($ord['order_number'] . ' ' . ($item['product_title'] ?? '') . ' ' . ($item['variant_title'] ?? '') . ' ' . $item_color . ' ' . $item_size);
                             ?>
                                         <!-- Individual Order Item Card (Matching order_page.png) -->
                                         <div class="card border rounded-1 mb-3 bg-white shadow-none fk-order-card" 
@@ -187,8 +206,8 @@
                                                             <a href="<?= $it_track_url; ?>" class="text-decoration-none text-dark fw-bold d-block mb-1 fk-item-title text-line-clamp-2" style="font-size: 14px; line-height: 1.4;" onclick="event.stopPropagation();">
                                                                 <?= html_escape($item['product_title']); ?>
                                                             </a>
-                                                            <?php if (!empty($variant_str)): ?>
-                                                                <div class="text-muted small mb-1" style="font-size: 12px; color: #878787 !important;"><?= html_escape($variant_str); ?></div>
+                                                            <?php if (!empty($var_info)): ?>
+                                                                <div class="text-muted small mb-1" style="font-size: 12px; color: #878787 !important;"><?= implode(', ', $var_info); ?></div>
                                                             <?php endif; ?>
                                                             <div class="text-secondary small" style="font-size: 12px; color: #878787 !important;">
                                                                 Order <a href="<?= $it_track_url; ?>" class="text-secondary text-decoration-none fw-semibold" onclick="event.stopPropagation();">#<?= html_escape($ord['order_number']); ?></a> | Placed on <?= $order_date_placed; ?>
