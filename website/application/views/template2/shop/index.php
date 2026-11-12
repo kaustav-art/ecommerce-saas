@@ -950,7 +950,7 @@ if (!empty($is_user_project)) {
                               <img class="aq-img-hover current-cached lazyloaded" src="<?= $p_hover; ?>" alt="<?= html_escape($p_name); ?>">
                            </a>
                         </div>
-                        <div class="aq-product-content text-center text-md-start">
+                        <div class="aq-product-content text-start">
                            <div class="aq-product-ratting">
                               <span>
                                  <?php for ($si = 1; $si <= 5; $si++): ?>

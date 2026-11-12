@@ -1852,7 +1852,7 @@ if (!empty($initial_variant)) {
                            <img class="aq-img-hover current-cached lazyloaded" src="<?= $rp_hover; ?>" alt="<?= html_escape($rp_name); ?>">
                         </a>
                      </div>
-                     <div class="aq-product-content text-center text-md-start">
+                     <div class="aq-product-content text-start">
                         <div class="aq-product-ratting">
                            <span>
                               <?php for ($si = 1; $si <= 5; $si++): ?>

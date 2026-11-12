@@ -941,15 +941,18 @@
        * ===================================================================== */
       @media (max-width: 767.98px) {
          .grc-header-main-nav {
-            padding-top: 10px !important;
-            padding-bottom: 10px !important;
+            padding-top: 6px !important;
+            padding-bottom: 6px !important;
+         }
+         .aq-header-logo img {
+            max-height: 36px !important;
          }
          .aq-header-top-account-content {
             display: none !important;
          }
          .grc-option-style {
-            width: 38px !important;
-            height: 38px !important;
+            width: 36px !important;
+            height: 36px !important;
          }
          .grc-option-style i svg {
             width: 17px !important;

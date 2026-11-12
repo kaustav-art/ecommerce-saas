@@ -340,12 +340,12 @@ if (!function_exists('grc_shop_unit_calc')) {
       cursor: pointer;
    }
 
-   /* Home Page Product Card Styling inside Shop Grid */
+   /* Exact Home Page Product Card Styling inside Shop Grid */
    #grcShopProductsGrid .aq-product-item.aq-product-main {
       background: #ffffff;
-      border-radius: 14px;
-      border: 1px solid #e2efe6;
-      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      padding: 10px;
       margin-bottom: 0 !important;
       height: 100%;
       display: flex;
@@ -358,9 +358,67 @@ if (!function_exists('grc_shop_unit_calc')) {
       box-shadow: 0 10px 26px rgba(0, 61, 41, 0.08);
       transform: translateY(-3px);
    }
+   #grcShopProductsGrid .aq-product-thumb {
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 10px;
+      position: relative;
+      background-color: #fafafa;
+   }
+   #grcShopProductsGrid .aq-product-thumb img.aq-product-img-hover {
+      height: 180px;
+      width: 100%;
+      object-fit: contain !important;
+      background-color: #fafafa !important;
+      border-radius: 8px;
+      transition: all 0.3s ease-in-out;
+   }
+   #grcShopProductsGrid .aq-product-item.aq-product-main:hover .aq-product-thumb img.aq-product-img-hover {
+      transform: scale(1.06);
+   }
    #grcShopProductsGrid .aq-product-content {
       flex-grow: 1;
       margin-bottom: 10px;
+   }
+   #grcShopProductsGrid .aq-product-title {
+      font-size: 14px;
+      line-height: 1.35;
+      height: 38px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 6px;
+   }
+   #grcShopProductsGrid .aq-product-title a {
+      color: #0B0D0E;
+      text-decoration: none;
+   }
+   #grcShopProductsGrid .aq-product-title a:hover {
+      color: #108910;
+   }
+   #grcShopProductsGrid .aq-product-new-price {
+      font-size: 16px;
+      font-weight: 700;
+      color: #003D29;
+   }
+   #grcShopProductsGrid .aq-product-old-price {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-left: 6px;
+   }
+   #grcShopProductsGrid .product-btn-green {
+      background: #108910;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      height: 38px;
+      font-size: 13px;
+      font-weight: 700;
+      transition: background 0.2s ease;
+   }
+   #grcShopProductsGrid .product-btn-green:hover {
+      background: #003D29;
    }
 
    /* List View Mode */
@@ -372,10 +430,10 @@ if (!function_exists('grc_shop_unit_calc')) {
       flex-direction: row;
       align-items: center;
       gap: 24px;
-      padding: 18px;
+      padding: 16px;
    }
    #grcShopProductsGrid.is-list-view .aq-product-thumb {
-      width: 210px;
+      width: 200px;
       flex-shrink: 0;
       margin-bottom: 0 !important;
    }
@@ -440,10 +498,10 @@ if (!function_exists('grc_shop_unit_calc')) {
          margin-bottom: 14px !important;
       }
       #grcShopProductsGrid .aq-product-item.aq-product-main {
-         padding: 10px !important;
+         padding: 8px !important;
       }
       #grcShopProductsGrid .aq-product-thumb img.aq-product-img-hover {
-         height: 155px !important;
+         height: 145px !important;
       }
       #grcShopProductsGrid.is-list-view .aq-product-item.aq-product-main {
          flex-direction: column;
@@ -452,6 +510,62 @@ if (!function_exists('grc_shop_unit_calc')) {
       #grcShopProductsGrid.is-list-view .aq-product-thumb,
       #grcShopProductsGrid.is-list-view .grc-product-btn {
          width: 100%;
+      }
+   }
+   @media (max-width: 575.98px) {
+      #grcShopProductsGrid .aq-product-item.aq-product-main {
+         margin-bottom: 12px !important;
+         padding: 8px 6px !important;
+      }
+      #grcShopProductsGrid .aq-product-thumb {
+         margin-bottom: 6px !important;
+      }
+      #grcShopProductsGrid .aq-product-thumb img.aq-product-img-hover {
+         height: 145px !important;
+         width: 100% !important;
+         object-fit: contain !important;
+         background-color: #fafafa !important;
+      }
+      #grcShopProductsGrid .aq-product-content {
+         padding: 0 2px !important;
+         margin-bottom: 6px !important;
+      }
+      #grcShopProductsGrid .aq-product-title {
+         font-size: 13px !important;
+         line-height: 1.3 !important;
+         height: 34px !important;
+         display: -webkit-box !important;
+         -webkit-line-clamp: 2 !important;
+         -webkit-box-orient: vertical !important;
+         overflow: hidden !important;
+         margin-bottom: 4px !important;
+      }
+      #grcShopProductsGrid .aq-product-title a {
+         font-size: 13px !important;
+      }
+      #grcShopProductsGrid .aq-product-new-price {
+         font-size: 14px !important;
+         font-weight: 700 !important;
+      }
+      #grcShopProductsGrid .aq-product-old-price {
+         font-size: 11px !important;
+      }
+      #grcShopProductsGrid .product-btn-green {
+         font-size: 12px !important;
+         height: 32px !important;
+         padding: 0 8px !important;
+         line-height: 32px !important;
+      }
+      #grcShopProductsGrid .aqf-product-3-category {
+         font-size: 10.5px !important;
+      }
+      #grcShopProductsGrid .grc-unit-pill {
+         font-size: 10px !important;
+         padding: 1px 6px !important;
+      }
+      #grcShopProductsGrid .aq-product-ratting {
+         font-size: 10px !important;
+         margin-bottom: 2px !important;
       }
    }
 </style>

@@ -334,6 +334,41 @@
 	    }
 	});
 
+	//elt-popular-slider
+	let elt_popular_slider = new Swiper('.elt-popular-slider-active', {
+		slidesPerView: 5,
+		loop: true,
+		autoplay: {
+			delay: 3500,
+			disableOnInteraction: false,
+		},
+		arrow: false,
+		speed: 1000,
+		spaceBetween: 16,
+		breakpoints: {
+			1400: {
+				slidesPerView: 5,
+				spaceBetween: 16,
+			},
+			1200: {
+				slidesPerView: 4,
+				spaceBetween: 16,
+			},
+			992: {
+				slidesPerView: 3,
+				spaceBetween: 14,
+			},
+			768: {
+				slidesPerView: 2,
+				spaceBetween: 12,
+			},
+			0: {
+				slidesPerView: 2,
+				spaceBetween: 10,
+			},
+		}
+	});
+
 	//deals-slider
 	let gallery_active = new Swiper('.aqb-gallery-active', {
 		slidesPerView: 6,

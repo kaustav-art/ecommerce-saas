@@ -434,23 +434,19 @@ if (!function_exists('grc_product_img')) {
       <div class="grc-product-ptb pb-50">
          <div class="container container-1630">
             <div class="grc-product-top pb-20">
-               <div class="row align-items-center">
-                  <div class="col-sm-6">
-                     <div class="grc-product-heading mb-20">
-                        <h4 class="aq-section-title ff-satoshi-bold fs-30 mb-0">New Arrivals</h4>
-                     </div>
+               <div class="d-flex align-items-center justify-content-between flex-nowrap mb-20">
+                  <div class="grc-product-heading mb-0">
+                     <h4 class="aq-section-title ff-satoshi-bold fs-30 mb-0 text-nowrap">New Arrivals</h4>
                   </div>
-                  <div class="col-sm-6">
-                     <div class="grc-product-btn text-sm-end">
-                        <a class="aq-btn-link aq-btn-underline" href="<?= site_url('shop'); ?>">
-                           See all
-                           <span>
-                              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
-                                 <path d="M0.75 5.75H10.75M10.75 5.75L5.75 0.75M10.75 5.75L5.75 10.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                              </svg>
-                           </span>
-                        </a>
-                     </div>
+                  <div class="grc-product-btn text-end">
+                     <a class="aq-btn-link aq-btn-underline text-nowrap d-inline-flex align-items-center gap-1" href="<?= site_url('shop'); ?>">
+                        <span>See all</span>
+                        <span>
+                           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                              <path d="M0.75 5.75H10.75M10.75 5.75L5.75 0.75M10.75 5.75L5.75 10.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                           </svg>
+                        </span>
+                     </a>
                   </div>
                </div>
             </div>
@@ -739,23 +735,19 @@ if (!function_exists('grc_product_img')) {
       <div class="grc-product-ptb pb-50">
          <div class="container container-1630">
             <div class="grc-product-top pb-20">
-               <div class="row align-items-center">
-                  <div class="col-sm-6">
-                     <div class="grc-product-heading mb-20">
-                        <h4 class="aq-section-title ff-satoshi-bold fs-30 mb-0">Popular Products</h4>
-                     </div>
+               <div class="d-flex align-items-center justify-content-between flex-nowrap mb-20">
+                  <div class="grc-product-heading mb-0">
+                     <h4 class="aq-section-title ff-satoshi-bold fs-30 mb-0 text-nowrap">Popular Products</h4>
                   </div>
-                  <div class="col-sm-6">
-                     <div class="grc-product-btn text-sm-end">
-                        <a class="aq-btn-link aq-btn-underline" href="<?= site_url('shop?filter=popular'); ?>">
-                           See all
-                           <span>
-                              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
-                                 <path d="M0.75 5.75H10.75M10.75 5.75L5.75 0.75M10.75 5.75L5.75 10.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                              </svg>
-                           </span>
-                        </a>
-                     </div>
+                  <div class="grc-product-btn text-end">
+                     <a class="aq-btn-link aq-btn-underline text-nowrap d-inline-flex align-items-center gap-1" href="<?= site_url('shop?filter=popular'); ?>">
+                        <span>See all</span>
+                        <span>
+                           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                              <path d="M0.75 5.75H10.75M10.75 5.75L5.75 0.75M10.75 5.75L5.75 10.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                           </svg>
+                        </span>
+                     </a>
                   </div>
                </div>
             </div>

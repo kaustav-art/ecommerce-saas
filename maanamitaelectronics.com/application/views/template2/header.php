@@ -597,16 +597,26 @@ if (!function_exists('elt_resolve_img')) {
       .aq-img-hover-wrap:hover .aq-product-img {
          opacity: 0;
       }
-      .aq-product-item.aq-product-main .aq-product-content {
+      .aq-product-item.aq-product-main .aq-product-content,
+      .aq-product-item .aq-product-content {
          flex: 1 1 auto;
          min-width: 0;
          display: flex;
          flex-direction: column;
          padding: 4px 4px 0;
+         text-align: left !important;
+         align-items: flex-start !important;
+      }
+      .aq-product-item .aq-product-ratting {
+         text-align: left !important;
+         display: flex !important;
+         align-items: center !important;
+         justify-content: flex-start !important;
       }
       .aq-product-item .aq-product-ratting span {
          display: inline-flex;
          align-items: center;
+         justify-content: flex-start;
          gap: 2px;
       }
       .aq-product-item .aq-rating-count {
@@ -615,6 +625,16 @@ if (!function_exists('elt_resolve_img')) {
          color: #64748b;
          margin-left: 4px;
          line-height: 1;
+      }
+      .aq-product-item .aq-product-title,
+      .aq-product-item .aq-product-title a {
+         text-align: left !important;
+      }
+      .aq-product-item .aq-product-price {
+         text-align: left !important;
+      }
+      .aq-product-item .aq-product-color ul {
+         justify-content: flex-start !important;
       }
       .aq-product-item .aq-product-title {
          display: -webkit-box;
@@ -2177,9 +2197,72 @@ if (!function_exists('elt_resolve_img')) {
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
          }
          @media (max-width: 767.98px) {
+            .aq-header-area.elt-sticky-top-bar {
+               padding-top: 8px !important;
+               padding-bottom: 8px !important;
+            }
+            .aq-header-logo img {
+               max-height: 36px !important;
+            }
             header.elt-site-header {
-               padding-top: 74px;
+               padding-top: 54px !important;
                transition: padding-top 0.2s ease;
+            }
+            .elt-v2-dept-btn {
+               padding: 7px 11px !important;
+               min-width: 38px !important;
+               width: 38px !important;
+               height: 34px !important;
+               display: inline-flex !important;
+               align-items: center !important;
+               justify-content: center !important;
+            }
+            .elt-v2-dept-btn .elt-dept-text,
+            .elt-v2-dept-btn .elt-dept-chevron {
+               display: none !important;
+            }
+            .elt-v2-dept-btn .elt-bars-icon {
+               font-size: 16px !important;
+               margin: 0 !important;
+            }
+            .elt-v2-dept-flyout {
+               display: none !important;
+            }
+         }
+
+         /* Mobile Offcanvas All Categories Drawer */
+         .elt-mobile-cat-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 9998;
+         }
+         .elt-mobile-cat-backdrop.is-open {
+            display: block;
+         }
+         .elt-mobile-cat-drawer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 310px;
+            max-width: 85vw;
+            background: #ffffff;
+            z-index: 9999;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.18);
+            transform: translateX(-105%);
+            transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+         }
+         .elt-mobile-cat-drawer.is-open {
+            transform: translateX(0);
+         }
+         @media (min-width: 768px) {
+            .elt-mobile-cat-backdrop,
+            .elt-mobile-cat-drawer {
+               display: none !important;
             }
          }
       </style>
@@ -2190,10 +2273,10 @@ if (!function_exists('elt_resolve_img')) {
             <div class="elt-v2-inner">
                <!-- Left: All Departments Split Flyout -->
                <div class="elt-v2-dept-wrap">
-                  <button type="button" class="elt-v2-dept-btn">
-                     <i class="fa-solid fa-bars-staggered"></i>
-                     <span>All Categories</span>
-                     <i class="fa-solid fa-chevron-down" style="font-size:10px;"></i>
+                  <button type="button" class="elt-v2-dept-btn" id="eltDeptBtnToggle" onclick="handleEltDeptBtnClick(event)" aria-label="All Categories">
+                     <i class="fa-solid fa-bars elt-bars-icon"></i>
+                     <span class="elt-dept-text">All Categories</span>
+                     <i class="fa-solid fa-chevron-down elt-dept-chevron" style="font-size:10px;"></i>
                   </button>
 
                   <?php $elt_qs = empty($is_user_project) ? '?preview_tpl=electronics' : ''; ?>
@@ -2279,6 +2362,43 @@ if (!function_exists('elt_resolve_img')) {
       </div>
       <?php endif; ?>
 
+      <!-- Mobile Offcanvas All Categories Drawer (Mobile View Only) -->
+      <div class="elt-mobile-cat-backdrop" id="eltMobileCatBackdrop" onclick="window.toggleEltMobileCatDrawer(false)"></div>
+      <div class="elt-mobile-cat-drawer" id="eltMobileCatDrawer">
+         <div class="elt-mobile-cat-header d-flex align-items-center justify-content-between p-3 border-bottom" style="background:#0B0D0E;color:#ffffff;">
+            <h5 class="m-0 fw-bold d-flex align-items-center gap-2 text-white" style="font-size:16px;">
+               <i class="fa-solid fa-bars" style="color:#E1EEB7;"></i> All Categories
+            </h5>
+            <button type="button" class="btn p-0 border-0 text-white fs-5" onclick="window.toggleEltMobileCatDrawer(false)" aria-label="Close" style="line-height:1;">
+               <i class="fa-solid fa-xmark"></i>
+            </button>
+         </div>
+         <div class="elt-mobile-cat-body p-2" style="overflow-y:auto;flex:1 1 auto;">
+            <div class="list-group list-group-flush">
+               <?php foreach ($elt_prepared_cats as $cat_item): ?>
+                  <div class="elt-mob-cat-group border-bottom py-1">
+                     <a href="<?= site_url('shop/' . $cat_item['slug'] . $elt_qs); ?>" class="d-flex align-items-center justify-content-between p-2 text-decoration-none text-dark fw-semibold" style="font-size:14px;">
+                        <span class="d-flex align-items-center gap-2">
+                           <img src="<?= $cat_item['image']; ?>" alt="<?= html_escape($cat_item['name']); ?>" style="width:28px;height:28px;border-radius:50%;object-fit:cover;" onerror="this.src='<?= $cat_item['fallback']; ?>'">
+                           <?= html_escape($cat_item['name']); ?>
+                        </span>
+                        <i class="fa-solid fa-chevron-right text-muted" style="font-size:11px;"></i>
+                     </a>
+                     <?php if (!empty($cat_item['subs'])): ?>
+                        <div class="elt-mob-sub-list ps-4 pb-2">
+                           <?php foreach ($cat_item['subs'] as $sub): ?>
+                              <a href="<?= site_url('shop/' . ($sub['slug'] ?? $cat_item['slug']) . $elt_qs); ?>" class="d-block py-1 text-decoration-none text-muted" style="font-size:13px;">
+                                 <i class="fa-solid fa-angle-right me-1" style="font-size:10px;"></i> <?= html_escape($sub['name']); ?>
+                              </a>
+                           <?php endforeach; ?>
+                        </div>
+                     <?php endif; ?>
+                  </div>
+               <?php endforeach; ?>
+            </div>
+         </div>
+      </div>
+
       <script>
       document.addEventListener('DOMContentLoaded', function() {
 <?php if (empty($is_user_project)): ?>
@@ -2308,6 +2428,30 @@ if (!function_exists('elt_resolve_img')) {
          syncStickyHeaderOffset();
          window.addEventListener('resize', syncStickyHeaderOffset);
          window.addEventListener('load', syncStickyHeaderOffset);
+
+         // Mobile All Categories Drawer Toggle
+         window.toggleEltMobileCatDrawer = function(force) {
+            var drawer = document.getElementById('eltMobileCatDrawer');
+            var backdrop = document.getElementById('eltMobileCatBackdrop');
+            if (!drawer || !backdrop) return;
+            var open = typeof force === 'boolean' ? force : !drawer.classList.contains('is-open');
+            if (open) {
+               drawer.classList.add('is-open');
+               backdrop.classList.add('is-open');
+               document.body.style.overflow = 'hidden';
+            } else {
+               drawer.classList.remove('is-open');
+               backdrop.classList.remove('is-open');
+               document.body.style.overflow = '';
+            }
+         };
+         window.handleEltDeptBtnClick = function(e) {
+            if (window.innerWidth < 768) {
+               e.preventDefault();
+               e.stopPropagation();
+               window.toggleEltMobileCatDrawer(true);
+            }
+         };
 
          // Mobile Search Toggle & Outside Click / Escape Listeners
          window.toggleEltMobileSearch = function(forceState) {

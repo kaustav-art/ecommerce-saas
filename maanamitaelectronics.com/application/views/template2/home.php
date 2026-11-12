@@ -262,9 +262,16 @@ $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empt
 
             /* Section Headings */
             .elt-arrival-title-box h4 {
-               font-size: 20px !important;
+               font-size: 18px !important;
+               margin-bottom: 0 !important;
+               white-space: nowrap !important;
             }
-            .elt-arrival-top.mb-35 {
+            .elt-arrival-top-btn a {
+               font-size: 13px !important;
+               white-space: nowrap !important;
+            }
+            .elt-arrival-top.mb-35,
+            .elt-arrival-top.mb-25 {
                margin-bottom: 12px !important;
             }
 
@@ -294,27 +301,53 @@ $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empt
                display: none !important;
             }
             .aq-product-3-item {
-               padding: 8px !important;
+               display: flex !important;
+               flex-direction: row !important;
+               flex-wrap: nowrap !important;
+               align-items: center !important;
+               text-align: left !important;
+               padding: 10px !important;
                border: 1px solid #f0f0f0 !important;
-               border-radius: 8px !important;
+               border-radius: 10px !important;
                margin-bottom: 10px !important;
+               background: #ffffff !important;
             }
             .aq-product-3-thumb {
-               width: 85px !important;
-               height: 85px !important;
-               flex: 0 0 85px !important;
+               width: 95px !important;
+               height: 95px !important;
+               flex: 0 0 95px !important;
+               max-width: 95px !important;
+               max-height: 95px !important;
+               margin: 0 !important;
+               border-radius: 6px !important;
+               overflow: hidden !important;
+               background: #f9f9f9 !important;
             }
             .aq-product-3-thumb img {
+               width: 100% !important;
+               height: 100% !important;
                max-height: 100% !important;
                object-fit: contain !important;
             }
             .aq-product-3-content {
-               padding-left: 10px !important;
+               flex: 1 1 auto !important;
+               min-width: 0 !important;
+               padding-left: 12px !important;
+               text-align: left !important;
+            }
+            .aq-product-3-content .aq-product-ratting {
+               justify-content: flex-start !important;
+               text-align: left !important;
+               margin-bottom: 4px !important;
             }
             .aq-product-3-content .aq-product-title {
-               font-size: 13px !important;
+               font-size: 14px !important;
                line-height: 1.3 !important;
-               margin-bottom: 4px !important;
+               margin-bottom: 6px !important;
+               text-align: left !important;
+            }
+            .aq-product-3-content .aq-product-price {
+               text-align: left !important;
             }
 
             /* Popular Products & Brand */
@@ -564,24 +597,20 @@ $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empt
       <div class="elt-arrival-area">
          <div class="container">
             <?php if (!empty($arrivals_list)): ?>
-            <div class="elt-arrival-top mb-35">
-               <div class="row align-items-center">
-                  <div class="col-md-6">
-                     <div class="elt-arrival-title-box text-center text-md-start">
-                        <h4 class="aq-section-title ff-onest-bold fs-36">New Arrivals</h4>
-                     </div>
+            <div class="elt-arrival-top mb-25">
+               <div class="d-flex align-items-center justify-content-between flex-nowrap gap-2">
+                  <div class="elt-arrival-title-box">
+                     <h4 class="aq-section-title ff-onest-bold fs-36 mb-0 text-nowrap">New Arrivals</h4>
                   </div>
-                  <div class="col-md-6">
-                     <div class="elt-arrival-top-btn text-center text-md-end">
-                        <a class="aq-btn-link aq-btn-underline" href="<?= site_url('shop'); ?>">
-                           See all Products
-                           <span>
-                              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
-                                 <path d="M0.75 5.75H10.75M10.75 5.75L5.75 0.75M10.75 5.75L5.75 10.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                              </svg>
-                           </span>
-                        </a>
-                     </div>
+                  <div class="elt-arrival-top-btn text-end">
+                     <a class="aq-btn-link aq-btn-underline text-nowrap d-inline-flex align-items-center gap-1" href="<?= site_url('shop'); ?>">
+                        <span>See all Products</span>
+                        <span>
+                           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                              <path d="M0.75 5.75H10.75M10.75 5.75L5.75 0.75M10.75 5.75L5.75 10.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                           </svg>
+                        </span>
+                     </a>
                   </div>
                </div>
             </div>
@@ -634,7 +663,7 @@ $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empt
                            <img class="aq-img-hover current-cached lazyloaded" src="<?= $a_hover_img; ?>" alt="<?= html_escape($a_name); ?>">
                         </a>
                      </div>
-                     <div class="aq-product-content text-center text-md-start">
+                     <div class="aq-product-content text-start">
                         <div class="aq-product-ratting">
                            <span>
                               <?php for ($si = 1; $si <= 5; $si++): ?>
@@ -706,7 +735,7 @@ $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empt
                </div>
             </div>
             <div class="aq-product-3-wrap">
-               <div class="row gx-5 row-cols-xxl-3 row-cols-xl-2 row-cols-lg-2 row-cols-md-1 row-cols-sm-2 row-cols-1">
+               <div class="row g-3 row-cols-1 row-cols-md-2 row-cols-xl-3">
                   <?php
                   $di = 1;
                   foreach ($deals_list as $dp):
@@ -721,7 +750,7 @@ $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empt
                       $d_rating  = (float)($dp['rating'] ?? 0);
                       $d_stars   = ($d_rev_cnt > 0 || $d_rating > 0) ? max(0, min(5, (int)round($d_rating))) : 0;
                   ?>
-                  <div class="col">
+                  <div class="col col-12">
                      <div class="aq-product-3-item d-flex align-items-center mb-5">
                         <div class="aq-product-3-thumb p-relative">
                            <a href="<?= $d_slug; ?>">
@@ -842,115 +871,153 @@ $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empt
       <div class="elt-arrival-area pb-120">
          <div class="container">
             <?php if (!empty($popular_list)): ?>
-            <div class="elt-arrival-top mb-35">
-               <div class="row align-items-center">
-                  <div class="col-md-6">
-                     <div class="elt-arrival-title-box text-center text-md-start">
-                        <h4 class="aq-section-title ff-onest-bold fs-36">Popular Products</h4>
-                     </div>
+            <div class="elt-arrival-top mb-25">
+               <div class="d-flex align-items-center justify-content-between flex-nowrap gap-2">
+                  <div class="elt-arrival-title-box">
+                     <h4 class="aq-section-title ff-onest-bold fs-36 mb-0 text-nowrap">Popular Products</h4>
                   </div>
-                  <div class="col-md-6">
-                     <div class="elt-arrival-top-btn text-center text-md-end">
-                        <a class="aq-btn-link aq-btn-underline" href="<?= site_url('shop?filter=popular'); ?>">
-                           See all Products
-                           <span>
-                              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
-                                 <path d="M0.75 5.75H10.75M10.75 5.75L5.75 0.75M10.75 5.75L5.75 10.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                              </svg>
-                           </span>
-                        </a>
-                     </div>
+                  <div class="elt-arrival-top-btn text-end">
+                     <a class="aq-btn-link aq-btn-underline text-nowrap d-inline-flex align-items-center gap-1" href="<?= site_url('shop?filter=popular'); ?>">
+                        <span>See all Products</span>
+                        <span>
+                           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
+                              <path d="M0.75 5.75H10.75M10.75 5.75L5.75 0.75M10.75 5.75L5.75 10.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                           </svg>
+                        </span>
+                     </a>
                   </div>
                </div>
             </div>
             <?php endif; ?>
-            <div class="row gx-2 gx-md-3 row-cols-xl-5 row-cols-lg-4 row-cols-md-3 row-cols-sm-2 row-cols-2">
-               <?php if (empty($popular_list)): ?>
+            <?php if (empty($popular_list)): ?>
+            <div class="row">
                <div class="col-12 w-100 py-5 text-center text-muted">
                   <p class="mb-0">No products available at the moment.</p>
                </div>
-               <?php endif; ?>
-               <?php
-               $pi = 1;
-               foreach ($popular_list as $pp):
-                   $p_id    = (int)$pp['id'];
-                   $p_name  = $pp['name'] ?? 'Electronics Item';
-                   $p_slug  = !empty($pp['slug']) ? site_url('product/' . $pp['slug']) : site_url('product/' . $p_id);
-                   $p_img   = elt_product_img($pp, $pi++, 'arrival');
-                   $p_price = isset($pp['display_price']) ? (float)$pp['display_price'] : (float)(!empty($pp['sale_price']) && $pp['sale_price'] < $pp['price'] ? $pp['sale_price'] : $pp['price']);
-                   $p_old   = isset($pp['original_price']) ? (float)$pp['original_price'] : (float)($pp['mrp'] ?? $pp['regular_price'] ?? $pp['price'] ?? 0);
-                   $p_disc  = !empty($pp['total_discount_percent']) ? (int)$pp['total_discount_percent'] : (($p_old > $p_price && $p_old > 0) ? round((($p_old - $p_price) / $p_old) * 100) : 0);
-                   $p_rev_cnt = (isset($pp['reviews']) && is_array($pp['reviews'])) ? count($pp['reviews']) : (int)($pp['reviews_count'] ?? 0);
-                   $p_rating  = (float)($pp['rating'] ?? 0);
-                   $p_stars   = ($p_rev_cnt > 0 || $p_rating > 0) ? max(0, min(5, (int)round($p_rating))) : 0;
-                   $p_swatches  = elt_get_product_swatches($pp, $p_img, !empty($is_user_project));
-                   $p_hover_img = elt_get_hover_img($pp, $p_img, $p_swatches);
-               ?>
-               <div class="col">
-                  <div class="aq-product-item aq-product-main mb-40" data-lazy="true">
-                     <div class="aq-product-thumb aq-img-hover-wrap p-relative mb-10">
-                        <?php if (!empty($pp['is_flash_sale']) || $p_disc > 0): ?>
-                        <div class="aq-product-badge">
-                           <?php if ($p_disc > 0): ?>
-                           <span class="clr-sale">-<?= $p_disc; ?>%</span>
+            </div>
+            <?php else: ?>
+            <div class="swiper elt-popular-slider-active">
+               <div class="swiper-wrapper">
+                  <?php
+                  $pi = 1;
+                  foreach ($popular_list as $pp):
+                      $p_id    = (int)$pp['id'];
+                      $p_name  = $pp['name'] ?? 'Electronics Item';
+                      $p_slug  = !empty($pp['slug']) ? site_url('product/' . $pp['slug']) : site_url('product/' . $p_id);
+                      $p_img   = elt_product_img($pp, $pi++, 'arrival');
+                      $p_price = isset($pp['display_price']) ? (float)$pp['display_price'] : (float)(!empty($pp['sale_price']) && $pp['sale_price'] < $pp['price'] ? $pp['sale_price'] : $pp['price']);
+                      $p_old   = isset($pp['original_price']) ? (float)$pp['original_price'] : (float)($pp['mrp'] ?? $pp['regular_price'] ?? $pp['price'] ?? 0);
+                      $p_disc  = !empty($pp['total_discount_percent']) ? (int)$pp['total_discount_percent'] : (($p_old > $p_price && $p_old > 0) ? round((($p_old - $p_price) / $p_old) * 100) : 0);
+                      $p_rev_cnt = (isset($pp['reviews']) && is_array($pp['reviews'])) ? count($pp['reviews']) : (int)($pp['reviews_count'] ?? 0);
+                      $p_rating  = (float)($pp['rating'] ?? 0);
+                      $p_stars   = ($p_rev_cnt > 0 || $p_rating > 0) ? max(0, min(5, (int)round($p_rating))) : 0;
+                      $p_swatches  = elt_get_product_swatches($pp, $p_img, !empty($is_user_project));
+                      $p_hover_img = elt_get_hover_img($pp, $p_img, $p_swatches);
+                  ?>
+                  <div class="swiper-slide">
+                     <div class="aq-product-item aq-product-main mb-40" data-lazy="true">
+                        <div class="aq-product-thumb aq-img-hover-wrap p-relative mb-10">
+                           <?php if (!empty($pp['is_flash_sale']) || $p_disc > 0): ?>
+                           <div class="aq-product-badge">
+                              <?php if ($p_disc > 0): ?>
+                              <span class="clr-sale">-<?= $p_disc; ?>%</span>
+                              <?php endif; ?>
+                              <?php if (!empty($pp['is_flash_sale'])): ?>
+                              <span class="clr-sale" style="background:#DA3F3F; color:#fff; font-size:15px; font-weight:700; padding:6px 13.5px; text-transform:uppercase; letter-spacing:0.5px;">SALE</span>
+                              <?php endif; ?>
+                           </div>
                            <?php endif; ?>
-                           <?php if (!empty($pp['is_flash_sale'])): ?>
-                           <span class="clr-sale" style="background:#DA3F3F; color:#fff; font-size:15px; font-weight:700; padding:6px 13.5px; text-transform:uppercase; letter-spacing:0.5px;">SALE</span>
+                           <div class="aq-product-action">
+                              <button type="button" class="aq-product-action-btn aq-wishlist-btn aq-tooltip" onclick="bazaroToggleWishlist(<?= $p_id; ?>, this)">
+                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="16" viewBox="0 0 18 16" fill="none">
+                                    <path d="M14.7197 1.52347C12.5744 0.244089 10.7019 0.759666 9.57712 1.58092C9.11591 1.91766 8.88531 2.08602 8.74963 2.08602C8.61396 2.08602 8.38336 1.91766 7.92215 1.58092C6.79733 0.759666 4.9249 0.244089 2.77958 1.52347C-0.0359114 3.20253 -0.67299 8.7418 5.82126 13.4151C7.05821 14.3052 7.67668 14.7502 8.74963 14.7502C9.82258 14.7502 10.4411 14.3052 11.678 13.4151C18.1723 8.7418 17.5352 3.20253 14.7197 1.52347Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"></path>
+                                 </svg>
+                                 <span class="aq-tooltip-item">Add To Wishlist</span>
+                              </button>
+                           </div>
+                           <a href="<?= $p_slug; ?>">
+                              <img class="aq-product-img current-cached lazyloaded" src="<?= $p_img; ?>" alt="<?= html_escape($p_name); ?>">
+                              <img class="aq-img-hover current-cached lazyloaded" src="<?= $p_hover_img; ?>" alt="<?= html_escape($p_name); ?>">
+                           </a>
+                        </div>
+                        <div class="aq-product-content text-start">
+                           <div class="aq-product-ratting">
+                              <span>
+                                 <?php for ($si = 1; $si <= 5; $si++): ?>
+                                 <svg width="12" height="11" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5.21608 0.307961C5.38688 -0.102685 5.9686 -0.102684 6.1394 0.307962L7.34463 3.20568C7.41664 3.3788 7.57944 3.49709 7.76634 3.51207L10.8947 3.76287C11.338 3.79841 11.5178 4.35166 11.18 4.641L8.79653 6.68268C8.65414 6.80466 8.59195 6.99605 8.63546 7.17843L9.36364 10.2311C9.46684 10.6638 8.99621 11.0057 8.61666 10.7739L5.93837 9.13797C5.77836 9.04024 5.57712 9.04024 5.41711 9.13797L2.73882 10.7739C2.35927 11.0057 1.88865 10.6638 1.99184 10.2311L2.72003 7.17843C2.76353 6.99605 2.70135 6.80466 2.55895 6.68268L0.175492 4.641C-0.162276 4.35166 0.0174878 3.79841 0.460815 3.76287L3.58915 3.51207C3.77604 3.49709 3.93885 3.3788 4.01085 3.20568L5.21608 0.307961Z" fill="<?= ($si <= $p_stars) ? '#f59e0b' : '#d1d5db'; ?>"></path>
+                                 </svg>
+                                 <?php endfor; ?>
+                                 <span class="aq-rating-count">(<?= $p_rev_cnt; ?>)</span>
+                              </span>
+                           </div>
+                           <h4 class="aq-product-title mb-10"><a href="<?= $p_slug; ?>"><?= html_escape($p_name); ?></a></h4>
+                           <div class="aq-product-price">
+                              <ins><span class="aq-product-new-price"><?= $curr . number_format($p_price, 2); ?></span></ins>
+                              <?php if ($p_old > $p_price): ?>
+                              <del><span class="aq-product-old-price"><?= $curr . number_format($p_old, 2); ?></span></del>
+                              <?php endif; ?>
+                           </div>
+                           <?php if (!empty($p_swatches)): ?>
+                           <div class="aq-product-color">
+                              <ul>
+                                 <?php foreach ($p_swatches as $sw_idx => $sw): ?>
+                                 <li class="aq-product-color-item aq-tooltip-top aq-color-swatch <?= $sw_idx === 0 ? 'active' : ''; ?>">
+                                    <span class="aq-tooltip-item"><?= html_escape($sw['name']); ?></span>
+                                    <span class="aq-product-color-value" data-bg-color="<?= html_escape($sw['color_code']); ?>" style="background-color: <?= html_escape($sw['color_code']); ?>;"></span>
+                                    <img class=" current-cached lazyloaded" data-src="<?= $sw['image']; ?>" src="<?= $sw['image']; ?>" alt="image-product">
+                                 </li>
+                                 <?php endforeach; ?>
+                              </ul>
+                           </div>
                            <?php endif; ?>
                         </div>
-                        <?php endif; ?>
-                        <div class="aq-product-action">
-                           <button type="button" class="aq-product-action-btn aq-wishlist-btn aq-tooltip" onclick="bazaroToggleWishlist(<?= $p_id; ?>, this)">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="16" viewBox="0 0 18 16" fill="none">
-                                 <path d="M14.7197 1.52347C12.5744 0.244089 10.7019 0.759666 9.57712 1.58092C9.11591 1.91766 8.88531 2.08602 8.74963 2.08602C8.61396 2.08602 8.38336 1.91766 7.92215 1.58092C6.79733 0.759666 4.9249 0.244089 2.77958 1.52347C-0.0359114 3.20253 -0.67299 8.7418 5.82126 13.4151C7.05821 14.3052 7.67668 14.7502 8.74963 14.7502C9.82258 14.7502 10.4411 14.3052 11.678 13.4151C18.1723 8.7418 17.5352 3.20253 14.7197 1.52347Z" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round"></path>
-                              </svg>
-                              <span class="aq-tooltip-item">Add To Wishlist</span>
-                           </button>
-                        </div>
-                        <a href="<?= $p_slug; ?>">
-                           <img class="aq-product-img current-cached lazyloaded" src="<?= $p_img; ?>" alt="<?= html_escape($p_name); ?>">
-                           <img class="aq-img-hover current-cached lazyloaded" src="<?= $p_hover_img; ?>" alt="<?= html_escape($p_name); ?>">
-                        </a>
-                     </div>
-                     <div class="aq-product-content text-center text-md-start">
-                        <div class="aq-product-ratting">
-                           <span>
-                              <?php for ($si = 1; $si <= 5; $si++): ?>
-                              <svg width="12" height="11" viewBox="0 0 12 11" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                 <path d="M5.21608 0.307961C5.38688 -0.102685 5.9686 -0.102684 6.1394 0.307962L7.34463 3.20568C7.41664 3.3788 7.57944 3.49709 7.76634 3.51207L10.8947 3.76287C11.338 3.79841 11.5178 4.35166 11.18 4.641L8.79653 6.68268C8.65414 6.80466 8.59195 6.99605 8.63546 7.17843L9.36364 10.2311C9.46684 10.6638 8.99621 11.0057 8.61666 10.7739L5.93837 9.13797C5.77836 9.04024 5.57712 9.04024 5.41711 9.13797L2.73882 10.7739C2.35927 11.0057 1.88865 10.6638 1.99184 10.2311L2.72003 7.17843C2.76353 6.99605 2.70135 6.80466 2.55895 6.68268L0.175492 4.641C-0.162276 4.35166 0.0174878 3.79841 0.460815 3.76287L3.58915 3.51207C3.77604 3.49709 3.93885 3.3788 4.01085 3.20568L5.21608 0.307961Z" fill="<?= ($si <= $p_stars) ? '#f59e0b' : '#d1d5db'; ?>"></path>
-                              </svg>
-                              <?php endfor; ?>
-                              <span class="aq-rating-count">(<?= $p_rev_cnt; ?>)</span>
-                           </span>
-                        </div>
-                        <h4 class="aq-product-title mb-10"><a href="<?= $p_slug; ?>"><?= html_escape($p_name); ?></a></h4>
-                        <div class="aq-product-price">
-                           <ins><span class="aq-product-new-price"><?= $curr . number_format($p_price, 2); ?></span></ins>
-                           <?php if ($p_old > $p_price): ?>
-                           <del><span class="aq-product-old-price"><?= $curr . number_format($p_old, 2); ?></span></del>
-                           <?php endif; ?>
-                        </div>
-                        <?php if (!empty($p_swatches)): ?>
-                        <div class="aq-product-color">
-                           <ul>
-                              <?php foreach ($p_swatches as $sw_idx => $sw): ?>
-                              <li class="aq-product-color-item aq-tooltip-top aq-color-swatch <?= $sw_idx === 0 ? 'active' : ''; ?>">
-                                 <span class="aq-tooltip-item"><?= html_escape($sw['name']); ?></span>
-                                 <span class="aq-product-color-value" data-bg-color="<?= html_escape($sw['color_code']); ?>" style="background-color: <?= html_escape($sw['color_code']); ?>;"></span>
-                                 <img class=" current-cached lazyloaded" data-src="<?= $sw['image']; ?>" src="<?= $sw['image']; ?>" alt="image-product">
-                              </li>
-                              <?php endforeach; ?>
-                           </ul>
-                        </div>
-                        <?php endif; ?>
                      </div>
                   </div>
+                  <?php endforeach; ?>
                </div>
-               <?php endforeach; ?>
             </div>
+            <?php endif; ?>
          </div>
       </div>
       <!-- popular products area end -->
+
+      <script>
+      (function() {
+         function initPopularSlider() {
+            if (typeof Swiper === 'undefined') {
+               setTimeout(initPopularSlider, 100);
+               return;
+            }
+            var el = document.querySelector('.elt-popular-slider-active');
+            if (el && !el.swiper) {
+               new Swiper('.elt-popular-slider-active', {
+                  slidesPerView: 5,
+                  loop: true,
+                  autoplay: {
+                     delay: 3500,
+                     disableOnInteraction: false,
+                  },
+                  arrow: false,
+                  speed: 1000,
+                  spaceBetween: 16,
+                  breakpoints: {
+                     1400: { slidesPerView: 5, spaceBetween: 16 },
+                     1200: { slidesPerView: 4, spaceBetween: 16 },
+                     992:  { slidesPerView: 3, spaceBetween: 14 },
+                     768:  { slidesPerView: 2, spaceBetween: 12 },
+                     0:    { slidesPerView: 2, spaceBetween: 10 }
+                  }
+               });
+            }
+         }
+         if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initPopularSlider);
+         } else {
+            initPopularSlider();
+         }
+      })();
+      </script>
 
       <!-- brand area start -->
       <div class="aq-brand-area mb-120">
