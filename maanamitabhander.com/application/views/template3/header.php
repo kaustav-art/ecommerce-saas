@@ -493,13 +493,14 @@
          align-items: center !important;
       }
       .grc-header-main-nav .aq-header-logo img,
-      .aq-header-logo img {
-         width: 42px !important;
-         max-width: 42px !important;
-         height: auto !important;
+      .grc-header-main-nav .aq-header-logo .logo,
+      .aq-header-logo img,
+      .aq-header-logo .logo {
          max-height: 42px !important;
+         width: auto !important;
+         max-width: 100% !important;
          object-fit: contain !important;
-         margin: 0 8px !important;
+         margin: 0 !important;
          padding: 0 !important;
          display: block !important;
       }
@@ -995,6 +996,11 @@
             padding-bottom: 4px !important;
          }
          .grc-header-main-nav .aq-header-logo,
+         .aq-header-logo {
+            flex: 0 0 auto !important;
+            max-width: 60% !important;
+         }
+         .grc-header-main-nav .aq-header-logo,
          .grc-header-main-nav .aq-header-logo a,
          .aq-header-logo,
          .aq-header-logo a {
@@ -1003,12 +1009,14 @@
             line-height: 1 !important;
          }
          .grc-header-main-nav .aq-header-logo img,
-         .aq-header-logo img {
-            width: 36px !important;
-            max-width: 36px !important;
-            height: auto !important;
+         .grc-header-main-nav .aq-header-logo .logo,
+         .aq-header-logo img,
+         .aq-header-logo .logo {
             max-height: 36px !important;
-            margin: 0 6px !important;
+            width: auto !important;
+            max-width: 100% !important;
+            object-fit: contain !important;
+            margin: 0 !important;
          }
          .aq-header-top-account-content {
             display: none !important;
@@ -1563,8 +1571,8 @@
                <div class="row align-items-center">
                   <div class="col-lg-2 col-md-3 col-6">
                      <div class="aq-header-logo">
-                        <a href="<?= site_url('home'); ?>" class="text-decoration-none d-inline-flex align-items-center gap-2">
-                           <img data-width="140" src="<?= $web_logo; ?>" alt="<?= html_escape($site_name); ?>" style="width:42px;height:auto;object-fit:contain;margin:0 8px;" onerror="this.src='<?= base_url('assets/images/logo/logo.webp'); ?>'">
+                        <a href="<?= site_url('home'); ?>" class="text-decoration-none logo-header d-inline-flex align-items-center gap-2">
+                           <img data-width="140" src="<?= $web_logo; ?>" alt="<?= html_escape($site_name); ?>" class="logo" style="max-height: 42px; width: auto; object-fit: contain;" onerror="this.src='<?= base_url('assets/images/logo/logo.webp'); ?>'">
                         </a>
                      </div>
                   </div>

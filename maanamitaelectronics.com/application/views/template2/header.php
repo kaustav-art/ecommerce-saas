@@ -1248,26 +1248,7 @@ if (!function_exists('elt_resolve_img')) {
             margin-inline-end: 0 !important;
          }
          .aq-header-top-cart {
-            margin-right: 6px !important;
-         }
-         .aq-header-top-cart button {
-            background: transparent;
-            border: none;
-            padding: 0;
-            width: 36px;
-            height: 36px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-         }
-         .aq-header-top-cart .count-box {
-            top: -2px !important;
-            right: -8px !important;
-            width: 20px !important;
-            height: 20px !important;
-            font-size: 11px !important;
-            line-height: 20px !important;
+            margin-right: 0 !important;
          }
       }
 
@@ -1572,11 +1553,11 @@ if (!function_exists('elt_resolve_img')) {
       <!-- header area start -->
       <div class="aq-header-area elt-sticky-top-bar p-relative">
          <div class="container">
-            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 gap-md-3">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 gap-md-3 py-1">
                <!-- Logo -->
                <div class="aq-header-logo d-flex align-items-center">
-                  <a href="<?= site_url('home'); ?>" class="d-inline-flex align-items-center">
-                     <img data-width="120" src="<?= base_url('assets/images/logo/logo.webp'); ?>" alt="<?= html_escape($site_name); ?>" style="width:42px;height:auto;object-fit:contain;margin:0 8px;">
+                  <a href="<?= site_url('home'); ?>" class="logo-header d-inline-flex align-items-center">
+                     <img data-width="120" src="<?= $web_logo; ?>" alt="<?= html_escape($site_name); ?>" class="logo" style="max-height: 42px; width: auto; object-fit: contain;" onerror="this.src='<?= base_url('assets/images/logo/logo.webp'); ?>'">
                   </a>
                </div>
 
@@ -1679,7 +1660,7 @@ if (!function_exists('elt_resolve_img')) {
                         <?php endif; ?>
                      </li>
                      <li class="aq-header-top-wishlist d-none d-md-inline-flex">
-                        <a href="<?= site_url('wishlist'); ?>" class="text-decoration-none" title="My Wishlist" aria-label="My Wishlist">
+                        <a href="<?= site_url('wishlist'); ?>" class="elt-header-icon-btn text-decoration-none" title="My Wishlist" aria-label="My Wishlist">
                            <span class="count-box wishlist-count"><?= $wish_cnt; ?></span>
                            <i>
                               <svg xmlns="http://www.w3.org/2000/svg" width="21" height="20" viewBox="0 0 21 20" fill="none">
@@ -1698,7 +1679,7 @@ if (!function_exists('elt_resolve_img')) {
                         </button>
                      </li>
                      <li class="aq-header-top-cart aq-cart-btn">
-                        <button type="button">
+                        <button type="button" class="elt-header-icon-btn" aria-label="Cart">
                            <span class="count-box cart-count"><?= $cart_cnt; ?></span>
                            <i>
                               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="21" viewBox="0 0 20 21" fill="none">
@@ -2206,13 +2187,13 @@ if (!function_exists('elt_resolve_img')) {
             display: inline-flex !important;
             align-items: center !important;
          }
-         .aq-header-logo img {
-            width: 42px !important;
-            max-width: 42px !important;
-            height: auto !important;
+         .aq-header-logo img,
+         .aq-header-logo .logo {
             max-height: 42px !important;
+            width: auto !important;
+            max-width: 100% !important;
             object-fit: contain !important;
-            margin: 0 8px !important;
+            margin: 0 !important;
             padding: 0 !important;
             display: block !important;
          }
@@ -2224,7 +2205,7 @@ if (!function_exists('elt_resolve_img')) {
             display: flex !important;
             align-items: center !important;
             justify-content: flex-end !important;
-            gap: 12px !important;
+            gap: 20px !important;
             margin: 0 !important;
             padding: 0 !important;
             list-style: none !important;
@@ -2235,6 +2216,7 @@ if (!function_exists('elt_resolve_img')) {
             display: inline-flex !important;
             align-items: center !important;
             line-height: 1 !important;
+            position: relative !important;
          }
          .aq-header-right-options > ul > li.aq-header-top-search-btn {
             display: none !important;
@@ -2243,10 +2225,73 @@ if (!function_exists('elt_resolve_img')) {
          .aq-header-right-options > ul > li a {
             display: inline-flex !important;
             align-items: center !important;
+            line-height: 1 !important;
+            background: transparent !important;
+            border: none !important;
+         }
+         .aq-header-top-wishlist a,
+         .aq-header-top-cart button,
+         .elt-header-icon-btn {
+            display: inline-flex !important;
+            align-items: center !important;
             justify-content: center !important;
             line-height: 1 !important;
             background: transparent !important;
             border: none !important;
+            position: relative !important;
+            width: 38px !important;
+            height: 38px !important;
+            border-radius: 50% !important;
+            color: #0B0D0E !important;
+            padding: 0 !important;
+            cursor: pointer !important;
+            text-decoration: none !important;
+            transition: background-color 0.2s ease, color 0.2s ease !important;
+         }
+         .aq-header-top-wishlist a:hover,
+         .aq-header-top-cart button:hover,
+         .elt-header-icon-btn:hover {
+            background-color: #f1f5f9 !important;
+            color: #2874f0 !important;
+         }
+         .aq-header-top-wishlist a:hover svg path,
+         .aq-header-top-cart button:hover svg path,
+         .elt-header-icon-btn:hover svg path {
+            stroke: #2874f0 !important;
+         }
+         .aq-header-top-wishlist a i,
+         .aq-header-top-cart button i {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            line-height: 1 !important;
+         }
+         .aq-header-right-options .count-box {
+            position: absolute !important;
+            top: -1px !important;
+            right: -1px !important;
+            min-width: 17px !important;
+            height: 17px !important;
+            line-height: 17px !important;
+            padding: 0 4px !important;
+            font-size: 10px !important;
+            font-weight: 700 !important;
+            font-family: inherit !important;
+            text-align: center !important;
+            border-radius: 9px !important;
+            background-color: #DE1518 !important;
+            color: #ffffff !important;
+            border: 2px solid #ffffff !important;
+            box-sizing: content-box !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            letter-spacing: 0 !important;
+            z-index: 2 !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18) !important;
+         }
+         .aq-header-right-options .count-box::after {
+            display: none !important;
          }
          @media (max-width: 767.98px) {
             .aq-header-right-options > ul > li.aq-header-top-search-btn {
@@ -2256,36 +2301,53 @@ if (!function_exists('elt_resolve_img')) {
                padding-top: 4px !important;
                padding-bottom: 4px !important;
             }
+            .aq-header-logo {
+               flex: 0 0 auto !important;
+               max-width: 60% !important;
+            }
             .aq-header-logo,
             .aq-header-logo a {
                padding: 0 !important;
                margin: 0 !important;
                line-height: 1 !important;
             }
-            .aq-header-logo img {
-               width: 36px !important;
-               max-width: 36px !important;
-               height: auto !important;
+            .aq-header-logo img,
+            .aq-header-logo .logo {
                max-height: 36px !important;
-               margin: 0 6px !important;
+               width: auto !important;
+               max-width: 100% !important;
+               object-fit: contain !important;
+               margin: 0 !important;
             }
             header.elt-site-header {
                padding-top: 42px !important;
                transition: padding-top 0.2s ease;
             }
             .aq-header-right-options ul {
-               gap: 10px !important;
+               gap: 12px !important;
             }
             .elt-mobile-search-toggle,
-            .aq-header-top-cart button {
+            .aq-header-top-cart button,
+            .elt-header-icon-btn {
                width: 34px !important;
                height: 34px !important;
                padding: 0 !important;
             }
             .elt-mobile-search-toggle svg,
-            .aq-header-top-cart button svg {
+            .aq-header-top-cart button svg,
+            .elt-header-icon-btn svg {
                width: 18px !important;
                height: 18px !important;
+            }
+            .aq-header-right-options .count-box {
+               top: -2px !important;
+               right: -2px !important;
+               min-width: 15px !important;
+               height: 15px !important;
+               line-height: 15px !important;
+               padding: 0 3px !important;
+               font-size: 9.5px !important;
+               border-width: 1.5px !important;
             }
             .elt-v2-dept-btn {
                padding: 7px 11px !important;
