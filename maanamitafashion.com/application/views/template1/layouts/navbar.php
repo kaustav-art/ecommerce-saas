@@ -877,6 +877,17 @@
             max-width: 100vw !important;
         }
 
+        @keyframes fashSearchSlideDown {
+            0% {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         @media (max-width: 767.98px) {
             body {
                 padding-bottom: 60px !important;
@@ -1059,10 +1070,6 @@
                 white-space: nowrap !important;
                 color: inherit !important;
             }
-                line-height: 1.1 !important;
-                display: block !important;
-                white-space: nowrap !important;
-            }
             .aq-bottom-menu-item button {
                 background: transparent !important;
                 border: none !important;
@@ -1097,18 +1104,7 @@
             .aq-bottom-menu a:hover .aq-bottom-menu-item {
                 color: #2874f0 !important;
             }
-        }
 
-        @keyframes fashSearchSlideDown {
-            0% {
-                opacity: 0;
-                transform: translateY(-8px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
             .store-search-input:focus,
             #storeNavSearchInput:focus,
             .store-search-input-wrap:focus-within .store-search-input {
