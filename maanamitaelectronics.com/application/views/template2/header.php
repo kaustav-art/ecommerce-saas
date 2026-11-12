@@ -1576,7 +1576,7 @@ if (!function_exists('elt_resolve_img')) {
                <!-- Logo -->
                <div class="aq-header-logo d-flex align-items-center">
                   <a href="<?= site_url('home'); ?>" class="d-inline-flex align-items-center">
-                     <img data-width="120" src="<?= base_url('assets/images/logo/logo.webp'); ?>" alt="<?= html_escape($site_name); ?>" style="max-height:36px;width:auto;object-fit:contain;">
+                     <img data-width="120" src="<?= base_url('assets/images/logo/logo.webp'); ?>" alt="<?= html_escape($site_name); ?>" style="width:42px;height:auto;object-fit:contain;margin:0 8px;">
                   </a>
                </div>
 
@@ -2207,10 +2207,12 @@ if (!function_exists('elt_resolve_img')) {
             align-items: center !important;
          }
          .aq-header-logo img {
-            max-height: 36px !important;
-            width: auto !important;
+            width: 42px !important;
+            max-width: 42px !important;
+            height: auto !important;
+            max-height: 42px !important;
             object-fit: contain !important;
-            margin: 0 !important;
+            margin: 0 8px !important;
             padding: 0 !important;
             display: block !important;
          }
@@ -2234,6 +2236,9 @@ if (!function_exists('elt_resolve_img')) {
             align-items: center !important;
             line-height: 1 !important;
          }
+         .aq-header-right-options > ul > li.aq-header-top-search-btn {
+            display: none !important;
+         }
          .aq-header-right-options > ul > li button,
          .aq-header-right-options > ul > li a {
             display: inline-flex !important;
@@ -2244,6 +2249,9 @@ if (!function_exists('elt_resolve_img')) {
             border: none !important;
          }
          @media (max-width: 767.98px) {
+            .aq-header-right-options > ul > li.aq-header-top-search-btn {
+               display: inline-flex !important;
+            }
             .aq-header-area.elt-sticky-top-bar {
                padding-top: 4px !important;
                padding-bottom: 4px !important;
@@ -2255,7 +2263,11 @@ if (!function_exists('elt_resolve_img')) {
                line-height: 1 !important;
             }
             .aq-header-logo img {
-               max-height: 28px !important;
+               width: 36px !important;
+               max-width: 36px !important;
+               height: auto !important;
+               max-height: 36px !important;
+               margin: 0 6px !important;
             }
             header.elt-site-header {
                padding-top: 42px !important;

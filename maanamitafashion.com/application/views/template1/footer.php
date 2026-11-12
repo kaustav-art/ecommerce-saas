@@ -1,4 +1,37 @@
         <!-- Footer -->
+        <style>
+        @media (max-width: 767.98px) {
+            #footer.footer {
+                margin-top: 20px !important;
+                padding-top: 25px !important;
+                padding-bottom: 18px !important;
+            }
+            #footer .footer-logo {
+                margin-bottom: 12px !important;
+            }
+            #footer .footer-logo img {
+                max-height: 36px !important;
+            }
+            #footer .row.gy-4 {
+                --bs-gutter-y: 1.25rem !important;
+            }
+            #footer h6 {
+                margin-bottom: 8px !important;
+                font-size: 13.5px !important;
+                letter-spacing: 0.5px;
+            }
+            #footer ul li {
+                margin-bottom: 6px !important;
+            }
+            #footer .border-top {
+                margin-top: 18px !important;
+                padding-top: 12px !important;
+            }
+            #footer .border-top div {
+                font-size: 11.5px !important;
+            }
+        }
+        </style>
         <footer id="footer" class="footer bg-dark text-white pt-5 pb-4 mt-5">
             <div class="container">
                 <div class="row gy-4">

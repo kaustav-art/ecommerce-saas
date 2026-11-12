@@ -494,10 +494,12 @@
       }
       .grc-header-main-nav .aq-header-logo img,
       .aq-header-logo img {
-         max-height: 36px !important;
-         width: auto !important;
+         width: 42px !important;
+         max-width: 42px !important;
+         height: auto !important;
+         max-height: 42px !important;
          object-fit: contain !important;
-         margin: 0 !important;
+         margin: 0 8px !important;
          padding: 0 !important;
          display: block !important;
       }
@@ -515,6 +517,10 @@
          padding: 0 !important;
          display: inline-flex !important;
          align-items: center !important;
+      }
+      .grc-header-right-option ul li.aq-header-top-search-btn,
+      .aq-header-right-options .aq-header-top-search-btn {
+         display: none !important;
       }
 
       /* Category Aisles Bar underneath sticky header */
@@ -998,7 +1004,11 @@
          }
          .grc-header-main-nav .aq-header-logo img,
          .aq-header-logo img {
-            max-height: 28px !important;
+            width: 36px !important;
+            max-width: 36px !important;
+            height: auto !important;
+            max-height: 36px !important;
+            margin: 0 6px !important;
          }
          .aq-header-top-account-content {
             display: none !important;
@@ -1016,7 +1026,8 @@
          .aq-header-right-options .aq-header-top-wishlist {
             display: none !important;
          }
-         .aq-header-right-options .aq-header-top-search-btn {
+         .aq-header-right-options .aq-header-top-search-btn,
+         .grc-header-right-option ul li.aq-header-top-search-btn {
             display: inline-flex !important;
          }
          .aq-header-right-options .aq-header-top-cart {
@@ -1059,6 +1070,9 @@
          }
 
          /* Mobile Bottom Navigation Bar (5 items strictly: Home, Shop, Sign In, Wishlist, Cart) */
+         body {
+            padding-bottom: 60px !important;
+         }
          .aq-bottom-menu {
             position: fixed !important;
             bottom: 0 !important;
@@ -1069,12 +1083,12 @@
             background: #ffffff !important;
             box-shadow: 0 -2px 14px rgba(0, 0, 0, 0.08) !important;
             z-index: 9999 !important;
-            padding: 6px 0 env(safe-area-inset-bottom, 6px) !important;
+            padding: 6px 4px calc(8px + env(safe-area-inset-bottom, 0px)) 4px !important;
             border-top: 1px solid #f0f0f0 !important;
          }
          .aq-bottom-menu .container {
-            padding-left: 8px !important;
-            padding-right: 8px !important;
+            padding-left: 4px !important;
+            padding-right: 4px !important;
             max-width: 100% !important;
          }
          .aq-bottom-menu .row {
@@ -1098,23 +1112,24 @@
             text-align: center !important;
             color: #666666 !important;
             text-decoration: none !important;
-            padding: 4px 0 !important;
+            padding: 2px 0 !important;
             cursor: pointer;
          }
          .aq-bottom-menu-item i {
-            font-size: 17px !important;
+            font-size: 18px !important;
             line-height: 1 !important;
-            margin-bottom: 3px !important;
+            margin-bottom: 2px !important;
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
          }
          .aq-bottom-menu-item span {
-            font-size: 10.5px !important;
+            font-size: 11px !important;
             font-weight: 500 !important;
             line-height: 1.1 !important;
             display: block !important;
             white-space: nowrap !important;
+            margin-top: 3px !important;
          }
          .aq-bottom-menu-item button {
             background: transparent !important;
@@ -1549,7 +1564,7 @@
                   <div class="col-lg-2 col-md-3 col-6">
                      <div class="aq-header-logo">
                         <a href="<?= site_url('home'); ?>" class="text-decoration-none d-inline-flex align-items-center gap-2">
-                           <img data-width="140" src="<?= $web_logo; ?>" alt="<?= html_escape($site_name); ?>" style="max-height:36px;width:auto;object-fit:contain;" onerror="this.src='<?= base_url('assets/images/logo/logo.webp'); ?>'">
+                           <img data-width="140" src="<?= $web_logo; ?>" alt="<?= html_escape($site_name); ?>" style="width:42px;height:auto;object-fit:contain;margin:0 8px;" onerror="this.src='<?= base_url('assets/images/logo/logo.webp'); ?>'">
                         </a>
                      </div>
                   </div>

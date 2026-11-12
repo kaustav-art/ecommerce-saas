@@ -6,13 +6,33 @@ $curr   = isset($currency_symbol) ? $currency_symbol : '$';
       <style>
       @media (max-width: 767.98px) {
          .aq-footer-area.grc-footer-style {
-            padding-top: 35px !important;
+            padding-top: 25px !important;
+            margin-top: 15px !important;
          }
          .aq-footer-widget.mb-90 {
-            margin-bottom: 25px !important;
+            margin-bottom: 20px !important;
+         }
+         .aq-footer-widget-title {
+            font-size: 15px !important;
+            margin-bottom: 10px !important;
+         }
+         .aq-footer-widget-menu ul li {
+            margin-bottom: 6px !important;
          }
          .aq-footer-widget-wrap {
+            padding-bottom: 8px !important;
+         }
+         .aq-copyright-border {
+            padding-top: 10px !important;
             padding-bottom: 10px !important;
+         }
+         .aq-copyright-text,
+         .aq-copyright-payment {
+            padding-bottom: 8px !important;
+         }
+         .aq-brand-ptb {
+            padding-top: 15px !important;
+            padding-bottom: 15px !important;
          }
       }
       </style>

@@ -1021,7 +1021,7 @@
                 background: #ffffff !important;
                 box-shadow: 0 -2px 14px rgba(0, 0, 0, 0.08) !important;
                 z-index: 9999 !important;
-                padding: 6px 0 env(safe-area-inset-bottom, 6px) !important;
+                padding: 6px 4px calc(8px + env(safe-area-inset-bottom, 0px)) 4px !important;
                 border-top: 1px solid #f0f0f0 !important;
             }
             .aq-bottom-menu .container {
@@ -1050,25 +1050,26 @@
                 text-align: center !important;
                 color: #666666 !important;
                 text-decoration: none !important;
-                padding: 4px 0 !important;
+                padding: 2px 0 !important;
                 cursor: pointer;
             }
             .aq-bottom-menu-item i {
-                font-size: 19px !important;
+                font-size: 18px !important;
                 line-height: 1 !important;
-                margin-bottom: 3px !important;
+                margin-bottom: 2px !important;
                 display: inline-flex !important;
                 align-items: center !important;
                 justify-content: center !important;
                 color: inherit !important;
             }
             .aq-bottom-menu-item span {
-                font-size: 10.5px !important;
+                font-size: 11px !important;
                 font-weight: 500 !important;
                 line-height: 1.1 !important;
                 display: block !important;
                 white-space: nowrap !important;
                 color: inherit !important;
+                margin-top: 3px !important;
             }
             .aq-bottom-menu-item button {
                 background: transparent !important;
