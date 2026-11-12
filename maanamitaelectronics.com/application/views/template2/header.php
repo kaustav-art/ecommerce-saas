@@ -138,7 +138,7 @@ if (!function_exists('elt_resolve_img')) {
          align-items: center;
          background-color: #f4f6f8;
          border-radius: 8px;
-         height: 44px;
+         height: 40px;
          padding: 0 14px;
          transition: background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
          border: 1px solid #e2e8f0;
@@ -1570,13 +1570,13 @@ if (!function_exists('elt_resolve_img')) {
    <header class="elt-site-header">
 
       <!-- header area start -->
-      <div class="aq-header-area elt-sticky-top-bar p-relative py-3">
+      <div class="aq-header-area elt-sticky-top-bar p-relative">
          <div class="container">
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 gap-md-3">
                <!-- Logo -->
                <div class="aq-header-logo d-flex align-items-center">
                   <a href="<?= site_url('home'); ?>" class="d-inline-flex align-items-center">
-                     <img data-width="120" src="<?= base_url('assets/images/logo/logo.webp'); ?>" alt="<?= html_escape($site_name); ?>" style="max-height:42px;width:auto;object-fit:contain;">
+                     <img data-width="120" src="<?= base_url('assets/images/logo/logo.webp'); ?>" alt="<?= html_escape($site_name); ?>" style="max-height:36px;width:auto;object-fit:contain;">
                   </a>
                </div>
 
@@ -2184,7 +2184,7 @@ if (!function_exists('elt_resolve_img')) {
          /* Sticky Top Header Row (Logo + Search Bar + Icons ONLY) */
          header.elt-site-header {
             position: relative !important;
-            padding-top: 74px;
+            padding-top: 50px !important;
          }
          .aq-header-area.elt-sticky-top-bar {
             position: fixed !important;
@@ -2195,18 +2195,85 @@ if (!function_exists('elt_resolve_img')) {
             z-index: 1050 !important;
             background-color: #ffffff !important;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
+            padding-top: 5px !important;
+            padding-bottom: 5px !important;
+         }
+         .aq-header-logo,
+         .aq-header-logo a {
+            padding: 0 !important;
+            margin: 0 !important;
+            line-height: 1 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+         }
+         .aq-header-logo img {
+            max-height: 36px !important;
+            width: auto !important;
+            object-fit: contain !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            display: block !important;
+         }
+         .aq-header-right-options {
+            padding: 0 !important;
+            margin: 0 !important;
+         }
+         .aq-header-right-options ul {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: flex-end !important;
+            gap: 12px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            list-style: none !important;
+         }
+         .aq-header-right-options > ul > li {
+            margin: 0 !important;
+            padding: 0 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            line-height: 1 !important;
+         }
+         .aq-header-right-options > ul > li button,
+         .aq-header-right-options > ul > li a {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            line-height: 1 !important;
+            background: transparent !important;
+            border: none !important;
          }
          @media (max-width: 767.98px) {
             .aq-header-area.elt-sticky-top-bar {
-               padding-top: 8px !important;
-               padding-bottom: 8px !important;
+               padding-top: 4px !important;
+               padding-bottom: 4px !important;
+            }
+            .aq-header-logo,
+            .aq-header-logo a {
+               padding: 0 !important;
+               margin: 0 !important;
+               line-height: 1 !important;
             }
             .aq-header-logo img {
-               max-height: 36px !important;
+               max-height: 28px !important;
             }
             header.elt-site-header {
-               padding-top: 54px !important;
+               padding-top: 42px !important;
                transition: padding-top 0.2s ease;
+            }
+            .aq-header-right-options ul {
+               gap: 10px !important;
+            }
+            .elt-mobile-search-toggle,
+            .aq-header-top-cart button {
+               width: 34px !important;
+               height: 34px !important;
+               padding: 0 !important;
+            }
+            .elt-mobile-search-toggle svg,
+            .aq-header-top-cart button svg {
+               width: 18px !important;
+               height: 18px !important;
             }
             .elt-v2-dept-btn {
                padding: 7px 11px !important;
@@ -2258,6 +2325,29 @@ if (!function_exists('elt_resolve_img')) {
          }
          .elt-mobile-cat-drawer.is-open {
             transform: translateX(0);
+         }
+         .elt-mob-cat-head {
+            border-radius: 6px;
+            transition: background 0.18s ease;
+            -webkit-tap-highlight-color: transparent;
+         }
+         .elt-mob-cat-arrow-wrap {
+            transition: background-color 0.2s ease, color 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+         }
+         .elt-mob-cat-arrow-wrap:hover,
+         .elt-mob-cat-arrow-wrap:active,
+         .elt-mob-cat-arrow-wrap.is-open {
+            background: #0B0D0E !important;
+         }
+         .elt-mob-cat-arrow-wrap:hover .elt-cat-arrow,
+         .elt-mob-cat-arrow-wrap:active .elt-cat-arrow,
+         .elt-mob-cat-arrow-wrap.is-open .elt-cat-arrow {
+            color: #E1EEB7 !important;
+         }
+         .elt-mob-sub-list {
+            border-left: 2px solid #e2e8f0;
+            margin-left: 20px;
          }
          @media (min-width: 768px) {
             .elt-mobile-cat-backdrop,
@@ -2377,21 +2467,31 @@ if (!function_exists('elt_resolve_img')) {
             <div class="list-group list-group-flush">
                <?php foreach ($elt_prepared_cats as $cat_item): ?>
                   <div class="elt-mob-cat-group border-bottom py-1">
-                     <a href="<?= site_url('shop/' . $cat_item['slug'] . $elt_qs); ?>" class="d-flex align-items-center justify-content-between p-2 text-decoration-none text-dark fw-semibold" style="font-size:14px;">
-                        <span class="d-flex align-items-center gap-2">
-                           <img src="<?= $cat_item['image']; ?>" alt="<?= html_escape($cat_item['name']); ?>" style="width:28px;height:28px;border-radius:50%;object-fit:cover;" onerror="this.src='<?= $cat_item['fallback']; ?>'">
-                           <?= html_escape($cat_item['name']); ?>
-                        </span>
-                        <i class="fa-solid fa-chevron-right text-muted" style="font-size:11px;"></i>
-                     </a>
                      <?php if (!empty($cat_item['subs'])): ?>
-                        <div class="elt-mob-sub-list ps-4 pb-2">
+                        <div class="elt-mob-cat-head d-flex align-items-center justify-content-between p-2">
+                           <a href="<?= site_url('shop/' . $cat_item['slug'] . $elt_qs); ?>" class="d-flex align-items-center gap-2 flex-grow-1 min-w-0 text-decoration-none text-dark">
+                              <img src="<?= $cat_item['image']; ?>" alt="<?= html_escape($cat_item['name']); ?>" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0;" onerror="this.src='<?= $cat_item['fallback']; ?>'">
+                              <span class="fw-semibold text-truncate" style="font-size:14px;"><?= html_escape($cat_item['name']); ?></span>
+                           </a>
+                           <button type="button" class="elt-mob-cat-arrow-wrap d-flex align-items-center justify-content-center p-0 border-0" onclick="window.toggleEltMobCat(this, event)" aria-label="Toggle <?= html_escape($cat_item['name']); ?> subcategories" style="width:34px;height:34px;border-radius:6px;background:#f1f3f5;flex-shrink:0;cursor:pointer;">
+                              <i class="fa-solid fa-chevron-down elt-cat-arrow" style="font-size:11px;color:#555;transition:transform 0.25s ease;"></i>
+                           </button>
+                        </div>
+                        <div class="elt-mob-sub-list ps-3 pe-2 pb-2" style="display:none;">
                            <?php foreach ($cat_item['subs'] as $sub): ?>
-                              <a href="<?= site_url('shop/' . ($sub['slug'] ?? $cat_item['slug']) . $elt_qs); ?>" class="d-block py-1 text-decoration-none text-muted" style="font-size:13px;">
+                              <a href="<?= site_url('shop/' . ($sub['slug'] ?? $cat_item['slug']) . $elt_qs); ?>" class="d-block py-1 ps-2 text-decoration-none text-muted" style="font-size:13px;">
                                  <i class="fa-solid fa-angle-right me-1" style="font-size:10px;"></i> <?= html_escape($sub['name']); ?>
                               </a>
                            <?php endforeach; ?>
                         </div>
+                     <?php else: ?>
+                        <a href="<?= site_url('shop/' . $cat_item['slug'] . $elt_qs); ?>" class="d-flex align-items-center justify-content-between p-2 text-decoration-none text-dark fw-semibold" style="font-size:14px;">
+                           <span class="d-flex align-items-center gap-2 flex-grow-1 min-w-0">
+                              <img src="<?= $cat_item['image']; ?>" alt="<?= html_escape($cat_item['name']); ?>" style="width:28px;height:28px;border-radius:50%;object-fit:cover;flex-shrink:0;" onerror="this.src='<?= $cat_item['fallback']; ?>'">
+                              <span class="text-truncate"><?= html_escape($cat_item['name']); ?></span>
+                           </span>
+                           <i class="fa-solid fa-chevron-right text-muted" style="font-size:11px;"></i>
+                        </a>
                      <?php endif; ?>
                   </div>
                <?php endforeach; ?>
@@ -2450,6 +2550,32 @@ if (!function_exists('elt_resolve_img')) {
                e.preventDefault();
                e.stopPropagation();
                window.toggleEltMobileCatDrawer(true);
+            }
+         };
+
+         // Mobile Category Accordion Toggle (Arrow click opens/closes subcategories)
+         window.toggleEltMobCat = function(triggerEl, e) {
+            if (e) {
+               e.preventDefault();
+               e.stopPropagation();
+            }
+            var group = triggerEl.closest('.elt-mob-cat-group');
+            if (!group) return;
+            var head = group.querySelector('.elt-mob-cat-head');
+            var subList = group.querySelector('.elt-mob-sub-list');
+            var arrow = group.querySelector('.elt-cat-arrow');
+            if (!subList) return;
+            var isHidden = subList.style.display === 'none' || getComputedStyle(subList).display === 'none';
+            if (isHidden) {
+               subList.style.display = 'block';
+               if (head) head.classList.add('is-open');
+               triggerEl.classList.add('is-open');
+               if (arrow) arrow.style.transform = 'rotate(180deg)';
+            } else {
+               subList.style.display = 'none';
+               if (head) head.classList.remove('is-open');
+               triggerEl.classList.remove('is-open');
+               if (arrow) arrow.style.transform = 'rotate(0deg)';
             }
          };
 

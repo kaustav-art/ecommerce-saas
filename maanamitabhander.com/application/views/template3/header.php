@@ -468,12 +468,53 @@
       .grc-main-sticky-header.is-scrolled {
          box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35) !important;
       }
-      .grc-main-sticky-header .grc-header-main-nav {
+      .grc-header-main-nav,
+      .grc-header-main-nav.grc-header-ptb,
+      .grc-main-sticky-header .grc-header-main-nav,
+      .grc-main-sticky-header.is-scrolled .grc-header-main-nav {
+         padding-top: 5px !important;
+         padding-bottom: 5px !important;
          transition: padding 0.2s ease;
       }
-      .grc-main-sticky-header.is-scrolled .grc-header-main-nav {
-         padding-top: 10px !important;
-         padding-bottom: 10px !important;
+      .grc-header-main-wrap {
+         padding-top: 0 !important;
+         padding-bottom: 0 !important;
+         margin-top: 0 !important;
+         margin-bottom: 0 !important;
+      }
+      .grc-header-main-nav .aq-header-logo,
+      .grc-header-main-nav .aq-header-logo a,
+      .aq-header-logo,
+      .aq-header-logo a {
+         padding: 0 !important;
+         margin: 0 !important;
+         line-height: 1 !important;
+         display: inline-flex !important;
+         align-items: center !important;
+      }
+      .grc-header-main-nav .aq-header-logo img,
+      .aq-header-logo img {
+         max-height: 36px !important;
+         width: auto !important;
+         object-fit: contain !important;
+         margin: 0 !important;
+         padding: 0 !important;
+         display: block !important;
+      }
+      .grc-header-right-option ul {
+         display: flex !important;
+         align-items: center !important;
+         justify-content: flex-end !important;
+         gap: 10px !important;
+         margin: 0 !important;
+         padding: 0 !important;
+         list-style: none !important;
+      }
+      .grc-header-right-option ul li {
+         margin: 0 !important;
+         padding: 0 !important;
+         display: inline-flex !important;
+         align-items: center !important;
       }
 
       /* Category Aisles Bar underneath sticky header */
@@ -668,7 +709,7 @@
          border: 2px solid transparent;
          border-radius: 50px;
          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-         height: 48px;
+         height: 40px;
          padding-right: 120px;
          width: 100%;
       }
@@ -940,19 +981,31 @@
        * Mobile Header, Category Scroll & Drawer Responsive Rules (< 768px)
        * ===================================================================== */
       @media (max-width: 767.98px) {
-         .grc-header-main-nav {
-            padding-top: 6px !important;
-            padding-bottom: 6px !important;
+         .grc-header-main-nav,
+         .grc-header-main-nav.grc-header-ptb,
+         .grc-main-sticky-header .grc-header-main-nav,
+         .grc-main-sticky-header.is-scrolled .grc-header-main-nav {
+            padding-top: 4px !important;
+            padding-bottom: 4px !important;
          }
+         .grc-header-main-nav .aq-header-logo,
+         .grc-header-main-nav .aq-header-logo a,
+         .aq-header-logo,
+         .aq-header-logo a {
+            padding: 0 !important;
+            margin: 0 !important;
+            line-height: 1 !important;
+         }
+         .grc-header-main-nav .aq-header-logo img,
          .aq-header-logo img {
-            max-height: 36px !important;
+            max-height: 28px !important;
          }
          .aq-header-top-account-content {
             display: none !important;
          }
          .grc-option-style {
-            width: 36px !important;
-            height: 36px !important;
+            width: 34px !important;
+            height: 34px !important;
          }
          .grc-option-style i svg {
             width: 17px !important;
@@ -983,8 +1036,8 @@
             background: rgba(255, 255, 255, 0.12) !important;
             color: #ffffff !important;
             border-radius: 50% !important;
-            width: 38px !important;
-            height: 38px !important;
+            width: 34px !important;
+            height: 34px !important;
             cursor: pointer !important;
             padding: 0 !important;
             transition: all 0.2s ease !important;
@@ -1489,14 +1542,14 @@
 
    <!-- Sticky Main Header (Logo, Search Bar, User, Wishlist, Cart) -->
    <header class="grc-main-sticky-header">
-      <div class="grc-header-main-nav grc-header-ptb pt-20 pb-20" data-bg-color="#003D29" style="background-color:#003D29;">
+      <div class="grc-header-main-nav" data-bg-color="#003D29" style="background-color:#003D29;">
          <div class="container container-1630">
             <div class="grc-header-main-wrap">
                <div class="row align-items-center">
                   <div class="col-lg-2 col-md-3 col-6">
                      <div class="aq-header-logo">
                         <a href="<?= site_url('home'); ?>" class="text-decoration-none d-inline-flex align-items-center gap-2">
-                           <img data-width="140" src="<?= $web_logo; ?>" alt="<?= html_escape($site_name); ?>" style="max-height:42px;width:auto;object-fit:contain;" onerror="this.src='<?= base_url('assets/images/logo/logo.webp'); ?>'">
+                           <img data-width="140" src="<?= $web_logo; ?>" alt="<?= html_escape($site_name); ?>" style="max-height:36px;width:auto;object-fit:contain;" onerror="this.src='<?= base_url('assets/images/logo/logo.webp'); ?>'">
                         </a>
                      </div>
                   </div>

@@ -604,7 +604,7 @@ $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empt
                   </div>
                   <div class="elt-arrival-top-btn text-end">
                      <a class="aq-btn-link aq-btn-underline text-nowrap d-inline-flex align-items-center gap-1" href="<?= site_url('shop'); ?>">
-                        <span>See all Products</span>
+                        <span>See all</span>
                         <span>
                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
                               <path d="M0.75 5.75H10.75M10.75 5.75L5.75 0.75M10.75 5.75L5.75 10.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -878,7 +878,7 @@ $spotlight_item = !empty($featured_products[0]) ? $featured_products[0] : (!empt
                   </div>
                   <div class="elt-arrival-top-btn text-end">
                      <a class="aq-btn-link aq-btn-underline text-nowrap d-inline-flex align-items-center gap-1" href="<?= site_url('shop?filter=popular'); ?>">
-                        <span>See all Products</span>
+                        <span>See all</span>
                         <span>
                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12" fill="none">
                               <path d="M0.75 5.75H10.75M10.75 5.75L5.75 0.75M10.75 5.75L5.75 10.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
