@@ -2205,7 +2205,7 @@ if (!function_exists('elt_resolve_img')) {
             display: flex !important;
             align-items: center !important;
             justify-content: flex-end !important;
-            gap: 20px !important;
+            gap: 13px !important;
             margin: 0 !important;
             padding: 0 !important;
             list-style: none !important;
@@ -2239,25 +2239,28 @@ if (!function_exists('elt_resolve_img')) {
             background: transparent !important;
             border: none !important;
             position: relative !important;
-            width: 38px !important;
-            height: 38px !important;
-            border-radius: 50% !important;
             color: #0B0D0E !important;
-            padding: 0 !important;
+            padding: 2px !important;
             cursor: pointer !important;
             text-decoration: none !important;
-            transition: background-color 0.2s ease, color 0.2s ease !important;
+            transition: color 0.15s ease !important;
          }
          .aq-header-top-wishlist a:hover,
          .aq-header-top-cart button:hover,
          .elt-header-icon-btn:hover {
-            background-color: #f1f5f9 !important;
-            color: #2874f0 !important;
+            color: #DE1518 !important;
          }
          .aq-header-top-wishlist a:hover svg path,
          .aq-header-top-cart button:hover svg path,
          .elt-header-icon-btn:hover svg path {
-            stroke: #2874f0 !important;
+            stroke: #DE1518 !important;
+         }
+         .aq-header-top-wishlist a svg,
+         .aq-header-top-cart button svg,
+         .elt-header-icon-btn svg {
+            width: 24px !important;
+            height: 24px !important;
+            display: block !important;
          }
          .aq-header-top-wishlist a i,
          .aq-header-top-cart button i {
@@ -2268,22 +2271,25 @@ if (!function_exists('elt_resolve_img')) {
          }
          .aq-header-right-options .count-box {
             position: absolute !important;
-            top: -1px !important;
-            right: -1px !important;
-            min-width: 17px !important;
-            height: 17px !important;
-            line-height: 17px !important;
-            padding: 0 4px !important;
+            top: -6px !important;
+            right: -7px !important;
+            width: 18px !important;
+            height: 18px !important;
+            min-width: 18px !important;
+            max-width: 18px !important;
+            border-radius: 50% !important;
+            background-color: #DE1518 !important;
+            color: #ffffff !important;
             font-size: 10px !important;
             font-weight: 700 !important;
             font-family: inherit !important;
+            line-height: 1 !important;
             text-align: center !important;
-            border-radius: 9px !important;
-            background-color: #DE1518 !important;
-            color: #ffffff !important;
+            padding: 0 !important;
+            margin: 0 !important;
             border: 2px solid #ffffff !important;
-            box-sizing: content-box !important;
-            display: inline-flex !important;
+            box-sizing: border-box !important;
+            display: flex !important;
             align-items: center !important;
             justify-content: center !important;
             letter-spacing: 0 !important;
@@ -2324,30 +2330,42 @@ if (!function_exists('elt_resolve_img')) {
                transition: padding-top 0.2s ease;
             }
             .aq-header-right-options ul {
-               gap: 12px !important;
+               gap: 10px !important;
             }
             .elt-mobile-search-toggle,
             .aq-header-top-cart button,
             .elt-header-icon-btn {
-               width: 34px !important;
-               height: 34px !important;
+               width: 32px !important;
+               height: 32px !important;
                padding: 0 !important;
+               display: inline-flex !important;
+               align-items: center !important;
+               justify-content: center !important;
+               background: transparent !important;
+               border: none !important;
+               position: relative !important;
             }
             .elt-mobile-search-toggle svg,
             .aq-header-top-cart button svg,
             .elt-header-icon-btn svg {
-               width: 18px !important;
-               height: 18px !important;
+               width: 21px !important;
+               height: 21px !important;
             }
             .aq-header-right-options .count-box {
-               top: -2px !important;
-               right: -2px !important;
-               min-width: 15px !important;
-               height: 15px !important;
-               line-height: 15px !important;
-               padding: 0 3px !important;
+               top: -4px !important;
+               right: -5px !important;
+               width: 17px !important;
+               height: 17px !important;
+               min-width: 17px !important;
+               max-width: 17px !important;
+               border-radius: 50% !important;
+               padding: 0 !important;
                font-size: 9.5px !important;
-               border-width: 1.5px !important;
+               border: 1.5px solid #ffffff !important;
+               box-sizing: border-box !important;
+               display: flex !important;
+               align-items: center !important;
+               justify-content: center !important;
             }
             .elt-v2-dept-btn {
                padding: 7px 11px !important;
