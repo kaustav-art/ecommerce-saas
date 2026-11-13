@@ -588,28 +588,74 @@ if (!empty($product['specifications']) && is_array($product['specifications'])) 
     object-fit: contain;
     margin: 0 auto;
 }
-.product-slider-nav .slick-list {
-    height: auto !important;
+.product-slider-nav-2 .slick-track,
+.product-slider-nav .slick-track,
+.slider-nav-2 .slick-track,
+.slider-nav .slick-track {
+    transition: transform 500ms ease;
 }
+.slider-nav-2.nav-fixed-track .slick-track,
+.slider-nav.nav-fixed-track .slick-track {
+    transform: translate3d(0px, 0px, 0px) !important;
+}
+@media (min-width: 1200px) {
+    .product-slider-nav-2.slick-vertical .slick-list,
+    .product-slider-nav.slick-vertical .slick-list {
+        height: 424px !important;
+        max-height: 424px !important;
+        overflow: hidden !important;
+        padding: 0 !important;
+    }
+    .product-slider-nav-2.slick-vertical .slick-slide,
+    .product-slider-nav.slick-vertical .slick-slide {
+        margin: 4px 0 !important;
+    }
+}
+.product-slider-nav-2 .product-slider-nav-img,
 .product-slider-nav .product-slider-nav-img {
     width: 100%;
-    height: 92px;
+    height: 98px;
     border-radius: 10px;
     overflow: hidden;
-    border: 2px solid #e5efe8;
-    margin-bottom: 10px;
+    border: 1.5px solid rgba(20, 20, 20, 0.08);
     cursor: pointer;
-    background: #f9fbf9;
-    transition: all 0.2s ease;
+    background-color: #f6f7f9;
+    transition: all 0.25s ease;
+    padding: 6px;
+    box-sizing: border-box;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
 }
-.product-slider-nav .product-slider-nav-img.slick-current {
-    border-color: #108910;
-    box-shadow: 0 2px 8px rgba(16, 137, 16, 0.2);
+.product-slider-nav-2 .product-slider-nav-img:hover,
+.product-slider-nav .product-slider-nav-img:hover {
+    border-color: rgba(16, 137, 16, 0.45);
+    background-color: #ffffff;
 }
+.product-slider-nav-2 .slick-current.product-slider-nav-img,
+.product-slider-nav-2 .slick-current .product-slider-nav-img,
+.product-slider-nav .slick-current.product-slider-nav-img,
+.product-slider-nav .slick-current .product-slider-nav-img {
+    border-color: #108910 !important;
+    box-shadow: 0 0 0 2px rgba(16, 137, 16, 0.22) !important;
+    background-color: #ffffff !important;
+}
+.product-slider-nav-2 .product-slider-nav-img img,
 .product-slider-nav .product-slider-nav-img img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain !important;
+    object-position: center;
+    display: block;
+    margin: 0 auto;
+    border-radius: 6px;
+    transition: transform 0.25s ease;
+}
+.product-slider-nav-2 .product-slider-nav-img:hover img,
+.product-slider-nav .product-slider-nav-img:hover img {
+    transform: scale(1.06);
 }
 
 /* Product Title */
@@ -998,31 +1044,42 @@ if (!empty($product['specifications']) && is_array($product['specifications'])) 
    ========================================================================== */
 @media (max-width: 1199.98px) {
     /* Place thumbnail slider horizontally underneath the main product image */
+    .product-slider-nav-2,
     .product-slider-nav {
-        margin-top: 10px;
+        margin-top: 12px;
         overflow: hidden;
+        width: 100%;
     }
+    .product-slider-nav-2 .slick-list,
     .product-slider-nav .slick-list {
-        margin: 0 -4px !important;
-        padding: 2px 0 !important;
+        height: auto !important;
+        margin: 0 -5px !important;
+        padding: 4px 0 !important;
+        overflow: hidden !important;
     }
+    .product-slider-nav-2 .slick-track,
     .product-slider-nav .slick-track {
         display: flex !important;
         align-items: center;
     }
+    .product-slider-nav-2 .product-slider-nav-img,
+    .product-slider-nav-2 .slick-slide,
     .product-slider-nav .product-slider-nav-img,
     .product-slider-nav .slick-slide,
+    .product-slider-nav-2 .slick-slide.slick-current,
     .product-slider-nav .slick-slide.slick-current {
-        width: 72px !important;
-        height: 72px !important;
-        flex: 0 0 72px !important;
-        margin: 0 4px !important;
+        width: 76px !important;
+        height: 76px !important;
+        flex: 0 0 76px !important;
+        margin: 0 5px !important;
         border-radius: 10px;
     }
+    .product-slider-nav-2 .product-slider-nav-img img,
     .product-slider-nav .product-slider-nav-img img {
         width: 100% !important;
         height: 100% !important;
-        object-fit: cover;
+        object-fit: contain !important;
+        object-position: center;
     }
 }
 
@@ -1059,13 +1116,16 @@ if (!empty($product['specifications']) && is_array($product['specifications'])) 
     .product-slider-for-img img {
         height: 260px;
     }
+    .product-slider-nav-2 .product-slider-nav-img,
+    .product-slider-nav-2 .slick-slide,
     .product-slider-nav .product-slider-nav-img,
     .product-slider-nav .slick-slide,
+    .product-slider-nav-2 .slick-slide.slick-current,
     .product-slider-nav .slick-slide.slick-current {
-        width: 62px !important;
-        height: 62px !important;
-        flex: 0 0 62px !important;
-        margin: 0 3px !important;
+        width: 64px !important;
+        height: 64px !important;
+        flex: 0 0 64px !important;
+        margin: 0 4px !important;
         border-radius: 8px;
     }
     .btn-grc-wish {
@@ -1275,7 +1335,7 @@ if (!empty($product['specifications']) && is_array($product['specifications'])) 
                      <div class="product-details-slider-wrap">
                         <div class="row">
                            <div class="col-xl-2 order-2 order-xl-1">
-                              <div class="product-slider-nav slider-nav">
+                              <div class="product-slider-nav-2 slider-nav-2 product-slider-nav slider-nav">
                                  <?php foreach ($gallery_urls as $g_url): ?>
                                  <div class="product-slider-nav-img">
                                     <img src="<?= $g_url; ?>" alt="<?= html_escape($prod_title); ?>">
@@ -2446,13 +2506,13 @@ if (!empty($product['specifications']) && is_array($product['specifications'])) 
 
     recalculateGrcPricing();
 
-    // Ensure both main product image slider (.slider-for) and thumbnail slider (.slider-nav)
-    // are initialized and synced (1 image at a time in main slider, vertical thumbnails on desktop,
-    // 4 horizontal thumbnails underneath on mobile/tablet)
+    // Ensure both main product image slider (.slider-for) and thumbnail slider (.slider-nav / .slider-nav-2)
+    // are initialized and synced with the smooth slider-nav-2 sliding style (infinite loop, transition,
+    // active synchronization, vertical thumbnails in col-xl-2 on desktop, horizontal on mobile/tablet)
     function initGrcProductSliders() {
         if (!window.jQuery || !jQuery.fn || !jQuery.fn.slick) return;
         var $for = jQuery('.product-slider-main.slider-for');
-        var $nav = jQuery('.product-slider-nav.slider-nav');
+        var $nav = jQuery('.product-slider-nav-2.slider-nav-2, .product-slider-nav.slider-nav').first();
 
         if ($for.length && !$for.hasClass('slick-initialized')) {
             $for.slick({
@@ -2461,8 +2521,10 @@ if (!empty($product['specifications']) && is_array($product['specifications'])) 
                 arrows: true,
                 fade: false,
                 infinite: true,
-                autoplay: false,
-                asNavFor: '.slider-nav',
+                autoplay: true,
+                autoplaySpeed: 3000,
+                speed: 500,
+                asNavFor: '.slider-nav-2, .slider-nav',
                 appendArrows: '.product-slider-arrow',
                 prevArrow: '<button type="button" class="slick-prev"><svg xmlns="http://www.w3.org/2000/svg" width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M5.75 10.75L0.75 5.75L5.75 0.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>',
                 nextArrow: '<button type="button" class="slick-next"><svg xmlns="http://www.w3.org/2000/svg" width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M0.75 10.75L5.75 5.75L0.75 0.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'
@@ -2470,20 +2532,26 @@ if (!empty($product['specifications']) && is_array($product['specifications'])) 
         }
 
         if ($nav.length && !$nav.hasClass('slick-initialized')) {
-            $nav.on('init reInit setPosition breakpoint', function() {
-                $nav.find('.slick-list').css('height', '');
-            });
+            var navCount = $nav.children('.product-slider-nav-img').length || $nav.children().length;
+            var isNavScrollable = navCount > 4;
+
+            $nav.toggleClass('nav-fixed-track', !isNavScrollable);
+
             $nav.slick({
                 slidesToShow: 4,
                 slidesToScroll: 1,
                 vertical: true,
                 verticalSwiping: true,
-                infinite: false,
+                infinite: isNavScrollable,
                 asNavFor: '.slider-for',
                 centerMode: false,
                 dots: false,
                 arrows: false,
-                autoplay: false,
+                autoplay: isNavScrollable,
+                autoplaySpeed: 3000,
+                speed: 500,
+                draggable: isNavScrollable,
+                swipe: isNavScrollable,
                 focusOnSelect: true,
                 responsive: [
                     {
@@ -2492,16 +2560,60 @@ if (!empty($product['specifications']) && is_array($product['specifications'])) 
                             vertical: false,
                             verticalSwiping: false,
                             centerMode: false,
-                            infinite: false,
+                            infinite: isNavScrollable,
                             slidesToShow: 4,
-                            slidesToScroll: 1
+                            slidesToScroll: 1,
+                            autoplay: isNavScrollable,
+                            draggable: isNavScrollable,
+                            swipe: isNavScrollable,
+                            focusOnSelect: true
+                        }
+                    },
+                    {
+                        breakpoint: 768,
+                        settings: {
+                            vertical: false,
+                            verticalSwiping: false,
+                            centerMode: false,
+                            infinite: isNavScrollable,
+                            slidesToShow: 4,
+                            slidesToScroll: 1,
+                            autoplay: isNavScrollable,
+                            draggable: isNavScrollable,
+                            swipe: isNavScrollable,
+                            focusOnSelect: true
+                        }
+                    },
+                    {
+                        breakpoint: 480,
+                        settings: {
+                            vertical: false,
+                            verticalSwiping: false,
+                            centerMode: false,
+                            infinite: navCount > 3,
+                            slidesToShow: 3,
+                            slidesToScroll: 1,
+                            autoplay: navCount > 3,
+                            draggable: navCount > 3,
+                            swipe: navCount > 3,
+                            focusOnSelect: true
                         }
                     }
                 ]
             });
-        }
-        if ($nav.length) {
-            $nav.find('.slick-list').css('height', '');
+
+            if (!isNavScrollable) {
+                $for.off('beforeChange.navFixedSync').on('beforeChange.navFixedSync', function(event, slick, currentSlide, nextSlide) {
+                    var $slides = $nav.find('.slick-slide').removeClass('slick-current');
+                    $slides.filter('[data-slick-index="' + nextSlide + '"]').addClass('slick-current');
+                });
+                $nav.off('click.navFixedSync').on('click.navFixedSync', '.slick-slide', function() {
+                    var idx = jQuery(this).data('slick-index');
+                    if (typeof idx !== 'undefined') {
+                        $for.slick('slickGoTo', idx);
+                    }
+                });
+            }
         }
     }
 
