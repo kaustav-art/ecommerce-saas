@@ -35,7 +35,15 @@ function get_saas_mysqli() {
 function saas_base_url($path = '') {
     $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
     $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-    $base = $protocol . $host . '/ecommerce/';
+    $rootDir = str_replace('\\', '/', realpath(__DIR__) ?: __DIR__);
+    $docRoot = !empty($_SERVER['DOCUMENT_ROOT']) ? rtrim(str_replace('\\', '/', realpath($_SERVER['DOCUMENT_ROOT']) ?: $_SERVER['DOCUMENT_ROOT']), '/') : '';
+    if ($docRoot !== '' && stripos($rootDir, $docRoot) === 0) {
+        $subPath = trim(substr($rootDir, strlen($docRoot)), '/');
+        $basePath = ($subPath !== '') ? ('/' . $subPath . '/') : '/';
+    } else {
+        $basePath = '/' . basename($rootDir) . '/';
+    }
+    $base = $protocol . $host . $basePath;
     return $base . ltrim($path, '/');
 }
 

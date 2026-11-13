@@ -106,7 +106,7 @@ class MY_Controller extends CI_Controller {
 
         // 2. Check if running inside a provisioned standalone domain folder by directory name (e.g. C:\xampp\htdocs\ecommerce\example.com\)
         $current_folder = strtolower(trim(basename(FCPATH)));
-        if (!in_array($current_folder, ['website', 'ecommerce', 'htdocs'], true) && $this->db->table_exists('saas_tenants')) {
+        if (!in_array($current_folder, ['website', 'ecommerce', 'ecommerce-saas', 'htdocs'], true) && $this->db->table_exists('saas_tenants')) {
             $t_row = $this->db->where('slug', $current_folder)
                               ->or_where('domain', $current_folder)
                               ->or_like('folder_path', $current_folder)

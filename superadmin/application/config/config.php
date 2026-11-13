@@ -28,7 +28,7 @@ $domainName = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost'
 if (isset($_SERVER['SCRIPT_NAME']) && strpos($_SERVER['SCRIPT_NAME'], '/superadmin') !== false) {
     $scriptDir = substr($_SERVER['SCRIPT_NAME'], 0, strpos($_SERVER['SCRIPT_NAME'], '/superadmin') + 12);
 } else {
-    $scriptDir = '/ecommerce/superadmin/';
+    $scriptDir = '/ecommerce-saas/superadmin/';
 }
 $config['base_url'] = rtrim($protocol . $domainName . $scriptDir, '/') . '/';
 

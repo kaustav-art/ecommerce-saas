@@ -908,6 +908,37 @@
          opacity: 0.92;
       }
 
+      /* Compact Rounded Wishlist & Cart Count Badges */
+      .grc-header-right-option ul li .count-box,
+      .aq-header-right-options.grc-header-right-option > ul > li .count-box {
+         width: 19px !important;
+         height: 19px !important;
+         min-width: 19px !important;
+         max-width: 19px !important;
+         border-radius: 50% !important;
+         font-size: 10.5px !important;
+         font-weight: 700 !important;
+         line-height: 1 !important;
+         text-align: center !important;
+         padding: 0 !important;
+         margin: 0 !important;
+         border: 2px solid #003D29 !important;
+         background-color: #FFDC23 !important;
+         color: #000000 !important;
+         display: flex !important;
+         align-items: center !important;
+         justify-content: center !important;
+         top: -3px !important;
+         right: -4px !important;
+         box-sizing: border-box !important;
+         z-index: 2 !important;
+         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
+      }
+      .grc-header-right-option ul li .count-box::after,
+      .aq-header-right-options.grc-header-right-option > ul > li .count-box::after {
+         display: none !important;
+      }
+
       /* After-Login User Account Hover Dropdown (Matches Fashion Storefront) */
       .store-action-chevron {
          font-size: 10px;
@@ -1028,6 +1059,17 @@
          .grc-option-style i svg {
             width: 17px !important;
             height: 17px !important;
+         }
+         .grc-header-right-option ul li .count-box,
+         .aq-header-right-options.grc-header-right-option > ul > li .count-box {
+            width: 17px !important;
+            height: 17px !important;
+            min-width: 17px !important;
+            max-width: 17px !important;
+            font-size: 9.5px !important;
+            border: 1.5px solid #003D29 !important;
+            top: -2px !important;
+            right: -3px !important;
          }
          /* Header Right Actions on Mobile: Search + Cart ONLY, Hide Account & Wishlist */
          .aq-header-right-options .aq-header-top-account,
