@@ -6,7 +6,7 @@
                 'id'            => 0,
                 'product_id'    => 0,
                 'product_title' => 'Order #' . $order['order_number'],
-                'product_image' => 'products/womens/women-1.jpg',
+                'product_image' => 'products/product-image.png',
                 'variant_title' => '',
                 'price'         => $order['total_amount'],
                 'quantity'      => 1,
@@ -233,7 +233,7 @@
 
                         <!-- 1. Currently Tracked Product Card -->
                         <?php 
-                        $cur_img = !empty($current_item['product_image']) ? base_url('assets/images/' . $current_item['product_image']) : base_url('assets/images/products/womens/women-1.jpg');
+                        $cur_img = !empty($current_item['product_image']) ? base_url('assets/images/' . $current_item['product_image']) : base_url('assets/images/products/product-image.png');
                         $cur_pid = (int) ($current_item['product_id'] ?? 0);
                         // Current item color & size
                         $cur_color = !empty($current_item['color']) ? trim($current_item['color']) : '';
@@ -282,7 +282,7 @@
                         <div class="card border rounded-1 bg-white shadow-none mb-3 p-3 p-md-4" style="border-color: #e0e0e0 !important;">
                             <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap flex-md-nowrap">
                                 <div class="d-flex gap-3">
-                                    <img src="<?= $cur_img; ?>" alt="<?= html_escape($current_item['product_title']); ?>" class="border rounded-1 flex-shrink-0" style="width: 75px; height: 75px; object-fit: contain; background-color: #fafafa;" onerror="this.src='<?= base_url('assets/images/products/womens/women-1.jpg'); ?>'">
+                                    <img src="<?= $cur_img; ?>" alt="<?= html_escape($current_item['product_title']); ?>" class="border rounded-1 flex-shrink-0" style="width: 75px; height: 75px; object-fit: contain; background-color: #fafafa;" onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
                                     <div>
                                         <h6 class="fw-bold text-dark mb-1" style="font-size: 15px; line-height: 1.4;">
                                             <?= html_escape($current_item['product_title']); ?>
@@ -578,7 +578,7 @@
                                     $it_id = (int)$it['id'];
                                     $it_info = $items_tracking_map[$it_id] ?? [];
                                     $it_st = $it_info['status'] ?? 'pending';
-                                    $it_img = !empty($it['product_image']) ? base_url('assets/images/' . $it['product_image']) : base_url('assets/images/products/womens/women-1.jpg');
+                                    $it_img = !empty($it['product_image']) ? base_url('assets/images/' . $it['product_image']) : base_url('assets/images/products/product-image.png');
                                     $it_pid = (int) ($it['product_id'] ?? 0);
 
                                     // Order item color & size
@@ -637,7 +637,7 @@
                                                  alt="<?= html_escape($it['product_title']); ?>" 
                                                  class="border rounded-2 flex-shrink-0" 
                                                  style="width: 58px; height: 58px; object-fit: contain; background-color: #fafafa; border-color: #eceff1 !important;" 
-                                                 onerror="this.src='<?= base_url('assets/images/products/womens/women-1.jpg'); ?>'">
+                                                 onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
                                             
                                             <div style="min-width: 0; flex: 1;">
                                                 <div class="text-dark fw-semibold text-truncate other-item-title mb-1" 

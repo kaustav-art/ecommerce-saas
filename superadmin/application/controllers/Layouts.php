@@ -225,13 +225,7 @@ class Layouts extends Superadmin_Controller {
                     $image = $uploaded_img;
                 }
                 if (empty($image)) {
-                    if ($target_tpl === 'template1') {
-                        $image = 'assets/images/products/womens/women-1.jpg';
-                    } elseif ($target_tpl === 'template2') {
-                        $image = 'assets/templates/bazaro/img/electronics/arrival-product/product-1/product-1.jpg';
-                    } else {
-                        $image = 'assets/templates/bazaro/img/product/grocery-p-1.jpg';
-                    }
+                    $image = 'assets/images/products/product-image.png';
                 }
 
                 $hover_image = trim((string)$this->input->post('hover_image_url', TRUE));

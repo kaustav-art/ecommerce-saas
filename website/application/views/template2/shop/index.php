@@ -29,8 +29,7 @@ if (!function_exists('elt_shop_prod_img')) {
                 return $bazaro_base . 'img/' . $clean;
             }
         }
-        $idx = (($fallback_idx - 1) % 8) + 1;
-        return $bazaro_base . 'img/electronics/arrival-product/product-' . $idx . '/product-1.jpg';
+        return base_url('assets/images/products/product-image.png');
     }
 }
 

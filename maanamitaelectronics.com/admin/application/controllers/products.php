@@ -81,7 +81,7 @@ class products extends MY_Controller {
                     redirect('products/add');
                     return;
                 }
-                $main_image = $uploaded_main ?: ($this->input->post('default_main_image', TRUE) ?: 'products/womens/women-1.jpg');
+                $main_image = $uploaded_main ?: ($this->input->post('default_main_image', TRUE) ?: 'products/product-image.png');
 
                 // Handle Additional Gallery Images upload
                 $gallery_images = $this->upload_multiple_images('gallery_files', 'products', 'prod_gal');
@@ -376,7 +376,7 @@ class products extends MY_Controller {
                     redirect('products/edit/' . $id);
                     return;
                 }
-                $main_image = $uploaded_main ?: ($this->input->post('current_main_image', TRUE) ?: $product['main_image']);
+                $main_image = $uploaded_main ?: ($this->input->post('current_main_image', TRUE) ?: ($product['main_image'] ?: 'products/product-image.png'));
 
                 // Handle Additional Gallery Images upload
                 $new_gallery = $this->upload_multiple_images('gallery_files', 'products', 'prod_gal');

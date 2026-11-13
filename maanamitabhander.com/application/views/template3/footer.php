@@ -256,7 +256,7 @@ $curr   = isset($currency_symbol) ? $currency_symbol : '$';
                var html = '';
                data.cart_items.forEach(function(item) {
                    var rawImg = (item.image || '').replace(/^\/+/, '');
-                   var img = '<?= $bazaro; ?>img/product/grocery-p-1.jpg';
+                   var img = '<?= base_url('assets/images/products/product-image.png'); ?>';
                    if (rawImg) {
                        if (rawImg.indexOf('http') === 0) img = rawImg;
                        else if (rawImg.indexOf('assets/') === 0) img = window.BASE_URL + rawImg;
@@ -503,7 +503,7 @@ $curr   = isset($currency_symbol) ? $currency_symbol : '$';
 
    // Normalize Grocery theme accents on Template 3
    document.addEventListener('DOMContentLoaded', function() {
-       var defaultGrcImg = '<?= $bazaro; ?>img/product/grocery-p-3.jpg';
+       var defaultGrcImg = '<?= base_url('assets/images/products/product-image.png'); ?>';
 <?php if (empty($is_user_project)): ?>
        var siteBase = '<?= rtrim(base_url(), "/"); ?>';
        document.querySelectorAll('a[href]').forEach(function(a) {

@@ -391,7 +391,7 @@
                                 <?php foreach ($cart_items as $item): 
                                     $item_img = !empty($item['image']) 
                                         ? (strpos($item['image'], 'http') === 0 ? $item['image'] : base_url('assets/images/' . $item['image']))
-                                        : base_url('assets/images/products/womens/women-1.jpg');
+                                        : base_url('assets/images/products/product-image.png');
                                     $item_key = $item['cart_key'] ?? $item['id'];
                                     $reg_price = !empty($item['regular_price']) ? (float)$item['regular_price'] : round($item['price'] * 1.3);
                                     if ($reg_price <= $item['price']) $reg_price = round($item['price'] * 1.3);
@@ -402,7 +402,7 @@
                                         <!-- Left Column: Thumbnail + Quantity Stepper -->
                                         <div class="d-flex flex-column align-items-center flex-shrink-0" style="width: 92px;">
                                             <a href="<?= site_url('product/' . $item['slug']); ?>" class="d-block rounded overflow-hidden mb-2 bg-light text-center border" style="width: 90px; height: 90px;">
-                                                <img src="<?= $item_img; ?>" alt="<?= html_escape($item['title']); ?>" class="w-100 h-100 object-fit-contain" onerror="this.src='<?= base_url('assets/images/products/womens/women-1.jpg'); ?>'">
+                                                <img src="<?= $item_img; ?>" alt="<?= html_escape($item['title']); ?>" class="w-100 h-100 object-fit-contain" onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
                                             </a>
                                             <!-- Quantity Stepper -->
                                             <div class="cart-qty-stepper">
@@ -647,8 +647,7 @@
                                         return $bazaro_base . 'img/' . $clean;
                                     }
                                 }
-                                $idx = (($fallback_idx - 1) % 8) + 1;
-                                return $bazaro_base . 'img/electronics/arrival-product/product-' . $idx . '/product-1.jpg';
+                                return base_url('assets/images/products/product-image.png');
                             }
                         }
                         if (!function_exists('elt_get_product_swatches')) {
@@ -786,13 +785,13 @@
                         <?php foreach ($recently_viewed_products as $rvp): 
                             $rvp_price = !empty($rvp['sale_price']) ? (float) $rvp['sale_price'] : (float) $rvp['price'];
                             $rvp_reg   = !empty($rvp['price']) ? (float) $rvp['price'] : round($rvp_price * 1.3);
-                            $rvp_img   = !empty($rvp['main_image']) ? (strpos($rvp['main_image'], 'http') === 0 ? $rvp['main_image'] : base_url('assets/images/' . $rvp['main_image'])) : base_url('assets/images/products/womens/women-1.jpg');
+                            $rvp_img   = !empty($rvp['main_image']) ? (strpos($rvp['main_image'], 'http') === 0 ? $rvp['main_image'] : base_url('assets/images/' . $rvp['main_image'])) : base_url('assets/images/products/product-image.png');
                             $in_cart   = isset($cart_items[$rvp['id']]);
                         ?>
                         <div class="col">
                             <div class="card h-100 border rounded-3 p-2 bg-white cart-rec-card d-flex flex-column">
                                 <a href="<?= site_url('product/' . $rvp['slug']); ?>" class="d-block mb-2 text-center overflow-hidden rounded bg-light" style="aspect-ratio: 1/1;">
-                                    <img src="<?= $rvp_img; ?>" alt="<?= html_escape($rvp['title']); ?>" class="w-100 h-100 object-fit-contain" onerror="this.src='<?= base_url('assets/images/products/womens/women-1.jpg'); ?>'">
+                                    <img src="<?= $rvp_img; ?>" alt="<?= html_escape($rvp['title']); ?>" class="w-100 h-100 object-fit-contain" onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
                                 </a>
                                 <div class="flex-grow-1 d-flex flex-column">
                                     <div class="d-flex align-items-center gap-1 mb-1">
@@ -840,12 +839,12 @@
                         <?php foreach ($wishlist_items as $w_item): 
                             $w_price = !empty($w_item['sale_price']) ? (float) $w_item['sale_price'] : (float) $w_item['price'];
                             $w_reg   = !empty($w_item['price']) ? (float) $w_item['price'] : round($w_price * 1.3);
-                            $w_img   = !empty($w_item['main_image']) ? (strpos($w_item['main_image'], 'http') === 0 ? $w_item['main_image'] : base_url('assets/images/' . $w_item['main_image'])) : base_url('assets/images/products/womens/women-1.jpg');
+                            $w_img   = !empty($w_item['main_image']) ? (strpos($w_item['main_image'], 'http') === 0 ? $w_item['main_image'] : base_url('assets/images/' . $w_item['main_image'])) : base_url('assets/images/products/product-image.png');
                         ?>
                         <div class="col">
                             <div class="card h-100 border rounded-3 p-2 bg-white cart-rec-card d-flex flex-column">
                                 <a href="<?= site_url('product/' . $w_item['slug']); ?>" class="d-block mb-2 text-center overflow-hidden rounded bg-light" style="aspect-ratio: 1/1;">
-                                    <img src="<?= $w_img; ?>" alt="<?= html_escape($w_item['title']); ?>" class="w-100 h-100 object-fit-contain" onerror="this.src='<?= base_url('assets/images/products/womens/women-1.jpg'); ?>'">
+                                    <img src="<?= $w_img; ?>" alt="<?= html_escape($w_item['title']); ?>" class="w-100 h-100 object-fit-contain" onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
                                 </a>
                                 <div class="flex-grow-1 d-flex flex-column">
                                     <div class="d-flex align-items-center gap-1 mb-1">

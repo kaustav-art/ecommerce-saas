@@ -2,19 +2,29 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 // Collect all images (main image first, followed by gallery images)
+$default_prod_rel = 'products/product-image.png';
+$is_placeholder_img = function($p) {
+    $b = strtolower(basename(trim((string)$p)));
+    return $b === '' || $b === 'product-image.png';
+};
+
 $all_images = [];
-if (!empty($product['main_image'])) {
-    $all_images[] = $product['main_image'];
-}
-if (!empty($product['gallery_images_decoded']) && is_array($product['gallery_images_decoded'])) {
-    foreach ($product['gallery_images_decoded'] as $g_img) {
-        if (!empty($g_img) && !in_array($g_img, $all_images)) {
-            $all_images[] = $g_img;
+if (empty($is_user_project)) {
+    $all_images = array_fill(0, 4, $default_prod_rel);
+} else {
+    if (!empty($product['main_image']) && !$is_placeholder_img($product['main_image'])) {
+        $all_images[] = $product['main_image'];
+    }
+    if (!empty($product['gallery_images_decoded']) && is_array($product['gallery_images_decoded'])) {
+        foreach ($product['gallery_images_decoded'] as $g_img) {
+            if (!empty($g_img) && !$is_placeholder_img($g_img) && !in_array($g_img, $all_images)) {
+                $all_images[] = $g_img;
+            }
         }
     }
-}
-if (empty($all_images)) {
-    $all_images[] = 'products/womens/women-1.jpg';
+    if (empty($all_images)) {
+        $all_images = array_fill(0, 4, $default_prod_rel);
+    }
 }
 $total_images = count($all_images);
 
@@ -162,33 +172,41 @@ if ($has_color && !empty($color_attr['values'])) {
                 }
             }
         }
-        if (empty($c_photo)) {
-            $c_photo = $product['main_image'];
-        }
-
-        // Color images list
-        $c_images = [];
-        if (!empty($c_photo)) {
-            $c_images[] = $c_photo;
-        }
-        if (!empty($c_gallery)) {
-            foreach ($c_gallery as $g) {
-                if (!in_array($g, $c_images)) {
-                    $c_images[] = $g;
-                }
-            }
+        if (empty($is_user_project)) {
+            $c_photo  = $default_prod_rel;
+            $c_images = array_fill(0, 4, $default_prod_rel);
         } else {
-            // Keep product gallery images with variant photo as slot 0
-            if (!empty($product['gallery_images_decoded']) && is_array($product['gallery_images_decoded'])) {
-                foreach ($product['gallery_images_decoded'] as $g_img) {
-                    if (!empty($g_img) && !in_array($g_img, $c_images)) {
-                        $c_images[] = $g_img;
+            if (empty($c_photo) || $is_placeholder_img($c_photo)) {
+                $c_photo = (!empty($product['main_image']) && !$is_placeholder_img($product['main_image'])) ? $product['main_image'] : '';
+            }
+
+            // Color images list
+            $c_images = [];
+            if (!empty($c_photo) && !$is_placeholder_img($c_photo)) {
+                $c_images[] = $c_photo;
+            }
+            if (!empty($c_gallery)) {
+                foreach ($c_gallery as $g) {
+                    if (!empty($g) && !$is_placeholder_img($g) && !in_array($g, $c_images)) {
+                        $c_images[] = $g;
+                    }
+                }
+            } else {
+                // Keep product gallery images with variant photo as slot 0
+                if (!empty($product['gallery_images_decoded']) && is_array($product['gallery_images_decoded'])) {
+                    foreach ($product['gallery_images_decoded'] as $g_img) {
+                        if (!empty($g_img) && !$is_placeholder_img($g_img) && !in_array($g_img, $c_images)) {
+                            $c_images[] = $g_img;
+                        }
                     }
                 }
             }
-        }
-        if (empty($c_images)) {
-            $c_images = $all_images;
+            if (empty($c_images)) {
+                $c_photo  = $default_prod_rel;
+                $c_images = array_fill(0, 4, $default_prod_rel);
+            } elseif (empty($c_photo)) {
+                $c_photo = $c_images[0];
+            }
         }
 
         $color_map[$c_name] = [
@@ -1480,7 +1498,7 @@ button.color-slider-arrow {
                                             $is_overflow_item = ($i >= 4);
                                         ?>
                                             <div class="product-grid-item <?= $is_overflow_item ? 'grid-overflow-item' : ''; ?>" onclick="openLightbox(<?= $i; ?>)" id="grid-item-<?= $i; ?>">
-                                                <img src="<?= $img_src; ?>" alt="<?= html_escape($product['title']) . ' - ' . ($i + 1); ?>" id="grid-img-<?= $i; ?>" onerror="this.src='<?= base_url('assets/images/products/womens/women-1.jpg'); ?>'">
+                                                <img src="<?= $img_src; ?>" alt="<?= html_escape($product['title']) . ' - ' . ($i + 1); ?>" id="grid-img-<?= $i; ?>" onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
                                                 
                                                 <!-- Desktop Floating Actions in Top-Right corner of 2nd image (Slot 1) -->
                                                 <?php if ($i === 1 || ($total_images === 1 && $i === 0)): ?>
@@ -2719,7 +2737,7 @@ button.color-slider-arrow {
             var isOverflow = (i >= 4);
 
             html += '<div class="product-grid-item ' + (isOverflow ? 'grid-overflow-item' : '') + '" onclick="openLightbox(' + i + ')" id="grid-item-' + i + '">';
-            html += '  <img src="' + imgSrc + '" alt="Product Image ' + (i + 1) + '" id="grid-img-' + i + '" onerror="this.src=\'<?= base_url("assets/images/products/womens/women-1.jpg"); ?>\'">';
+            html += '  <img src="' + imgSrc + '" alt="Product Image ' + (i + 1) + '" id="grid-img-' + i + '" onerror="this.src=\'<?= base_url("assets/images/products/product-image.png"); ?>\'">';
 
             if (i === 1 || (count === 1 && i === 0)) {
                 html += '  <div class="grid-floating-actions d-none d-md-flex" onclick="event.stopPropagation();">';

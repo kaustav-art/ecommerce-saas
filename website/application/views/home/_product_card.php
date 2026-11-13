@@ -63,12 +63,12 @@ if (!empty($p['variants']) && is_array($p['variants'])) {
                  data-src="<?= base_url('assets/images/' . $p['main_image']); ?>" 
                  src="<?= base_url('assets/images/' . $p['main_image']); ?>" 
                  alt="<?= html_escape($p['title']); ?>" 
-                 onerror="this.src='<?= base_url('assets/images/products/womens/women-1.jpg'); ?>'">
+                 onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
             <img class="lazyload img-hover" 
                  data-src="<?= base_url('assets/images/' . $hover_img); ?>" 
                  src="<?= base_url('assets/images/' . $hover_img); ?>" 
                  alt="<?= html_escape($p['title']); ?>" 
-                 onerror="this.src='<?= base_url('assets/images/products/womens/women-2.jpg'); ?>'">
+                 onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
         </a>
 
         <!-- Discount / Flash Sale Tag -->

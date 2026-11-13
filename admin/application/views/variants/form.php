@@ -612,7 +612,7 @@
               <div class="mb-3">
                 <label class="form-label fw-semibold" for="var_image_file">Main Product Image</label>
                 <?php 
-                  $current_main_img = !empty($variant['image']) ? $variant['image'] : (!empty($product['main_image']) ? $product['main_image'] : 'products/womens/women-1.jpg');
+                  $current_main_img = !empty($variant['image']) ? $variant['image'] : (!empty($product['main_image']) ? $product['main_image'] : 'products/product-image.png');
                 ?>
                 <div class="border rounded p-2 mb-2 bg-light text-center">
                   <img
@@ -621,7 +621,7 @@
                     class="rounded img-fluid"
                     style="max-height: 140px; object-fit: contain;"
                     alt="Variant Image Preview"
-                    onerror="this.src='<?= base_url('../website/assets/images/products/womens/women-1.jpg'); ?>'"
+                    onerror="this.src='<?= base_url('../website/assets/images/products/product-image.png'); ?>'"
                   />
                 </div>
                 <input
@@ -676,7 +676,7 @@
                     <?php if (!empty($existing_gal)): ?>
                       <?php foreach ($existing_gal as $gIdx => $gFile): ?>
                         <div class="position-relative border rounded p-1 bg-white shadow-sm" id="var_gal_item_<?= $gIdx; ?>" style="width: 52px; height: 52px;">
-                          <img src="<?= base_url('../website/assets/images/' . $gFile); ?>" class="w-100 h-100 object-fit-cover rounded" alt="Gallery" onerror="this.src='<?= base_url('../website/assets/images/products/womens/women-1.jpg'); ?>'">
+                          <img src="<?= base_url('../website/assets/images/' . $gFile); ?>" class="w-100 h-100 object-fit-cover rounded" alt="Gallery" onerror="this.src='<?= base_url('../website/assets/images/products/product-image.png'); ?>'">
                           <input type="hidden" name="existing_gallery[]" value="<?= html_escape($gFile); ?>">
                           <button
                             type="button"

@@ -167,7 +167,7 @@ $curr   = isset($currency_symbol) ? $currency_symbol : '$';
 
    <script>
    document.addEventListener('DOMContentLoaded', function() {
-       var defaultEltImg = '<?= $bazaro; ?>img/electronics/arrival-product/product-1/product-1.jpg';
+       var defaultEltImg = '<?= base_url('assets/images/products/product-image.png'); ?>';
 <?php if (empty($is_user_project)): ?>
        var siteBase = '<?= rtrim(base_url(), "/"); ?>';
        document.querySelectorAll('a[href]').forEach(function(a) {
@@ -226,7 +226,7 @@ $curr   = isset($currency_symbol) ? $currency_symbol : '$';
    }
 
    function resolveBazaroCartImgUrl(rawImg) {
-       var fallback = '<?= $bazaro; ?>img/electronics/arrival-product/product-1/product-1.jpg';
+       var fallback = '<?= base_url('assets/images/products/product-image.png'); ?>';
        if (!rawImg) return fallback;
        var clean = String(rawImg).trim().replace(/^\/+/, '');
        if (!clean) return fallback;

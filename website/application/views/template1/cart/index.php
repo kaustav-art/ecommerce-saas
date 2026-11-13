@@ -462,7 +462,7 @@
                                 <?php foreach ($cart_items as $item): 
                                     $item_img = !empty($item['image']) 
                                         ? (strpos($item['image'], 'http') === 0 ? $item['image'] : base_url('assets/images/' . $item['image']))
-                                        : base_url('assets/images/products/womens/women-1.jpg');
+                                        : base_url('assets/images/products/product-image.png');
                                     $item_key = $item['cart_key'] ?? $item['id'];
                                     $reg_price = !empty($item['regular_price']) ? (float)$item['regular_price'] : round($item['price'] * 1.3);
                                     if ($reg_price <= $item['price']) $reg_price = round($item['price'] * 1.3);
@@ -473,7 +473,7 @@
                                         <!-- Left Column: Thumbnail + Quantity Stepper -->
                                         <div class="d-flex flex-column align-items-center flex-shrink-0" style="width: 92px;">
                                             <a href="<?= site_url('product/' . $item['slug']); ?>" class="d-block rounded overflow-hidden mb-2 bg-light text-center border" style="width: 90px; height: 90px;">
-                                                <img src="<?= $item_img; ?>" alt="<?= html_escape($item['title']); ?>" class="w-100 h-100 object-fit-contain" onerror="this.src='<?= base_url('assets/images/products/womens/women-1.jpg'); ?>'">
+                                                <img src="<?= $item_img; ?>" alt="<?= html_escape($item['title']); ?>" class="w-100 h-100 object-fit-contain" onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
                                             </a>
                                             <!-- Quantity Stepper -->
                                             <div class="cart-qty-stepper">

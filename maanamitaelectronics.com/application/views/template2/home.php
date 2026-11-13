@@ -29,12 +29,7 @@ if (!function_exists('elt_product_img')) {
                 return $bazaro_base . 'img/' . $clean;
             }
         }
-        if ($type === 'deals') {
-            $idx = (($fallback_idx - 1) % 6) + 1;
-            return $bazaro_base . 'img/electronics/deals-product/deals-product-' . $idx . '.jpg';
-        }
-        $idx = (($fallback_idx - 1) % 8) + 1;
-        return $bazaro_base . 'img/electronics/arrival-product/product-' . $idx . '/product-1.jpg';
+        return base_url('assets/images/products/product-image.png');
     }
 }
 

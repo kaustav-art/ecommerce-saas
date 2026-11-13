@@ -5,7 +5,7 @@ $prod_title = $product['title'] ?? ($product['name'] ?? 'Product');
 $prod_slug  = $product['slug'] ?? 'common';
 $grc_qs     = empty($is_user_project) && ($active_template ?? '') === 'grocery' ? '?preview_tpl=grocery' : '';
 
-$raw_img = !empty($product['main_image']) ? $product['main_image'] : ($product['image'] ?? 'products/womens/women-1.jpg');
+$raw_img = !empty($product['main_image']) ? $product['main_image'] : ($product['image'] ?? 'products/product-image.png');
 $clean_prod_img = ltrim(trim((string)$raw_img), '/');
 if (strpos($clean_prod_img, 'assets/images/') === 0) {
     $clean_prod_img = substr($clean_prod_img, strlen('assets/images/'));
@@ -54,7 +54,7 @@ $bar_avg_round      = round($computed_avg * 2) / 2;
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div class="d-flex align-items-center gap-3">
                     <a href="<?= site_url('product/' . $prod_slug . $grc_qs); ?>" class="d-inline-block border rounded-2 overflow-hidden flex-shrink-0" style="width: 64px; height: 64px; background-color: #fafafa; border-color: #e5e7eb !important;">
-                        <img src="<?= $prod_img_url; ?>" alt="<?= html_escape($prod_title); ?>" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.src='<?= base_url('assets/images/products/womens/women-1.jpg'); ?>'">
+                        <img src="<?= $prod_img_url; ?>" alt="<?= html_escape($prod_title); ?>" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
                     </a>
                     <div>
                         <h5 class="fw-bold mb-1" style="font-size: 16px; color: #003D29;">

@@ -13,8 +13,7 @@ if (!function_exists('grc_product_img')) {
             }
             return base_url('assets/images/products/' . $clean);
         }
-        $idx = (($fallback_idx - 1) % 16) + 1;
-        return $bazaro_url . 'img/product/grocery-p-' . $idx . '.jpg';
+        return base_url('assets/images/products/product-image.png');
     }
 }
 
@@ -100,7 +99,7 @@ if (!empty($shop_products)):
          </div>
          <?php endif; ?>
          <a href="<?= $p_url; ?>">
-            <img class="aq-product-img-hover" src="<?= $p_img; ?>" alt="<?= html_escape($p_name); ?>" onerror="this.src='<?= $bazaro; ?>img/product/grocery-p-<?= (($p_idx % 12) + 1); ?>.jpg'">
+            <img class="aq-product-img-hover" src="<?= $p_img; ?>" alt="<?= html_escape($p_name); ?>" onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
          </a>
          <div class="aq-product-action-2 d-flex flex-column">
             <?php $p_is_wish = in_array((int)$p_id, $user_wishlist_ids ?? []); ?>

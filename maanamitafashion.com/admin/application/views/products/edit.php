@@ -530,11 +530,11 @@
                 <div class="border rounded p-2 mb-2 bg-light text-center">
                   <img
                     id="main_product_preview"
-                    src="<?= base_url('../website/assets/images/' . $product['main_image']); ?>"
+                    src="<?= base_url('../website/assets/images/' . ($product['main_image'] ?: 'products/product-image.png')); ?>"
                     alt="Product Preview"
                     class="rounded img-fluid"
                     style="max-height: 140px; object-fit: contain;"
-                    onerror="this.src='<?= base_url('assets/img/elements/1.jpg'); ?>'" />
+                    onerror="this.src='<?= base_url('assets/img/product-image.png'); ?>'" />
                 </div>
                 <input
                   type="file"
@@ -585,7 +585,7 @@
                     <?php if (!empty($existing_gallery)): ?>
                       <?php foreach ($existing_gallery as $g_idx => $g_file): ?>
                         <div class="position-relative border rounded p-1 bg-white shadow-sm" id="gal_item_<?= $g_idx; ?>" style="width: 58px; height: 58px;">
-                          <img src="<?= base_url('../website/assets/images/' . $g_file); ?>" class="w-100 h-100 object-fit-cover rounded" alt="Gallery" onerror="this.src='<?= base_url('assets/img/elements/1.jpg'); ?>'">
+                          <img src="<?= base_url('../website/assets/images/' . $g_file); ?>" class="w-100 h-100 object-fit-cover rounded" alt="Gallery" onerror="this.src='<?= base_url('assets/img/product-image.png'); ?>'">
                           <input type="hidden" name="existing_gallery[]" value="<?= html_escape($g_file); ?>" id="gal_input_<?= $g_idx; ?>">
                           <button type="button" class="position-absolute d-flex align-items-center justify-content-center"
                             style="top: -6px; right: -6px; width: 20px; height: 20px; border-radius: 50%; background: #ff4d49; color: #fff; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.25); z-index: 10; cursor: pointer; padding: 0;"

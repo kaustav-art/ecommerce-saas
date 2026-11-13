@@ -117,7 +117,11 @@ class Static_template_data {
      * Load all storefront entities from MySQL for the given database and tenant_id.
      */
     public static function load_tenant_dataset($dbName, $tenantId, $activeTpl = 'fashion') {
-        $cacheKey = $dbName . ':' . $tenantId . ':' . $activeTpl;
+        $CI = function_exists('get_instance') ? get_instance() : null;
+        $isDemoContext = ($CI && isset($CI->is_user_project)) ? empty($CI->is_user_project) : ($dbName === 'ecommerce_main' && (int)$tenantId <= 3);
+        $defaultProdRel = 'products/product-image.png';
+
+        $cacheKey = $dbName . ':' . $tenantId . ':' . $activeTpl . ':' . ($isDemoContext ? 'demo' : 'tenant');
         if (isset(self::$cache[$cacheKey])) {
             return self::$cache[$cacheKey];
         }
@@ -299,7 +303,8 @@ class Static_template_data {
                 }
             }
             foreach ($allVars as $v) {
-                $v['image'] = self::normalize_img($v['image']);
+                $vImg = self::normalize_img($v['image']);
+                $v['image'] = $isDemoContext ? $defaultProdRel : $vImg;
                 $v['values'] = $valsByVar[(int)$v['id']] ?? [];
                 $variantsByProd[(int)$v['product_id']][] = $v;
             }
@@ -329,10 +334,18 @@ class Static_template_data {
         $products = [];
         foreach ($rawProducts as $p) {
             $pid = (int)$p['id'];
-            $mainImg = self::normalize_img($p['main_image']);
+            $rawMainImg = self::normalize_img($p['main_image']);
+            $mainImg = ($isDemoContext || $rawMainImg === '') ? $defaultProdRel : $rawMainImg;
             $galDecoded = !empty($p['gallery_images']) ? (json_decode($p['gallery_images'], true) ?: []) : [];
-            $galNormalized = array_values(array_map([self::class, 'normalize_img'], $galDecoded));
-            $hoverImg = !empty($galNormalized[0]) ? $galNormalized[0] : $mainImg;
+            if ($isDemoContext) {
+                $galNormalized = array_fill(0, 4, $defaultProdRel);
+                $hoverImg = $defaultProdRel;
+            } else {
+                $galNormalized = array_values(array_filter(array_map([self::class, 'normalize_img'], $galDecoded), function($g) {
+                    return $g !== '';
+                }));
+                $hoverImg = !empty($galNormalized[0]) ? $galNormalized[0] : $mainImg;
+            }
             $hlDecoded = !empty($p['highlights']) ? (json_decode($p['highlights'], true) ?: []) : [];
 
             $pVars = $variantsByProd[$pid] ?? [];
@@ -555,7 +568,8 @@ class Static_template_data {
             $effP = (!empty($cr['sale_price']) && (float)$cr['sale_price'] > 0) ? round((float)$cr['sale_price']) : $regP;
             $lineTotal = round($effP * $qty);
             $lineMrp = round($regP * $qty);
-            $img = self::normalize_img($cr['main_image']);
+            $rawCartImg = self::normalize_img($cr['main_image']);
+            $img = ($isDemoContext || $rawCartImg === '') ? $defaultProdRel : $rawCartImg;
 
             $cartItems[$pid] = [
                 'cart_key'        => (string)$pid,
@@ -651,7 +665,8 @@ class Static_template_data {
                 $oi['variant_id'] = !empty($oi['variant_id']) ? (int)$oi['variant_id'] : 0;
                 $oi['sku'] = $oi['product_sku'] ?? '';
                 $oi['product_slug'] = $oi['product_slug'] ?: 'product';
-                $oi['product_image'] = self::normalize_img($oi['product_image']);
+                $rawOiImg = self::normalize_img($oi['product_image']);
+                $oi['product_image'] = ($isDemoContext || $rawOiImg === '') ? $defaultProdRel : $rawOiImg;
                 $oi['price'] = (float)$oi['price'];
                 $oi['regular_price'] = !empty($oi['reg_price']) ? (float)$oi['reg_price'] : $oi['price'];
                 $oi['quantity'] = (int)$oi['quantity'];
@@ -717,6 +732,48 @@ class Static_template_data {
         $gwStmt->execute([$tenantId]);
         $gateways = $gwStmt->fetchAll();
 
+        $defaultCommonProduct = [
+            'id'                     => 0,
+            'title'                  => 'Product',
+            'name'                   => 'Product',
+            'slug'                   => 'common',
+            'sku'                    => 'SKU-DEFAULT',
+            'category_id'            => 0,
+            'category_name'          => 'Uncategorized',
+            'category_slug'          => 'uncategorized',
+            'brand_name'             => $settings['site_name'] ?? 'Store',
+            'brand_slug'             => 'store',
+            'price'                  => 0.00,
+            'regular_price'          => 0.00,
+            'sale_price'             => null,
+            'main_image'             => $defaultProdRel,
+            'primary_image'          => $defaultProdRel,
+            'image'                  => $defaultProdRel,
+            'hover_image'            => $defaultProdRel,
+            'gallery_images_decoded' => $isDemoContext ? array_fill(0, 4, $defaultProdRel) : [],
+            'highlights_decoded'     => [],
+            'short_description'      => '',
+            'description'            => '',
+            'unit_label'             => '',
+            'unit_value'             => '',
+            'warranty_info'          => '',
+            'badge_text'             => '',
+            'stock'                  => 0,
+            'stock_qty'              => 0,
+            'stock_quantity'         => 0,
+            'stock_status'           => 'out_of_stock',
+            'is_cod_allowed'         => 1,
+            'rating'                 => 0.0,
+            'reviews_count'          => 0,
+            'variants'               => [],
+            'attributes'             => [],
+            'color_swatches'         => [],
+            'colors'                 => [],
+            'sizes'                  => [],
+            'specifications'         => [],
+            'reviews'                => [],
+        ];
+
         $dataset = [
             'settings'        => $settings,
             'banners'         => $banners,
@@ -725,7 +782,7 @@ class Static_template_data {
             'category_tree'   => $categoryTree,
             'brands'          => $brands,
             'products'        => $products,
-            'common_product'  => !empty($products[0]) ? $products[0] : [],
+            'common_product'  => !empty($products[0]) ? $products[0] : $defaultCommonProduct,
             'filter_sizes'    => $filterSizes,
             'filter_colors'   => $filterColors,
             'user'            => $user,

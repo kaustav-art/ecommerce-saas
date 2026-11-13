@@ -13,12 +13,12 @@ $hover_img = !empty($p['gallery_images_decoded'][0]) ? $p['gallery_images_decode
                  data-src="<?= base_url('assets/images/' . $p['main_image']); ?>" 
                  src="<?= base_url('assets/images/' . $p['main_image']); ?>" 
                  alt="<?= html_escape($p['title']); ?>" 
-                 onerror="this.src='<?= base_url('assets/images/products/womens/women-1.jpg'); ?>'">
+                 onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
             <img class="lazyload img-hover" 
                  data-src="<?= base_url('assets/images/' . $hover_img); ?>" 
                  src="<?= base_url('assets/images/' . $hover_img); ?>" 
                  alt="<?= html_escape($p['title']); ?>" 
-                 onerror="this.src='<?= base_url('assets/images/products/womens/women-2.jpg'); ?>'">
+                 onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
         </a>
 
         <!-- Discount / On Sale Tag Only (New and Best Seller tags removed) -->

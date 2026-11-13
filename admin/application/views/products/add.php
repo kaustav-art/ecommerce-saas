@@ -445,7 +445,7 @@
                 <div class="border rounded p-2 mb-2 bg-light text-center">
                   <img
                     id="main_product_preview"
-                    src="<?= base_url('../website/assets/images/products/womens/women-1.jpg'); ?>"
+                    src="<?= base_url('../website/assets/images/products/product-image.png'); ?>"
                     class="rounded img-fluid"
                     style="max-height: 140px; object-fit: contain;"
                     alt="Product Image Preview"
@@ -459,7 +459,7 @@
                   accept="image/*"
                   onchange="previewMainProductFile(this)"
                 />
-                <input type="hidden" name="default_main_image" value="products/womens/women-1.jpg" />
+                <input type="hidden" name="default_main_image" value="products/product-image.png" />
                 <small class="text-muted d-block mt-1" style="font-size: 11px;">Recommended: 800x1000px, JPG, PNG, WEBP (Max 10MB)</small>
               </div>
 

@@ -1441,7 +1441,7 @@
                $c_name = $c_item['name'] ?? ($c_item['title'] ?? ($c_item['product_title'] ?? 'Fresh Grocery Item'));
                $raw_img = !empty($c_item['image']) ? ltrim($c_item['image'], '/') : '';
                if (empty($raw_img)) {
-                  $c_img = $bazaro . 'img/product/grocery-p-1.jpg';
+                  $c_img = base_url('assets/images/products/product-image.png');
                } elseif (strpos($raw_img, 'http') === 0) {
                   $c_img = $raw_img;
                } elseif (strpos($raw_img, 'assets/') === 0) {
@@ -1455,7 +1455,7 @@
             <div class="aq-cartmini-product-item mb-15 item-delete d-flex align-items-center">
                <div class="aq-cartmini-product-thumbnail">
                   <a href="<?= site_url('product/' . ($c_item['slug'] ?? $c_item['product_id'])); ?>">
-                     <img src="<?= $c_img; ?>" alt="<?= html_escape($c_name); ?>" onerror="this.src='<?= $bazaro; ?>img/product/grocery-p-1.jpg'">
+                     <img src="<?= $c_img; ?>" alt="<?= html_escape($c_name); ?>" onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
                   </a>
                </div>
                <div class="aq-cartmini-product-summary">
@@ -1922,7 +1922,7 @@
                      var html = '';
                      items.forEach(function(item) {
                         var cat = item.category_name ? '<div class="grc-autocomplete-cat">' + item.category_name + '</div>' : '';
-                        var img = item.image ? '<img src="' + item.image + '" class="grc-autocomplete-thumb" alt="' + (item.title || '') + '" onerror="this.src=\'<?= $bazaro; ?>img/product/grocery-p-1.jpg\'">' : '';
+                        var img = item.image ? '<img src="' + item.image + '" class="grc-autocomplete-thumb" alt="' + (item.title || '') + '" onerror="this.src=\'<?= base_url('assets/images/products/product-image.png'); ?>\'">' : '';
                         html += '<a href="' + item.url + '" class="grc-autocomplete-item">' +
                                    img +
                                    '<div class="grc-autocomplete-info">' +

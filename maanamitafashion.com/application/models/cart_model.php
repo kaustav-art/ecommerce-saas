@@ -312,7 +312,7 @@ class cart_model extends CI_Model {
                 $regular_price = $base_reg;
                 $base_p = $orig_selling;
             }
-            $image = !empty($variant['image']) ? $variant['image'] : $product['main_image'];
+            $image = !empty($variant['image']) ? $variant['image'] : (!empty($product['main_image']) ? $product['main_image'] : 'products/product-image.png');
             $sku   = !empty($variant['sku']) ? $variant['sku'] : $product['sku'];
         } else {
             $base_reg = (isset($product['base_price']) && is_numeric($product['base_price']) && (float)$product['base_price'] > 0)
@@ -331,7 +331,7 @@ class cart_model extends CI_Model {
                 $regular_price = $base_reg;
                 $base_p = $orig_selling;
             }
-            $image = $product['main_image'];
+            $image = !empty($product['main_image']) ? $product['main_image'] : 'products/product-image.png';
             $sku   = $product['sku'];
         }
 
@@ -1051,7 +1051,7 @@ class cart_model extends CI_Model {
                 $regular_price = $base_reg;
                 $base_p = $orig_selling;
             }
-            $image = !empty($variant['image']) ? $variant['image'] : $product['main_image'];
+            $image = !empty($variant['image']) ? $variant['image'] : (!empty($product['main_image']) ? $product['main_image'] : 'products/product-image.png');
             $sku   = !empty($variant['sku']) ? $variant['sku'] : $product['sku'];
         } else {
             $base_reg = (isset($product['base_price']) && is_numeric($product['base_price']) && (float)$product['base_price'] > 0)
@@ -1070,7 +1070,7 @@ class cart_model extends CI_Model {
                 $regular_price = $base_reg;
                 $base_p = $orig_selling;
             }
-            $image = $product['main_image'];
+            $image = !empty($product['main_image']) ? $product['main_image'] : 'products/product-image.png';
             $sku   = $product['sku'];
         }
 

@@ -70,10 +70,11 @@ $deals_list    = (!empty($flash_sale) && (!empty($flash_sale_products) || !empty
             <div class="container">
                 <div class="fsh-section-header d-flex flex-wrap align-items-end justify-content-between mb-4 pb-2 border-bottom">
                     <div>
+                        <span class="fsh-section-eyebrow">JUST DROPPED</span>
                         <h3 class="fsh-section-title mb-0">New Arrivals</h3>
                     </div>
                     <a href="<?= site_url('shop'); ?>" class="fsh-see-all-link">
-                        <span>See all</span>
+                        <span>See all Products</span>
                         <i class="fa-solid fa-arrow-right ms-1"></i>
                     </a>
                 </div>
@@ -81,7 +82,7 @@ $deals_list    = (!empty($flash_sale) && (!empty($flash_sale_products) || !empty
                 <div class="tf-grid-layout tf-col-2 lg-col-4 xl-col-5">
                     <?php if (!empty($arrivals_list)): ?>
                         <?php foreach ($arrivals_list as $p): ?>
-                            <?php $this->load->view('template1/home/_product_card', ['p' => $p, 'currency_symbol' => $curr]); ?>
+                            <?php $this->load->view('home/_product_card', ['p' => $p, 'currency_symbol' => $curr]); ?>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <div class="col-12 text-center py-5">
@@ -93,183 +94,254 @@ $deals_list    = (!empty($flash_sale) && (!empty($flash_sale_products) || !empty
         </section>
         <!-- /New Arrivals Section -->
 
-        <!-- 2. Running Flash Sales Section (Bazaro Deals Area) -->
+        <!-- 2. Running Flash Sales Section (Unique Fashion Editorial Showcase) -->
         <?php if (!empty($flash_sale) && !empty($deals_list)): ?>
         <?php
             $fs_end_time = !empty($flash_sale['end_time']) ? $flash_sale['end_time'] : date('Y-m-d H:i:s', strtotime('+2 days'));
-            $fs_end_iso  = date('Y-m-d\TH:i:s', strtotime($fs_end_time));
             $fs_disc_pct = !empty($flash_sale['discount_percent']) ? (float)$flash_sale['discount_percent'] : 0;
+        ?>
+        <section class="fsh-flash-sale-section py-4 my-2">
+            <div class="container">
+                <div class="fsh-flash-showcase">
+                    <!-- Decorative Ambient Glows -->
+                    <div class="fsh-flash-glow fsh-glow-1"></div>
+                    <div class="fsh-flash-glow fsh-glow-2"></div>
 
-            $fs_max_disc = (int)round($fs_disc_pct);
-            if ($fs_max_disc <= 0) {
-                foreach ($deals_list as $dp_chk) {
-                    $chk_reg  = (float)($dp_chk['regular_price'] ?? $dp_chk['price'] ?? 0);
-                    $chk_sal  = (!empty($dp_chk['sale_price']) && (float)$dp_chk['sale_price'] > 0 && (float)$dp_chk['sale_price'] < $chk_reg) ? (float)$dp_chk['sale_price'] : $chk_reg;
-                    $chk_disc = !empty($dp_chk['total_discount_percent']) ? (int)$dp_chk['total_discount_percent'] : (($chk_reg > $chk_sal && $chk_reg > 0) ? round((($chk_reg - $chk_sal) / $chk_reg) * 100) : 0);
-                    if ($chk_disc > $fs_max_disc) {
-                        $fs_max_disc = $chk_disc;
+                    <!-- Top Header Banner & Live Countdown -->
+                    <div class="fsh-flash-header">
+                        <div class="fsh-flash-title-area">
+                            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                                <span class="fsh-live-pill">
+                                    <span class="fsh-live-dot"></span>
+                                    LIVE FLASH EVENT
+                                </span>
+                                <?php if ($fs_disc_pct > 0): ?>
+                                    <span class="fsh-extra-off-pill">
+                                        <i class="fa-solid fa-bolt me-1"></i>Extra <?= rtrim(rtrim(number_format($fs_disc_pct, 2), '0'), '.'); ?>% OFF
+                                    </span>
+                                <?php endif; ?>
+                            </div>
+                            <h2 class="fsh-flash-heading mb-1">
+                                <?= html_escape(!empty($flash_sale['title']) ? $flash_sale['title'] : 'Runway Flash Sale'); ?>
+                            </h2>
+                            <p class="fsh-flash-subtext mb-0">
+                                Exclusive limited-time markdowns on curated fashion pieces before the timer runs out.
+                            </p>
+                        </div>
+
+                        <div class="fsh-flash-timer-wrap">
+                            <div class="fsh-timer-label">
+                                <i class="fa-regular fa-clock me-1"></i> HURRY! OFFER ENDS IN
+                            </div>
+                            <div class="fsh-countdown-boxes" id="fshFlashCountdown" data-end-time="<?= html_escape($fs_end_time); ?>">
+                                <div class="fsh-time-card">
+                                    <span class="fsh-time-num" id="fsh-days">00</span>
+                                    <span class="fsh-time-unit">Days</span>
+                                </div>
+                                <span class="fsh-time-sep">:</span>
+                                <div class="fsh-time-card">
+                                    <span class="fsh-time-num" id="fsh-hours">00</span>
+                                    <span class="fsh-time-unit">Hours</span>
+                                </div>
+                                <span class="fsh-time-sep">:</span>
+                                <div class="fsh-time-card">
+                                    <span class="fsh-time-num" id="fsh-minutes">00</span>
+                                    <span class="fsh-time-unit">Mins</span>
+                                </div>
+                                <span class="fsh-time-sep">:</span>
+                                <div class="fsh-time-card fsh-time-sec">
+                                    <span class="fsh-time-num" id="fsh-seconds">00</span>
+                                    <span class="fsh-time-unit">Secs</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Flash Sale Products Grid -->
+                    <div class="fsh-flash-grid">
+                        <?php foreach ($deals_list as $dp):
+                            $d_id    = (int)($dp['id'] ?? 0);
+                            $d_title = $dp['title'] ?? ($dp['name'] ?? 'Fashion Piece');
+                            $d_slug  = !empty($dp['slug']) ? site_url('product/' . $dp['slug']) : site_url('product/' . $d_id);
+                            $d_img   = !empty($dp['main_image']) ? base_url('assets/images/' . $dp['main_image']) : base_url('assets/images/products/product-image.png');
+                            $d_hover = !empty($dp['gallery_images_decoded'][0])
+                                ? base_url('assets/images/' . $dp['gallery_images_decoded'][0])
+                                : (!empty($dp['hover_image']) ? base_url('assets/images/' . $dp['hover_image']) : $d_img);
+                            $d_reg   = (float)($dp['regular_price'] ?? $dp['price'] ?? 0);
+                            $d_sal   = (!empty($dp['sale_price']) && (float)$dp['sale_price'] > 0 && (float)$dp['sale_price'] < $d_reg)
+                                ? (float)$dp['sale_price']
+                                : $d_reg;
+                            $d_disc  = !empty($dp['total_discount_percent'])
+                                ? (int)$dp['total_discount_percent']
+                                : (($d_reg > $d_sal && $d_reg > 0) ? round((($d_reg - $d_sal) / $d_reg) * 100) : (int)$fs_disc_pct);
+                            $d_saved = max(0, $d_reg - $d_sal);
+                            $d_cat   = $dp['category_name'] ?? ($dp['brand_name'] ?? 'Fashion');
+                            $d_rev_cnt = (isset($dp['reviews']) && is_array($dp['reviews'])) ? count($dp['reviews']) : (int)($dp['reviews_count'] ?? 0);
+                            $d_rating  = $d_rev_cnt > 0 ? (float)($dp['rating'] ?? 0) : 0.0;
+                            $d_stars   = (int)round($d_rating);
+                        ?>
+                        <div class="fsh-deal-card">
+                            <div class="fsh-deal-media">
+                                <a href="<?= $d_slug; ?>" class="fsh-deal-img-link">
+                                    <img src="<?= $d_img; ?>" alt="<?= html_escape($d_title); ?>" class="fsh-deal-img-main" onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
+                                    <img src="<?= $d_hover; ?>" alt="<?= html_escape($d_title); ?>" class="fsh-deal-img-hover" onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
+                                </a>
+
+                                <div class="fsh-deal-badges">
+                                    <span class="fsh-ribbon-bolt"><i class="fa-solid fa-bolt me-1"></i>FLASH</span>
+                                    <?php if ($d_disc > 0): ?>
+                                        <span class="fsh-ribbon-disc">-<?= $d_disc; ?>%</span>
+                                    <?php endif; ?>
+                                </div>
+
+                                <a href="<?= site_url('wishlist/toggle/' . $d_id); ?>" class="fsh-deal-wish-btn" title="Add to Wishlist">
+                                    <i class="fa-regular fa-heart"></i>
+                                </a>
+                            </div>
+
+                            <div class="fsh-deal-body">
+                                <div class="d-flex align-items-center justify-content-between gap-1 mb-1">
+                                    <span class="fsh-deal-cat"><?= html_escape($d_cat); ?></span>
+                                    <div class="fsh-deal-stars text-warning">
+                                        <?php for ($s = 1; $s <= 5; $s++): ?>
+                                            <i class="fa-<?= ($s <= $d_stars) ? 'solid' : 'regular'; ?> fa-star"></i>
+                                        <?php endfor; ?>
+                                        <span class="text-muted ms-1">(<?= $d_rev_cnt; ?>)</span>
+                                    </div>
+                                </div>
+
+                                <h5 class="fsh-deal-title">
+                                    <a href="<?= $d_slug; ?>"><?= html_escape($d_title); ?></a>
+                                </h5>
+
+                                <div class="fsh-deal-price-row">
+                                    <div class="fsh-deal-prices">
+                                        <span class="fsh-deal-new-price"><?= html_escape($curr) . number_format($d_sal, 2); ?></span>
+                                        <?php if ($d_reg > $d_sal): ?>
+                                            <del class="fsh-deal-old-price"><?= html_escape($curr) . number_format($d_reg, 2); ?></del>
+                                        <?php endif; ?>
+                                    </div>
+                                    <?php if ($d_saved > 0): ?>
+                                        <span class="fsh-deal-save-tag">Save <?= html_escape($curr) . number_format($d_saved, 0); ?></span>
+                                    <?php endif; ?>
+                                </div>
+
+                                <form action="<?= site_url('cart/add'); ?>" method="POST" class="mt-auto pt-2">
+                                    <input type="hidden" name="product_id" value="<?= $d_id; ?>">
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="fsh-deal-cart-btn w-100">
+                                        <i class="fa-solid fa-bag-shopping me-1"></i> Grab Flash Deal
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dynamic Countdown Script for Fashion Flash Sale -->
+        <script>
+        (function() {
+            function initFshFlashCountdown() {
+                var el = document.getElementById('fshFlashCountdown');
+                if (!el) return;
+
+                var daysEl  = document.getElementById('fsh-days');
+                var hoursEl = document.getElementById('fsh-hours');
+                var minsEl  = document.getElementById('fsh-minutes');
+                var secsEl  = document.getElementById('fsh-seconds');
+
+                var endTimeStr = el.getAttribute('data-end-time') || '';
+                var targetDate = NaN;
+
+                if (endTimeStr) {
+                    var parts = endTimeStr.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?$/);
+                    if (parts) {
+                        targetDate = new Date(
+                            parseInt(parts[1], 10),
+                            parseInt(parts[2], 10) - 1,
+                            parseInt(parts[3], 10),
+                            parseInt(parts[4], 10),
+                            parseInt(parts[5], 10),
+                            parseInt(parts[6] || '0', 10)
+                        ).getTime();
+                    } else {
+                        targetDate = new Date(endTimeStr.replace(' ', 'T')).getTime();
                     }
                 }
-            }
-            if ($fs_max_disc <= 0) {
-                $fs_max_disc = 25;
-            }
 
-            $fs_default_desktop = base_url('assets/templates/bazaro/img/fashion-1/banner/banner-1.jpg');
-            $fs_default_mobile  = base_url('assets/templates/bazaro/img/fashion-1/banner/banner-1-1.jpg');
-            $fs_banner_desktop  = $fs_default_desktop;
-            $fs_banner_mobile   = $fs_default_mobile;
-
-            if (!empty($flash_sale['banner'])) {
-                $clean_fs_b = ltrim($flash_sale['banner'], '/');
-                if (strpos($clean_fs_b, 'http://') === 0 || strpos($clean_fs_b, 'https://') === 0) {
-                    $fs_banner_desktop = $clean_fs_b;
-                    $fs_banner_mobile  = $clean_fs_b;
-                } elseif (file_exists(FCPATH . 'assets/images/collections/' . $clean_fs_b)) {
-                    $fs_banner_desktop = base_url('assets/images/collections/' . $clean_fs_b);
-                    $fs_banner_mobile  = $fs_banner_desktop;
-                } elseif (file_exists(FCPATH . 'assets/images/' . $clean_fs_b)) {
-                    $fs_banner_desktop = base_url('assets/images/' . $clean_fs_b);
-                    $fs_banner_mobile  = $fs_banner_desktop;
+                if (isNaN(targetDate) || targetDate <= 0) {
+                    targetDate = new Date().getTime() + (2 * 86400000);
                 }
+
+                function tick() {
+                    var now = new Date().getTime();
+                    var diff = targetDate - now;
+
+                    if (isNaN(diff) || diff <= 0) {
+                        if (daysEl)  daysEl.textContent  = '00';
+                        if (hoursEl) hoursEl.textContent = '00';
+                        if (minsEl)  minsEl.textContent  = '00';
+                        if (secsEl)  secsEl.textContent  = '00';
+                        return;
+                    }
+
+                    var second = 1000, minute = second * 60, hour = minute * 60, day = hour * 24;
+                    var d = Math.floor(diff / day);
+                    var h = Math.floor((diff % day) / hour);
+                    var m = Math.floor((diff % hour) / minute);
+                    var s = Math.floor((diff % minute) / second);
+
+                    if (daysEl)  daysEl.textContent  = String(d).padStart(2, '0');
+                    if (hoursEl) hoursEl.textContent = String(h).padStart(2, '0');
+                    if (minsEl)  minsEl.textContent  = String(m).padStart(2, '0');
+                    if (secsEl)  secsEl.textContent  = String(s).padStart(2, '0');
+                }
+
+                tick();
+                if (window._fshFlashInterval) {
+                    clearInterval(window._fshFlashInterval);
+                }
+                window._fshFlashInterval = setInterval(tick, 1000);
             }
 
-            $fs_title_raw = trim((string)($flash_sale['title'] ?? ''));
-            if (!empty($fs_title_raw)) {
-                $words = preg_split('/\s+/', $fs_title_raw);
-                if (count($words) >= 3) {
-                    $half = (int)ceil(count($words) / 2);
-                    $first_part  = implode(' ', array_slice($words, 0, $half));
-                    $second_part = implode(' ', array_slice($words, $half));
-                    $fs_banner_heading_html = html_escape($first_part) . ' <br> <span>' . html_escape($second_part) . '</span>';
-                } else {
-                    $fs_banner_heading_html = nl2br(html_escape($fs_title_raw));
-                }
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initFshFlashCountdown);
             } else {
-                $fs_banner_heading_html = 'Coastal <br> Bag <span>Collection <br> In Situ</span>';
+                initFshFlashCountdown();
             }
-        ?>
-        <!-- deals area start -->
-        <div class="aqf-deals-area pb-120 pt-4">
-           <div class="container">
-              <div class="aqf-deals-wrap" data-bg-color="#FAFAFA" style="background-color: rgb(250, 250, 250);">
-                 <div class="row">
-                    <div class="col-xl-5 col-lg-6">
-                       <div class="aqf-deals-banner-wrap p-relative mr-30">
-                          <div class="aqf-deals-banner-thumb">
-                             <img class="w-100 d-none d-md-block" src="<?= $fs_banner_desktop; ?>" alt="<?= html_escape($fs_title_raw ?: 'Flash Sale'); ?>" onerror="this.src='<?= $fs_default_desktop; ?>'">
-                             <img class="w-100 d-md-none" src="<?= $fs_banner_mobile; ?>" alt="<?= html_escape($fs_title_raw ?: 'Flash Sale'); ?>" onerror="this.src='<?= $fs_default_mobile; ?>'">
-                          </div>
-                          <div class="aqf-deals-banner-content">
-                             <h4 class="aq-section-title fs-44 aq-text-white mb-20"><?= $fs_banner_heading_html; ?></h4>
-                             <span>Up to <?= $fs_max_disc; ?>%</span>
-                          </div>
-                       </div>
-                    </div>
-                    <div class="col-xl-7 col-lg-6">
-                       <div class="aqf-deals-slider-main pt-60 pb-40">
-                          <div class="aqf-deals-slider-top mb-15">
-                             <div class="row">
-                                <div class="col-xl-6 col-lg-8 col-md-6">
-                                   <div class="aq-product-3-top-right mb-15">
-                                      <div class="aqf-deals-countbox d-flex align-items-center">
-                                         <div class="aq-date-countdown" data-date="<?= html_escape($fs_end_iso); ?>"></div>
-                                         <div class="aq-countdown-text mr-20"><span>Ends in</span></div>
-                                         <div id="countdown" class="aq-countdown-style-2 d-inline-flex align-items-center" data-end-time="<?= html_escape($fs_end_time); ?>">
-                                            <div class="count-box"><span id="days">00</span><i>:</i></div>
-                                            <div class="count-box"><span id="hours">00</span><i>:</i></div>
-                                            <div class="count-box"><span id="minutes">00</span><i>:</i></div>
-                                            <div class="count-box"><span id="seconds">00</span></div>
-                                         </div>
-                                      </div>
-                                   </div>
-                                </div>
-                                <div class="col-xl-6 col-lg-4 col-md-6">
-                                   <div class="aqf-deals-slider-arrow d-flex justify-content-start justify-content-md-end align-items-center mb-15 mr-60">
-                                      <button type="button" class="aqf-deals-prev" aria-label="Previous slide">
-                                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
-                                            <path d="M12.75 6.75H0.75M0.75 6.75L6.75 0.75M0.75 6.75L6.75 12.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                         </svg>
-                                      </button>
-                                      <span class="aqf-arrow-border"></span>
-                                      <button type="button" class="aqf-deals-next" aria-label="Next slide">
-                                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
-                                            <path d="M0.75 6.75H12.75M12.75 6.75L6.75 0.75M12.75 6.75L6.75 12.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                         </svg>
-                                      </button>
-                                   </div>
-                                </div>
-                             </div>
-                          </div>
-                          <div class="aqf-deals-slider-wrap fix">
-                             <div class="swiper aqf-deals-slider-active">
-                                <div class="swiper-wrapper">
-                                   <?php foreach ($deals_list as $dp):
-                                       $dp['is_flash_sale'] = 1;
-                                   ?>
-                                   <div class="swiper-slide">
-                                      <?php $this->load->view('template1/home/_product_card', ['p' => $dp, 'currency_symbol' => $curr]); ?>
-                                   </div>
-                                   <?php endforeach; ?>
-                                </div>
-                             </div>
-                          </div>
-                       </div>
-                    </div>
-                 </div>
-              </div>
-           </div>
-        </div>
-        <!-- deals area end -->
+        })();
+        </script>
         <?php endif; ?>
         <!-- /Running Flash Sales Section -->
 
-        <!-- 3. Popular Products Section (Slider like Bazaro Best Sellers) -->
-        <section class="flat-spacing-3 pt-4 pb-5 aqf-seller-area fix">
+        <!-- 3. Popular Products Section -->
+        <section class="flat-spacing-3 pt-4 pb-5">
             <div class="container">
                 <div class="fsh-section-header d-flex flex-wrap align-items-end justify-content-between mb-4 pb-2 border-bottom">
                     <div>
+                        <span class="fsh-section-eyebrow">TRENDING NOW</span>
                         <h3 class="fsh-section-title mb-0">Popular Products</h3>
                     </div>
                     <a href="<?= site_url('shop?filter=popular'); ?>" class="fsh-see-all-link">
-                        <span>See all</span>
+                        <span>See all Products</span>
                         <i class="fa-solid fa-arrow-right ms-1"></i>
                     </a>
                 </div>
 
-                <?php if (!empty($popular_list)): ?>
-                    <div class="aq-product-slide-wrap p-relative">
-                        <div class="aq-product-arrow">
-                            <button type="button" class="aq-product-prev" aria-label="Previous slide">
-                                <span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="7" height="12" viewBox="0 0 7 12" fill="none">
-                                        <path d="M5.75 10.75L0.75 5.75L5.75 0.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                </span>
-                            </button>
-                            <button type="button" class="aq-product-next" aria-label="Next slide">
-                                <span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="7" height="12" viewBox="0 0 7 12" fill="none">
-                                        <path d="M0.75 10.75L5.75 5.75L0.75 0.75" stroke="currentcolor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                </span>
-                            </button>
+                <div class="tf-grid-layout tf-col-2 lg-col-4 xl-col-5">
+                    <?php if (!empty($popular_list)): ?>
+                        <?php foreach ($popular_list as $p): ?>
+                            <?php $this->load->view('home/_product_card', ['p' => $p, 'currency_symbol' => $curr]); ?>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="col-12 text-center py-5">
+                            <p class="text-muted mb-0">No products available at the moment.</p>
                         </div>
-                        <div class="swiper aq-product-active">
-                            <div class="swiper-wrapper">
-                                <?php foreach ($popular_list as $p): ?>
-                                    <div class="swiper-slide">
-                                        <?php $this->load->view('template1/home/_product_card', ['p' => $p, 'currency_symbol' => $curr]); ?>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
-                    </div>
-                <?php else: ?>
-                    <div class="col-12 text-center py-5">
-                        <p class="text-muted mb-0">No products available at the moment.</p>
-                    </div>
-                <?php endif; ?>
+                    <?php endif; ?>
+                </div>
             </div>
         </section>
         <!-- /Popular Products Section -->
@@ -322,210 +394,21 @@ $deals_list    = (!empty($flash_sale) && (!empty($flash_sale_products) || !empty
         </section>
         <!-- /Features -->
 
-        <!-- Dynamic Countdown, Sliders & Color Swatch Initialization -->
-        <script>
-        (function() {
-            function initFashionHomeSlidersAndCountdown() {
-                // 1. Live Countdown (Flash Sales)
-                var countdownEl = document.getElementById('countdown');
-                if (countdownEl) {
-                    var daysEl  = document.getElementById('days');
-                    var hoursEl = document.getElementById('hours');
-                    var minsEl  = document.getElementById('minutes');
-                    var secsEl  = document.getElementById('seconds');
-
-                    var endTimeStr = countdownEl.getAttribute('data-end-time') || '';
-                    var targetDate = NaN;
-
-                    if (endTimeStr) {
-                        var parts = endTimeStr.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?$/);
-                        if (parts) {
-                            targetDate = new Date(
-                                parseInt(parts[1], 10),
-                                parseInt(parts[2], 10) - 1,
-                                parseInt(parts[3], 10),
-                                parseInt(parts[4], 10),
-                                parseInt(parts[5], 10),
-                                parseInt(parts[6] || '0', 10)
-                            ).getTime();
-                        } else {
-                            targetDate = new Date(endTimeStr.replace(' ', 'T')).getTime();
-                        }
-                    }
-
-                    if (isNaN(targetDate) || targetDate <= 0) {
-                        targetDate = new Date().getTime() + (2 * 86400000);
-                    }
-
-                    function tick() {
-                        var now = new Date().getTime();
-                        var diff = targetDate - now;
-
-                        if (isNaN(diff) || diff <= 0) {
-                            if (daysEl)  daysEl.textContent  = '00';
-                            if (hoursEl) hoursEl.textContent = '00';
-                            if (minsEl)  minsEl.textContent  = '00';
-                            if (secsEl)  secsEl.textContent  = '00';
-                            return;
-                        }
-
-                        var second = 1000, minute = second * 60, hour = minute * 60, day = hour * 24;
-                        var d = Math.floor(diff / day);
-                        var h = Math.floor((diff % day) / hour);
-                        var m = Math.floor((diff % hour) / minute);
-                        var s = Math.floor((diff % minute) / second);
-
-                        if (daysEl)  daysEl.textContent  = String(d).padStart(2, '0');
-                        if (hoursEl) hoursEl.textContent = String(h).padStart(2, '0');
-                        if (minsEl)  minsEl.textContent  = String(m).padStart(2, '0');
-                        if (secsEl)  secsEl.textContent  = String(s).padStart(2, '0');
-                    }
-
-                    tick();
-                    if (window._aqfDealsTimer) {
-                        clearInterval(window._aqfDealsTimer);
-                    }
-                    window._aqfDealsTimer = setInterval(tick, 1000);
-                }
-
-                // 2. Flash Sales Swiper Slider (.aqf-deals-slider-active)
-                var dealsSliderEl = document.querySelector('.aqf-deals-slider-active');
-                if (dealsSliderEl && typeof Swiper !== 'undefined' && !dealsSliderEl.swiper) {
-                    new Swiper('.aqf-deals-slider-active', {
-                        slidesPerView: 3,
-                        loop: true,
-                        autoplay: true,
-                        spaceBetween: 18,
-                        speed: 1000,
-                        navigation: {
-                            prevEl: '.aqf-deals-prev',
-                            nextEl: '.aqf-deals-next',
-                        },
-                        breakpoints: {
-                            1400: { slidesPerView: 3, spaceBetween: 18 },
-                            1200: { slidesPerView: 3, spaceBetween: 15 },
-                            992:  { slidesPerView: 2, spaceBetween: 15 },
-                            768:  { slidesPerView: 2, spaceBetween: 15 },
-                            576:  { slidesPerView: 2, spaceBetween: 15 },
-                            0:    { slidesPerView: 2, spaceBetween: 12 }
-                        }
-                    });
-                }
-
-                // 3. Popular Products Swiper Slider (.aq-product-active) - 5 products in a row
-                var popularSliderEl = document.querySelector('.aq-product-active');
-                if (popularSliderEl && typeof Swiper !== 'undefined' && !popularSliderEl.swiper) {
-                    new Swiper('.aq-product-active', {
-                        slidesPerView: 5,
-                        loop: true,
-                        autoplay: true,
-                        spaceBetween: 30,
-                        speed: 1000,
-                        navigation: {
-                            prevEl: '.aq-product-prev',
-                            nextEl: '.aq-product-next',
-                        },
-                        breakpoints: {
-                            1400: { slidesPerView: 5, spaceBetween: 30 },
-                            1200: { slidesPerView: 5, spaceBetween: 24 },
-                            992:  { slidesPerView: 4, spaceBetween: 20 },
-                            768:  { slidesPerView: 3, spaceBetween: 15 },
-                            576:  { slidesPerView: 2, spaceBetween: 15 },
-                            0:    { slidesPerView: 2, spaceBetween: 12 }
-                        }
-                    });
-                }
-            }
-
-            // 4. Delegated Color Swatch Hover/Click Preview for all .card-product (including Swiper loop clones)
-            if (!window._fshColorSwatchBound) {
-                window._fshColorSwatchBound = true;
-                ['click', 'mouseover'].forEach(function(evtType) {
-                    document.addEventListener(evtType, function(e) {
-                        var swatch = e.target.closest('.card-product .color-swatch');
-                        if (!swatch) return;
-                        var card = swatch.closest('.card-product');
-                        var swatchImg = swatch.querySelector('img');
-                        if (card && swatchImg) {
-                            var newSrc = swatchImg.getAttribute('src') || swatchImg.getAttribute('data-src');
-                            var prodImg = card.querySelector('.img-product');
-                            if (prodImg && newSrc) {
-                                prodImg.setAttribute('src', newSrc);
-                                prodImg.setAttribute('data-src', newSrc);
-                            }
-                        }
-                        if (swatch.parentElement) {
-                            swatch.parentElement.querySelectorAll('.color-swatch.active').forEach(function(sib) {
-                                sib.classList.remove('active');
-                            });
-                        }
-                        swatch.classList.add('active');
-                    });
-                });
-            }
-
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', initFashionHomeSlidersAndCountdown);
-            } else {
-                initFashionHomeSlidersAndCountdown();
-            }
-            window.addEventListener('load', initFashionHomeSlidersAndCountdown);
-        })();
-        </script>
-
-        <!-- Section, Badges, Bazaro Deals Area & Popular Products Slider Styles -->
+        <!-- Section & Fashion Flash Sale Styles -->
         <style>
-        @font-face {
-            font-family: "Satoshi-Light";
-            font-style: normal;
-            font-weight: normal;
-            src: local("Satoshi-Light"), url("<?= base_url('assets/templates/bazaro/fonts/Satoshi-Light.woff'); ?>") format("woff");
-        }
-        @font-face {
-            font-family: "Satoshi-Regular";
-            src: url("<?= base_url('assets/templates/bazaro/fonts/Satoshi-Regular.woff2'); ?>") format("woff2"),
-                 url("<?= base_url('assets/templates/bazaro/fonts/Satoshi-Regular.woff'); ?>") format("woff"),
-                 url("<?= base_url('assets/templates/bazaro/fonts/Satoshi-Regular.ttf'); ?>") format("truetype");
-            font-weight: 400;
-            font-display: swap;
-            font-style: normal;
-        }
-        @font-face {
-            font-family: "Satoshi-Medium";
-            src: url("<?= base_url('assets/templates/bazaro/fonts/Satoshi-Medium.woff2'); ?>") format("woff2"),
-                 url("<?= base_url('assets/templates/bazaro/fonts/Satoshi-Medium.woff'); ?>") format("woff"),
-                 url("<?= base_url('assets/templates/bazaro/fonts/Satoshi-Medium.ttf'); ?>") format("truetype");
-            font-weight: 500;
-            font-display: swap;
-            font-style: normal;
-        }
-        @font-face {
-            font-family: "Satoshi-Bold";
-            src: url("<?= base_url('assets/templates/bazaro/fonts/Satoshi-Bold.woff2'); ?>") format("woff2"),
-                 url("<?= base_url('assets/templates/bazaro/fonts/Satoshi-Bold.woff'); ?>") format("woff"),
-                 url("<?= base_url('assets/templates/bazaro/fonts/Satoshi-Bold.ttf'); ?>") format("truetype");
-            font-weight: 700;
-            font-display: swap;
-            font-style: normal;
-        }
-
-        :root {
-            --aq-ff-satoshi-light: 'Satoshi-Light', sans-serif;
-            --aq-ff-satoshi-regular: 'Satoshi-Regular', sans-serif;
-            --aq--ff-satoshi-reg: 'Satoshi-Regular', sans-serif;
-            --aq-ff-satoshi-medium: 'Satoshi-Medium', sans-serif;
-            --aq-ff-satoshi-bold: 'Satoshi-Bold', sans-serif;
-            --aq-common-white: #FFFFFF;
-            --aq-common-black: #141414;
-            --aq-common-black-light: #2A2C2D;
-            --aq-common-red: #DE1518;
-            --aq-common-coffee: #9C362D;
-        }
-
         /* Section Headings */
+        .fsh-section-eyebrow {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #e11d48;
+            margin-bottom: 4px;
+        }
         .fsh-section-title {
-            font-size: 30px;
-            /* font-weight: 700; */
+            font-size: 28px;
+            font-weight: 700;
             color: #111827;
             letter-spacing: -0.4px;
         }
@@ -541,16 +424,16 @@ $deals_list    = (!empty($flash_sale) && (!empty($flash_sale_products) || !empty
             transition: all 0.25s ease;
         }
         .fsh-see-all-link:hover {
-            color: #181818;
-            opacity: 0.75;
+            color: #e11d48;
+            border-bottom-color: #e11d48;
             transform: translateX(2px);
         }
 
-        /* Product Card Badges (New Arrivals / Flash Sales / Popular Products) */
+        /* Product Badges */
         .product-badge-group {
             position: absolute;
-            top: 16px;
-            left: 16px;
+            top: 10px;
+            left: 10px;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
@@ -560,21 +443,22 @@ $deals_list    = (!empty($flash_sale) && (!empty($flash_sale_products) || !empty
         }
         .product-badge {
             display: inline-block;
-            font-size: 13px;
+            font-size: 10px;
             font-weight: 700;
-            line-height: 1;
-            padding: 5px 12px;
-            border-radius: 40px;
+            line-height: 1.1;
+            padding: 3px 7px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
             color: #ffffff;
-            background-color: #DA3F3F;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
         }
         .product-badge.badge-sale {
-            background-color: #DA3F3F;
+            background-color: #ef4444;
         }
         .product-badge.badge-flash-sale {
-            background-color: #DA3F3F;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, #e11d48, #be123c);
+            letter-spacing: 0.6px;
         }
         .animate-fade-in {
             animation: productFadeIn 0.35s ease-out;
@@ -584,407 +468,375 @@ $deals_list    = (!empty($flash_sale) && (!empty($flash_sale_products) || !empty
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Uniform Product Card Size across New Arrivals, Flash Sales & Popular Products */
-        .card-product {
-            height: 100%;
+        /* =========================================================
+           Unique Fashion Editorial Flash Sale Showcase
+           ========================================================= */
+        .fsh-flash-showcase {
+            position: relative;
+            overflow: hidden;
+            border-radius: 22px;
+            background: linear-gradient(135deg, #111827 0%, #1f162b 52%, #3b1026 100%);
+            padding: 36px 32px;
+            box-shadow: 0 22px 50px rgba(17, 24, 39, 0.22);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .fsh-flash-glow {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(75px);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .fsh-glow-1 {
+            width: 320px;
+            height: 320px;
+            background: rgba(225, 29, 72, 0.28);
+            top: -110px;
+            right: -60px;
+        }
+        .fsh-glow-2 {
+            width: 260px;
+            height: 260px;
+            background: rgba(245, 158, 11, 0.16);
+            bottom: -90px;
+            left: -50px;
+        }
+        .fsh-flash-header {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            padding-bottom: 26px;
+            margin-bottom: 28px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .fsh-live-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(225, 29, 72, 0.22);
+            border: 1px solid rgba(251, 113, 133, 0.45);
+            color: #fda4af;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.2px;
+            padding: 5px 13px;
+            border-radius: 999px;
+            text-transform: uppercase;
+        }
+        .fsh-live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #fb7185;
+            box-shadow: 0 0 0 0 rgba(251, 113, 133, 0.7);
+            animation: fshPulseDot 1.6s infinite;
+        }
+        @keyframes fshPulseDot {
+            0% { box-shadow: 0 0 0 0 rgba(251, 113, 133, 0.7); }
+            70% { box-shadow: 0 0 0 8px rgba(251, 113, 133, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(251, 113, 133, 0); }
+        }
+        .fsh-extra-off-pill {
+            display: inline-flex;
+            align-items: center;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.7px;
+            padding: 5px 13px;
+            border-radius: 999px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+        .fsh-flash-heading {
+            font-size: 32px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+        }
+        .fsh-flash-subtext {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.72);
+        }
+        .fsh-flash-timer-wrap {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 16px;
+            padding: 14px 20px;
+            text-align: center;
+        }
+        .fsh-timer-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            color: #fda4af;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        .fsh-countdown-boxes {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .fsh-time-card {
+            min-width: 58px;
+            background: rgba(15, 23, 42, 0.78);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 10px;
+            padding: 8px 10px;
             display: flex;
             flex-direction: column;
+            align-items: center;
         }
-        .card-product .card-product-wrapper {
-            aspect-ratio: 3 / 4 !important;
-            width: 100% !important;
-            overflow: hidden !important;
-            border-radius: 8px;
-            background-color: #f8f9fa;
-            position: relative;
+        .fsh-time-card.fsh-time-sec {
+            border-color: rgba(251, 113, 133, 0.55);
+            background: rgba(225, 29, 72, 0.22);
         }
-        .card-product .card-product-wrapper .product-img {
-            display: block;
-            width: 100% !important;
-            height: 100% !important;
+        .fsh-time-num {
+            font-size: 20px;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.1;
+            font-variant-numeric: tabular-nums;
         }
-        .card-product .card-product-wrapper .product-img img {
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: cover !important;
-            display: block;
+        .fsh-time-unit {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: rgba(255, 255, 255, 0.65);
+            margin-top: 2px;
         }
-
-        /* =========================================================
-           Bazaro Best Sellers Slider Styles (.aqf-seller-area / .aq-product-slide-wrap)
-           ========================================================= */
-        .aqf-seller-area.fix {
-            overflow: visible;
-        }
-        .aq-product-slide-wrap.p-relative {
-            position: relative;
-        }
-        @media (max-width: 575px) {
-            .aq-product-arrow {
-                display: none;
-            }
-        }
-        .aq-product-arrow button,
-        .aq-product-arrow button.aq-product-prev,
-        .aq-product-arrow button.aq-product-next {
-            position: absolute;
-            top: 38%;
-            transform: translateY(-50%);
-            inset-inline-start: -30px;
-            z-index: 20;
-            height: 46px !important;
-            width: 46px !important;
-            min-width: 46px !important;
-            max-width: 46px !important;
-            min-height: 46px !important;
-            max-height: 46px !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            gap: 0 !important;
-            aspect-ratio: 1 / 1 !important;
-            border-radius: 50% !important;
-            border: 1px solid rgba(0, 0, 0, 0.08) !important;
-            outline: none !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            line-height: 1 !important;
-            flex-shrink: 0 !important;
-            opacity: 0;
-            visibility: hidden;
-            color: var(--aq-common-black) !important;
-            background: var(--aq-common-white) !important;
-            box-shadow: 0 3px 10px rgba(1, 15, 28, 0.16) !important;
-            transition: all 0.3s ease-out;
-        }
-        .aq-product-arrow button span {
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            width: 100%;
-            height: 100%;
-            line-height: 1 !important;
-        }
-        .aq-product-arrow button svg {
-            display: block;
-            transform: translateX(-1px);
-        }
-        .aq-product-arrow button.aq-product-next {
-            inset-inline-start: auto;
-            inset-inline-end: -30px;
-        }
-        .aq-product-arrow button.aq-product-next svg {
-            transform: translateX(1px);
-        }
-        .aq-product-arrow button:hover {
-            color: var(--aq-common-white) !important;
-            border-color: var(--aq-common-black) !important;
-            background-color: var(--aq-common-black) !important;
-        }
-        .aq-product-slide-wrap:hover .aq-product-arrow button {
-            opacity: 1;
-            visibility: visible;
-            inset-inline-start: -23px;
-        }
-        .aq-product-slide-wrap:hover .aq-product-arrow button.aq-product-next {
-            inset-inline-start: auto;
-            inset-inline-end: -23px;
+        .fsh-time-sep {
+            font-size: 18px;
+            font-weight: 800;
+            color: rgba(255, 255, 255, 0.45);
         }
 
-        /* =========================================================
-           Bazaro Fashion Deals Area (.aqf-deals-area) Exact Styles
-           ========================================================= */
-        .aqf-deals-area.pb-120 {
-            padding-bottom: 120px;
-        }
-        @media only screen and (min-width: 992px) and (max-width: 1199px),
-               only screen and (min-width: 768px) and (max-width: 991px),
-               (max-width: 767px) {
-            .aqf-deals-area.pb-120 {
-                padding-bottom: 70px;
-            }
-        }
-        .aqf-deals-area .p-relative {
+        /* Flash Sale Product Cards Grid */
+        .fsh-flash-grid {
             position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 20px;
         }
-        .aqf-deals-area .fix {
+        .fsh-deal-card {
+            background: #ffffff;
+            border-radius: 14px;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
         }
-        .aqf-deals-area .pt-60 {
-            padding-top: 60px;
+        .fsh-deal-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 18px 34px rgba(0, 0, 0, 0.28);
         }
-        .aqf-deals-area .pb-40 {
-            padding-bottom: 40px;
-        }
-        .aqf-deals-area .mb-10 {
-            margin-bottom: 10px;
-        }
-        .aqf-deals-area .mb-15 {
-            margin-bottom: 15px;
-        }
-        .aqf-deals-area .mb-20 {
-            margin-bottom: 20px;
-        }
-        .aqf-deals-area .mr-20 {
-            margin-right: 20px;
-        }
-        .aqf-deals-area .mr-30 {
-            margin-right: 30px;
-        }
-        .aqf-deals-area .mr-60 {
-            margin-right: 60px;
-        }
-        .aqf-deals-banner-wrap a,
-        .aqf-deals-slider-arrow button {
-            color: inherit;
-            outline: none;
-            border: none;
-            background: transparent;
-            text-decoration: none;
-            transition: all 0.3s ease-out;
-        }
-
-        /* Left Banner */
-        .aqf-deals-banner-wrap {
-            height: 100%;
-        }
-        @media only screen and (min-width: 992px) and (max-width: 1199px),
-               only screen and (min-width: 768px) and (max-width: 991px),
-               (max-width: 767px) {
-            .aqf-deals-banner-wrap {
-                margin-inline-end: 0 !important;
-                margin-right: 0 !important;
-            }
-        }
-        .aqf-deals-banner-thumb {
-            height: 100%;
+        .fsh-deal-media {
             position: relative;
+            aspect-ratio: 3 / 3.6;
+            overflow: hidden;
+            background: #f8fafc;
         }
-        .aqf-deals-banner-thumb::after {
-            position: absolute;
-            content: "";
-            top: 0;
-            inset-inline-start: 0;
+        .fsh-deal-img-link {
+            display: block;
             width: 100%;
             height: 100%;
-            background-color: rgba(27, 12, 4, 0.1);
         }
-        @media only screen and (min-width: 768px) and (max-width: 991px) {
-            .aqf-deals-banner-thumb {
-                height: 720px;
-            }
-        }
-        .aqf-deals-banner-thumb img {
+        .fsh-deal-img-main,
+        .fsh-deal-img-hover {
+            width: 100%;
             height: 100%;
             object-fit: cover;
+            transition: opacity 0.4s ease, transform 0.5s ease;
         }
-        .aqf-deals-banner-content {
+        .fsh-deal-img-hover {
             position: absolute;
-            top: 0;
-            inset-inline-start: 0;
-            padding: 45px 40px;
-            z-index: 2;
+            inset: 0;
+            opacity: 0;
         }
-        @media (max-width: 767px) {
-            .aqf-deals-banner-content {
-                padding: 15px 20px;
-            }
+        .fsh-deal-card:hover .fsh-deal-img-hover {
+            opacity: 1;
+            transform: scale(1.04);
         }
-        .aqf-deals-area .aq-section-title {
-            font-size: 100px;
-            line-height: 1.06;
-            display: block;
-            color: var(--aq-common-black);
-            font-family: var(--aq-ff-satoshi-regular);
-            font-weight: 500;
-        }
-        .aqf-deals-area .aq-section-title.fs-44 {
-            font-size: 44px;
-            letter-spacing: -2.2px;
-        }
-        @media (max-width: 767px) {
-            .aqf-deals-area .aq-section-title.fs-44 {
-                font-size: 35px;
-            }
-        }
-        .aqf-deals-area .aq-section-title.fs-44 span {
-            font-family: var(--aq-ff-satoshi-bold);
-        }
-        .aqf-deals-area .aq-text-white {
-            color: var(--aq-common-white) !important;
-        }
-        .aqf-deals-banner-content > span {
-            font-size: 20px;
-            line-height: 1;
-            text-transform: uppercase;
-            color: var(--aq-common-white);
-            font-family: var(--aq--ff-satoshi-reg);
-            display: inline-block;
-        }
-        .aqf-deals-banner-btn {
+        .fsh-deal-badges {
             position: absolute;
-            bottom: 0;
-            inset-inline-start: 0;
-            width: 100%;
-            padding: 40px;
-            z-index: 2;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 3;
         }
-        @media (max-width: 767px) {
-            .aqf-deals-banner-btn {
-                padding: 15px;
-            }
-        }
-        .aqf-deals-area .aq-btn-black {
-            padding: 18px 30px;
-            font-weight: 600;
-            line-height: 1;
-            font-size: 14px;
-            transition: 0.3s;
-            display: inline-block;
+        .fsh-ribbon-bolt {
+            background: #111827;
+            color: #fbbf24;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+            padding: 4px 9px;
+            border-radius: 6px;
             text-transform: uppercase;
-            color: var(--aq-common-white);
-            border: 1px solid transparent;
-            font-family: var(--aq-ff-satoshi-bold);
-            background-color: var(--aq-common-black);
         }
-        @media only screen and (min-width: 1200px) and (max-width: 1399px),
-               only screen and (min-width: 992px) and (max-width: 1199px) {
-            .aqf-deals-area .aq-btn-black {
-                padding: 12px 30px;
-            }
+        .fsh-ribbon-disc {
+            background: #e11d48;
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 8px;
+            border-radius: 6px;
         }
-        @media only screen and (min-width: 768px) and (max-width: 991px) {
-            .aqf-deals-area .aq-btn-black {
-                padding: 14px 18px;
-                font-size: 12px;
-            }
-        }
-        @media (max-width: 767px) {
-            .aqf-deals-area .aq-btn-black {
-                padding: 12px 15px;
-                font-size: 12px;
-            }
-        }
-        .aqf-deals-area .aq-btn-black.blur-bg {
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            background: rgba(20, 20, 20, 0.1);
-            backdrop-filter: blur(7px);
-        }
-        .aqf-deals-area .aq-btn-black.blur-bg:hover {
-            color: var(--aq-common-black);
-            border-color: var(--aq-common-white);
-            background-color: var(--aq-common-white);
-        }
-
-        /* Countdown & Slider Top */
-        @media only screen and (min-width: 768px) and (max-width: 991px),
-               (max-width: 767px) {
-            .aq-product-3-top-right {
-                flex-direction: column;
-            }
-            .aq-product-3-top-right .aqf-deals-countbox {
-                margin-bottom: 20px;
-            }
-            .aq-countdown-text {
-                display: none;
-            }
-        }
-        .aq-countdown-text span {
-            color: #414243;
-            font-size: 16px;
-            line-height: 14px;
-            letter-spacing: 0.16px;
-            font-family: var(--aq-ff-satoshi-medium);
-        }
-        .aq-countdown-style-2 .count-box span {
-            height: 36px;
-            width: 36px;
-            font-size: 14px;
-            line-height: 36px;
+        .fsh-deal-wish-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
-            text-align: center;
-            display: inline-block;
-            letter-spacing: 0.14px;
-            color: var(--aq-common-white);
-            background-color: var(--aq-common-black);
-            font-family: var(--aq-ff-satoshi-bold);
+            background: rgba(255, 255, 255, 0.92);
+            color: #111827;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+            transition: all 0.2s ease;
+            z-index: 3;
         }
-        .aq-countdown-style-2 .count-box i {
-            margin: 0 5px;
-            font-size: 18px;
-            font-style: normal;
-            display: inline-block;
-            color: var(--aq-common-black);
+        .fsh-deal-wish-btn:hover {
+            background: #e11d48;
+            color: #ffffff;
         }
-        .aqf-arrow-border {
-            height: 25px;
-            width: 2px;
-            margin: 0 25px;
-            display: inline-block;
-            transform: translateY(1px);
-            background-color: rgba(0, 0, 0, 0.1);
+        .fsh-deal-body {
+            padding: 14px 16px 16px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
         }
-        @media only screen and (min-width: 992px) and (max-width: 1199px),
-               only screen and (min-width: 768px) and (max-width: 991px) {
-            .aqf-deals-slider-arrow {
-                margin-inline-end: 15px !important;
-                margin-right: 15px !important;
-            }
+        .fsh-deal-cat {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6b7280;
         }
-        .aqf-deals-slider-arrow button {
-            color: var(--aq-common-black) !important;
-            background: transparent !important;
-            padding: 4px !important;
-            width: auto !important;
-            height: auto !important;
-            min-width: 0 !important;
-            border-radius: 0 !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            gap: 0 !important;
+        .fsh-deal-stars {
+            font-size: 11px;
         }
-        .aqf-deals-slider-arrow button:hover {
-            color: var(--aq-common-red) !important;
+        .fsh-deal-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin: 4px 0 8px;
+            line-height: 1.35;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .fsh-deal-title a {
+            color: #111827;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .fsh-deal-title a:hover {
+            color: #e11d48;
+        }
+        .fsh-deal-price-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+        .fsh-deal-new-price {
+            font-size: 17px;
+            font-weight: 800;
+            color: #e11d48;
+        }
+        .fsh-deal-old-price {
+            font-size: 13px;
+            color: #9ca3af;
+            margin-left: 6px;
+        }
+        .fsh-deal-save-tag {
+            font-size: 11px;
+            font-weight: 700;
+            background: #fff1f2;
+            color: #be123c;
+            border: 1px solid #fecdd3;
+            padding: 2px 8px;
+            border-radius: 999px;
+        }
+        .fsh-deal-cart-btn {
+            background: #111827;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 9px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            transition: background 0.25s ease;
+        }
+        .fsh-deal-cart-btn:hover {
+            background: #e11d48;
+            color: #ffffff;
         }
 
-        /* Deals Slider Main & Active Container - Keep 3 cards equal in width (~230px) to 5-per-row cards */
-        .aqf-deals-slider-main {
-            padding-right: 20px;
-        }
-        .aqf-deals-slider-active {
-            margin-inline-end: 0 !important;
-        }
-        @media only screen and (min-width: 1200px) and (max-width: 1399px) {
-            .aqf-deals-slider-main {
-                padding-top: 50px !important;
-                padding-bottom: 30px !important;
-                padding-right: 15px !important;
+        @media (max-width: 1199.98px) {
+            .fsh-flash-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
             }
         }
-        @media only screen and (min-width: 768px) and (max-width: 991px) {
-            .aqf-deals-slider-main {
-                padding: 30px !important;
-                padding-bottom: 20px !important;
+        @media (max-width: 991.98px) {
+            .fsh-flash-showcase {
+                padding: 28px 20px;
+            }
+            .fsh-flash-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .fsh-flash-heading {
+                font-size: 26px;
             }
         }
-        @media (max-width: 767.98px) {
+        @media (max-width: 575.98px) {
+            .fsh-flash-showcase {
+                padding: 22px 14px;
+                border-radius: 16px;
+            }
+            .fsh-flash-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 12px;
+            }
             .fsh-section-title {
                 font-size: 22px;
             }
-            .product-badge-group {
-                top: 10px;
-                left: 10px;
+            .fsh-time-card {
+                min-width: 48px;
+                padding: 6px 8px;
             }
-            .product-badge {
-                font-size: 10px;
-                padding: 4px 9px;
+            .fsh-time-num {
+                font-size: 16px;
             }
-            .aqf-deals-slider-main {
-                padding: 20px 12px 16px !important;
+            .fsh-deal-body {
+                padding: 10px 10px 12px;
             }
-            .aqf-deals-slider-arrow {
-                margin-right: 0 !important;
+            .fsh-deal-title {
+                font-size: 13px;
+            }
+            .fsh-deal-new-price {
+                font-size: 14px;
             }
         }
         </style>

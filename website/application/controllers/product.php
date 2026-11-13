@@ -57,10 +57,21 @@ class product extends MY_Controller {
             $product = !empty($all_products[0]) ? $all_products[0] : Static_template_data::get('common_product');
         }
 
-        // Normalize image paths for active template
-        if (!empty($product['main_image'])) {
+        $default_prod_img = $this->normalize_tpl_image('assets/images/products/product-image.png', $tpl_key);
+
+        if (!$this->is_user_project) {
+            $product['main_image']             = $default_prod_img;
+            $product['primary_image']          = $default_prod_img;
+            $product['image']                  = $default_prod_img;
+            $product['hover_image']            = $default_prod_img;
+            $product['gallery_images_decoded'] = array_fill(0, 4, $default_prod_img);
+        } elseif (!empty($product['main_image'])) {
             $product['primary_image'] = $this->normalize_tpl_image($product['main_image'], $tpl_key);
             $product['image']         = $product['primary_image'];
+        } else {
+            $product['main_image']    = $default_prod_img;
+            $product['primary_image'] = $default_prod_img;
+            $product['image']         = $default_prod_img;
         }
 
         $other_products = array_values(array_filter($all_products, function($p) use ($product) {
@@ -174,9 +185,18 @@ class product extends MY_Controller {
         }
 
         $tpl_key = $this->template_registry->get_tpl_key($this->active_template);
-        if (!empty($product['main_image'])) {
+        $default_prod_img = $this->normalize_tpl_image('assets/images/products/product-image.png', $tpl_key);
+        if (!$this->is_user_project) {
+            $product['main_image']    = $default_prod_img;
+            $product['primary_image'] = $default_prod_img;
+            $product['image']         = $default_prod_img;
+        } elseif (!empty($product['main_image'])) {
             $product['primary_image'] = $this->normalize_tpl_image($product['main_image'], $tpl_key);
             $product['image']         = $product['primary_image'];
+        } else {
+            $product['main_image']    = $default_prod_img;
+            $product['primary_image'] = $default_prod_img;
+            $product['image']         = $default_prod_img;
         }
 
         $data = [
@@ -229,7 +249,9 @@ class product extends MY_Controller {
                 'sale_price'     => !empty($matched['sale_price']) ? (float) $matched['sale_price'] : null,
                 'stock_quantity' => (int) $matched['stock_quantity'],
                 'stock_status'   => $matched['stock_status'],
-                'image'          => !empty($matched['image']) ? base_url('assets/images/' . $matched['image']) : null,
+                'image'          => !$this->is_user_project
+                    ? base_url('assets/images/products/product-image.png')
+                    : (!empty($matched['image']) ? base_url('assets/images/' . ltrim($matched['image'], '/')) : null),
                 'highlights'     => !empty($matched['highlights']) ? (is_array($matched['highlights']) ? $matched['highlights'] : (json_decode($matched['highlights'], true) ?: [])) : [],
                 'specifications' => !empty($matched['specifications']) ? (is_array($matched['specifications']) ? $matched['specifications'] : (json_decode($matched['specifications'], true) ?: [])) : []
             ]

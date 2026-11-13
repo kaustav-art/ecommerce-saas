@@ -11,10 +11,10 @@ $cart_cnt   = isset($cart_count) ? (int)$cart_count : 0;
 $wish_cnt   = isset($wishlist_count) ? (int)$wishlist_count : 0;
 
 if (!function_exists('elt_resolve_img')) {
-    function elt_resolve_img($img, $fallback_rel = 'img/electronics/arrival-product/product-1/product-1.jpg') {
+    function elt_resolve_img($img, $fallback_rel = '') {
         $bazaro_base = base_url('assets/templates/bazaro/');
         if (empty($img)) {
-            return $bazaro_base . $fallback_rel;
+            return $fallback_rel !== '' ? ($bazaro_base . $fallback_rel) : base_url('assets/images/products/product-image.png');
         }
         if (strpos($img, 'http://') === 0 || strpos($img, 'https://') === 0) {
             return $img;
@@ -1384,7 +1384,7 @@ if (!function_exists('elt_resolve_img')) {
                <button type="button" class="btn-close position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
                <div class="row align-items-center g-4">
                   <div class="col-md-6 text-center">
-                     <img id="eltQvImage" src="<?= $bazaro; ?>img/electronics/arrival-product/product-1/product-1.jpg" alt="Product" class="img-fluid rounded-3" style="max-height:360px;object-fit:contain;">
+                     <img id="eltQvImage" src="<?= base_url('assets/images/products/product-image.png'); ?>" alt="Product" class="img-fluid rounded-3" style="max-height:360px;object-fit:contain;">
                   </div>
                   <div class="col-md-6">
                      <span id="eltQvCat" class="badge bg-light text-dark mb-2">Electronics</span>
@@ -2760,7 +2760,7 @@ if (!function_exists('elt_resolve_img')) {
                               }
                               <?php endif; ?>
                               html += '<a href="' + itemUrl + '" class="store-auto-item">';
-                              html += '  <img src="' + item.image + '" class="store-auto-img" alt="' + item.title + '" onerror="this.src=\'<?= $bazaro; ?>img/electronics/arrival-product/product-1/product-1.jpg\'">';
+                              html += '  <img src="' + item.image + '" class="store-auto-img" alt="' + item.title + '" onerror="this.src=\'<?= base_url('assets/images/products/product-image.png'); ?>\'">';
                               html += '  <div class="flex-grow-1 overflow-hidden">';
                               html += '    <div class="store-auto-title">' + item.title + '</div>';
                               html += '    <div class="store-auto-cat">' + (item.category_name || 'Electronics') + '</div>';

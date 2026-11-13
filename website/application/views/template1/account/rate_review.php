@@ -1,5 +1,5 @@
         <?php
-        $img_src = !empty($item['product_image']) ? base_url('assets/images/' . $item['product_image']) : base_url('assets/images/products/womens/women-1.jpg');
+        $img_src = !empty($item['product_image']) ? base_url('assets/images/' . $item['product_image']) : base_url('assets/images/products/product-image.png');
         $csrf_name = $this->security->get_csrf_token_name();
         $csrf_hash = $this->security->get_csrf_hash();
         ?>
@@ -46,7 +46,7 @@
                             <span class="text-truncate text-secondary fw-semibold small" style="max-width: 320px; font-size: 13px;" title="<?= html_escape($item['product_title']); ?>">
                                 <?= html_escape($item['product_title']); ?>
                             </span>
-                            <img src="<?= $img_src; ?>" alt="<?= html_escape($item['product_title']); ?>" class="border rounded-1 flex-shrink-0" style="width: 44px; height: 44px; object-fit: contain; background-color: #fafafa;" onerror="this.src='<?= base_url('assets/images/products/womens/women-1.jpg'); ?>'">
+                            <img src="<?= $img_src; ?>" alt="<?= html_escape($item['product_title']); ?>" class="border rounded-1 flex-shrink-0" style="width: 44px; height: 44px; object-fit: contain; background-color: #fafafa;" onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
                         </div>
                     </div>
                 </div>

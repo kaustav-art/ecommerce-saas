@@ -21,8 +21,7 @@ if (!function_exists('grc_product_img')) {
             }
             return base_url('assets/images/products/' . $clean);
         }
-        $idx = (($fallback_idx - 1) % 16) + 1;
-        return $bazaro_url . 'img/product/grocery-p-' . $idx . '.jpg';
+        return base_url('assets/images/products/product-image.png');
     }
 }
 

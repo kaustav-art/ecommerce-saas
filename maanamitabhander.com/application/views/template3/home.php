@@ -16,8 +16,7 @@ if (!function_exists('grc_product_img')) {
             }
             return base_url('assets/images/products/' . $clean);
         }
-        $idx = (($fallback_idx - 1) % 16) + 1;
-        return $bazaro_url . 'img/product/grocery-p-' . $idx . '.jpg';
+        return base_url('assets/images/products/product-image.png');
     }
 }
 ?>
@@ -479,7 +478,7 @@ if (!function_exists('grc_product_img')) {
                             </div>
                             <?php endif; ?>
                            <a href="<?= $p_url; ?>">
-                              <img class="aq-product-img-hover" src="<?= $p_img; ?>" alt="<?= html_escape($p['name']); ?>" onerror="this.src='<?= $bazaro; ?>img/product/grocery-p-<?= (($n_idx % 12) + 1); ?>.jpg'">
+                              <img class="aq-product-img-hover" src="<?= $p_img; ?>" alt="<?= html_escape($p['name']); ?>" onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
                            </a>
                            <div class="aq-product-action-2 d-flex flex-column">
                               <?php $is_wish = in_array((int)$p['id'], $user_wishlist_ids ?? []); ?>
@@ -602,7 +601,7 @@ if (!function_exists('grc_product_img')) {
                                                  <?php endif; ?>
                                               </div>
                                              <a href="<?= $d_url; ?>">
-                                                <img class="aq-product-img-hover" src="<?= $d_img; ?>" alt="<?= html_escape($dp['name']); ?>" onerror="this.src='<?= $bazaro; ?>img/product/grocery-p-<?= (($d_idx % 12) + 1); ?>.jpg'">
+                                                <img class="aq-product-img-hover" src="<?= $d_img; ?>" alt="<?= html_escape($dp['name']); ?>" onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
                                              </a>
                                              <div class="aq-product-action-2 d-flex flex-column">
                                                 <?php $d_is_wish = in_array((int)$dp['id'], $user_wishlist_ids ?? []); ?>
@@ -781,7 +780,7 @@ if (!function_exists('grc_product_img')) {
                                      </div>
                                      <?php endif; ?>
                                     <a href="<?= $c_url; ?>">
-                                       <img class="aq-product-img-hover" src="<?= $c_img; ?>" alt="<?= html_escape($cp['name']); ?>" onerror="this.src='<?= $bazaro; ?>img/product/grocery-p-<?= (($c_idx % 12) + 1); ?>.jpg'">
+                                       <img class="aq-product-img-hover" src="<?= $c_img; ?>" alt="<?= html_escape($cp['name']); ?>" onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
                                     </a>
                                     <div class="aq-product-action-2 d-flex flex-column">
                                        <?php $c_is_wish = in_array((int)$cp['id'], $user_wishlist_ids ?? []); ?>

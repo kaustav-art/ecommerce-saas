@@ -92,9 +92,7 @@
                       </td>
                       <td>
                         <div class="d-flex align-items-center">
-                          <?php if (!empty($item['product_image'])): ?>
-                            <img src="<?= base_url('../website/assets/images/' . $item['product_image']); ?>" class="rounded me-2 border" style="width: 46px; height: 46px; object-fit: contain; background: #fafafa;" onerror="this.src='<?= base_url('assets/img/elements/1.jpg'); ?>'" />
-                          <?php endif; ?>
+                          <img src="<?= base_url('../website/assets/images/' . (!empty($item['product_image']) ? $item['product_image'] : 'products/product-image.png')); ?>" class="rounded me-2 border" style="width: 46px; height: 46px; object-fit: contain; background: #fafafa;" onerror="this.src='<?= base_url('assets/img/product-image.png'); ?>'" />
                           <div>
                             <strong class="text-dark d-block"><?= html_escape($item['product_title']); ?></strong>
                             <?php if (!empty($item['variant_title'])): ?>
@@ -363,9 +361,7 @@
                             <tr>
                               <td>
                                 <div class="d-flex align-items-center">
-                                  <?php if (!empty($m_item['product_image'])): ?>
-                                    <img src="<?= base_url('../website/assets/images/' . $m_item['product_image']); ?>" class="rounded me-2 border" style="width: 44px; height: 44px; object-fit: contain; background: #fafafa;" onerror="this.src='<?= base_url('assets/img/elements/1.jpg'); ?>'" />
-                                  <?php endif; ?>
+                                  <img src="<?= base_url('../website/assets/images/' . (!empty($m_item['product_image']) ? $m_item['product_image'] : 'products/product-image.png')); ?>" class="rounded me-2 border" style="width: 44px; height: 44px; object-fit: contain; background: #fafafa;" onerror="this.src='<?= base_url('assets/img/product-image.png'); ?>'" />
                                   <div>
                                     <strong class="text-dark d-block"><?= html_escape($m_item['product_title']); ?></strong>
                                     <?php if (!empty($m_item['variant_title'])): ?>

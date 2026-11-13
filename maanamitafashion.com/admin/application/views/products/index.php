@@ -56,11 +56,11 @@
                 <td>
                   <div class="d-flex align-items-center">
                     <img
-                      src="<?= admin_storefront_asset_url('images/' . $p['main_image']); ?>"
+                      src="<?= admin_storefront_asset_url('images/' . ($p['main_image'] ?: 'products/product-image.png')); ?>"
                       alt="<?= html_escape($p['title']); ?>"
                       class="rounded me-3"
                       style="width: 48px; height: 48px; object-fit: contain;"
-                      onerror="this.src='<?= base_url('assets/img/elements/1.jpg'); ?>'" />
+                      onerror="this.src='<?= base_url('assets/img/product-image.png'); ?>'" />
                       <div>
                         <h6 class="mb-0 text-truncate" style="max-width: 280px;"><?= html_escape($p['title']); ?></h6>
                         <small class="text-muted"><?= html_escape($p['brand_name'] ?? 'Generic'); ?></small>

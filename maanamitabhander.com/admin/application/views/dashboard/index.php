@@ -428,10 +428,10 @@
                   <div class="d-flex align-items-center gap-3 overflow-hidden">
                     <span class="rank-pill <?= $rank_bg; ?>">#<?= $rank; ?></span>
                     <img
-                      src="<?= base_url('../website/assets/images/' . ($tp['main_image'] ?: 'products/womens/women-1.jpg')); ?>"
+                      src="<?= base_url('../website/assets/images/' . ($tp['main_image'] ?: 'products/product-image.png')); ?>"
                       alt="<?= html_escape($tp['title']); ?>"
                       class="product-thumb-sm"
-                      onerror="this.src='<?= base_url('../website/assets/images/products/womens/women-1.jpg'); ?>'" />
+                      onerror="this.src='<?= base_url('../website/assets/images/products/product-image.png'); ?>'" />
                     <div class="text-truncate">
                       <a href="<?= site_url('products/edit/' . $tp['id']); ?>" class="fw-semibold text-heading text-truncate d-block small text-decoration-none">
                         <?= html_escape($tp['title']); ?>
@@ -533,9 +533,9 @@
                 <div class="d-flex align-items-center justify-content-between p-2 border rounded-3">
                   <div class="d-flex align-items-center gap-2 overflow-hidden">
                     <img
-                      src="<?= base_url('../website/assets/images/' . ($lsi['main_image'] ?: 'products/womens/women-1.jpg')); ?>"
+                      src="<?= base_url('../website/assets/images/' . ($lsi['main_image'] ?: 'products/product-image.png')); ?>"
                       class="product-thumb-sm"
-                      onerror="this.src='<?= base_url('../website/assets/images/products/womens/women-1.jpg'); ?>'" />
+                      onerror="this.src='<?= base_url('../website/assets/images/products/product-image.png'); ?>'" />
                     <div class="text-truncate">
                       <div class="fw-semibold text-heading small text-truncate"><?= html_escape($lsi['title']); ?></div>
                       <small class="text-muted fs-tiny">SKU: <code><?= html_escape($lsi['sku']); ?></code></small>

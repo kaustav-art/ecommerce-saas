@@ -66,7 +66,7 @@
               <tr>
                 <td>
                   <div class="d-flex align-items-center">
-                    <img src="<?= admin_storefront_asset_url('images/' . ($it['main_image'] ?: 'products/womens/women-1.jpg')); ?>" class="rounded me-2" style="width: 36px; height: 36px; object-fit: cover;" onerror="this.src='<?= admin_storefront_asset_url('images/products/womens/women-1.jpg'); ?>'">
+                    <img src="<?= admin_storefront_asset_url('images/' . ($it['main_image'] ?: 'products/product-image.png')); ?>" class="rounded me-2" style="width: 36px; height: 36px; object-fit: cover;" onerror="this.src='<?= admin_storefront_asset_url('images/products/product-image.png'); ?>'">
                     <strong><?= html_escape($it['product_title']); ?></strong>
                   </div>
                 </td>

@@ -40,26 +40,7 @@
 .add-size-chip:hover, .add-multi-chip:hover {
   border-color: #666cff !important;
 }
-#description-editor-wrap .ql-toolbar.ql-snow {
-  border-top-left-radius: 0.375rem;
-  border-top-right-radius: 0.375rem;
-  border-color: #d4d7dc;
-  background-color: #f8f9fa;
-}
-#description-editor-wrap .ql-container.ql-snow {
-  border-bottom-left-radius: 0.375rem;
-  border-bottom-right-radius: 0.375rem;
-  border-color: #d4d7dc;
-  min-height: 220px;
-  font-family: inherit;
-  font-size: 0.9375rem;
-}
-#description-editor-wrap .ql-editor {
-  min-height: 220px;
-}
 </style>
-<link rel="stylesheet" href="<?= base_url('assets/vendor/libs/quill/typography.css'); ?>" />
-<link rel="stylesheet" href="<?= base_url('assets/vendor/libs/quill/editor.css'); ?>" />
 
 <div class="container-xxl flex-grow-1 container-p-y">
   <div class="d-flex justify-content-between align-items-center mb-4">
@@ -93,10 +74,7 @@
             </div>
             <div class="mb-3">
               <label class="form-label" for="description">Full Description</label>
-              <div id="description-editor-wrap">
-                <div id="description-editor"></div>
-                <textarea class="form-control d-none" id="description" name="description" rows="5" placeholder="Detailed product specifications, materials, care instructions..."></textarea>
-              </div>
+              <textarea class="form-control" id="description" name="description" rows="5" placeholder="Detailed product specifications, materials, care instructions..."></textarea>
             </div>
           </div>
         </div>
@@ -467,7 +445,7 @@
                 <div class="border rounded p-2 mb-2 bg-light text-center">
                   <img
                     id="main_product_preview"
-                    src="<?= base_url('../website/assets/images/products/womens/women-1.jpg'); ?>"
+                    src="<?= base_url('../website/assets/images/products/product-image.png'); ?>"
                     class="rounded img-fluid"
                     style="max-height: 140px; object-fit: contain;"
                     alt="Product Image Preview"
@@ -481,7 +459,7 @@
                   accept="image/*"
                   onchange="previewMainProductFile(this)"
                 />
-                <input type="hidden" name="default_main_image" value="products/womens/women-1.jpg" />
+                <input type="hidden" name="default_main_image" value="products/product-image.png" />
                 <small class="text-muted d-block mt-1" style="font-size: 11px;">Recommended: 800x1000px, JPG, PNG, WEBP (Max 10MB)</small>
               </div>
 
@@ -1016,51 +994,4 @@ function escapeHtml(text) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
-</script>
-<script src="<?= base_url('assets/vendor/libs/quill/quill.js'); ?>"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  var descTextarea = document.getElementById('description');
-  var descEditorEl = document.getElementById('description-editor');
-  if (descEditorEl && typeof Quill !== 'undefined') {
-    var quill = new Quill('#description-editor', {
-      theme: 'snow',
-      placeholder: 'Detailed product specifications, materials, care instructions...',
-      modules: {
-        toolbar: [
-          [{ 'header': [1, 2, 3, 4, false] }],
-          ['bold', 'italic', 'underline', 'strike'],
-          [{ 'color': [] }, { 'background': [] }],
-          [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-          [{ 'align': [] }],
-          ['blockquote', 'link', 'clean']
-        ]
-      }
-    });
-
-    if (descTextarea && descTextarea.value.trim() !== '') {
-      var initVal = descTextarea.value;
-      if (/<[a-z][\s\S]*>/i.test(initVal)) {
-        quill.clipboard.dangerouslyPasteHTML(initVal);
-      } else {
-        quill.setText(initVal);
-      }
-    }
-
-    function syncQuillToTextarea() {
-      if (!descTextarea) return;
-      var html = quill.root.innerHTML;
-      var plain = quill.getText().trim();
-      descTextarea.value = (plain === '' && (html === '<p><br></p>' || html === '')) ? '' : html;
-    }
-
-    quill.on('text-change', syncQuillToTextarea);
-    var formEl = document.getElementById('productAddForm') || (descTextarea ? descTextarea.closest('form') : null);
-    if (formEl) {
-      formEl.addEventListener('submit', syncQuillToTextarea);
-    }
-  } else if (descTextarea) {
-    descTextarea.classList.remove('d-none');
-  }
-});
 </script>

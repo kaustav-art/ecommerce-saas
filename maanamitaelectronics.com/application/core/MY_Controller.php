@@ -106,7 +106,7 @@ class MY_Controller extends CI_Controller {
 
         // 2. Check if running inside a provisioned standalone domain folder by directory name (e.g. C:\xampp\htdocs\ecommerce\example.com\)
         $current_folder = strtolower(trim(basename(FCPATH)));
-        if (!in_array($current_folder, ['website', 'ecommerce', 'htdocs'], true) && $this->db->table_exists('saas_tenants')) {
+        if (!in_array($current_folder, ['website', 'ecommerce', 'ecommerce-saas', 'htdocs'], true) && $this->db->table_exists('saas_tenants')) {
             $t_row = $this->db->where('slug', $current_folder)
                               ->or_where('domain', $current_folder)
                               ->or_like('folder_path', $current_folder)
@@ -198,6 +198,18 @@ class MY_Controller extends CI_Controller {
                 }
             }
         }
+    }
+
+    /**
+     * Check whether a product image path is empty or points to the default placeholder image.
+     */
+    public function is_placeholder_product_image($path)
+    {
+        $clean = ltrim(trim((string)$path), '/');
+        if ($clean === '') {
+            return TRUE;
+        }
+        return strtolower(basename($clean)) === 'product-image.png';
     }
 
     /**
@@ -356,23 +368,41 @@ class MY_Controller extends CI_Controller {
      */
     public function get_dynamic_template_products($tpl_key = null)
     {
-        $tpl_key = $tpl_key ?: $this->template_registry->get_tpl_key($this->active_template);
-        $db_name = isset($this->db->database) ? $this->db->database : 'ecommerce_main';
-        $products = [];
+        $tpl_key          = $tpl_key ?: $this->template_registry->get_tpl_key($this->active_template);
+        $default_prod_img = $this->normalize_tpl_image('assets/images/products/product-image.png', $tpl_key);
+        $products         = [];
 
-        // In provisioned tenant stores (or non-preview mode), read directly from `products` table (managed by Admin panel)
-        if ($this->is_user_project || !$this->is_preview_mode) {
+        // In provisioned tenant stores, read directly from `products` table (managed by Admin panel)
+        if ($this->is_user_project) {
             $db_prods = Static_template_data::get('products');
             if (!empty($db_prods)) {
                 foreach ($db_prods as &$dp) {
-                    $dp['image']         = $this->normalize_tpl_image($dp['main_image'], $tpl_key);
+                    $raw_main = $dp['main_image'] ?? '';
+                    $dp['image']         = !$this->is_placeholder_product_image($raw_main) ? $this->normalize_tpl_image($raw_main, $tpl_key) : $default_prod_img;
                     $dp['primary_image'] = $dp['image'];
-                    $dp['hover_image']   = $this->normalize_tpl_image($dp['hover_image'] ?? $dp['main_image'], $tpl_key);
+                    $raw_hover           = $dp['hover_image'] ?? $raw_main;
+                    $dp['hover_image']   = !$this->is_placeholder_product_image($raw_hover) ? $this->normalize_tpl_image($raw_hover, $tpl_key) : $dp['image'];
                 }
                 unset($dp);
                 return $db_prods;
             }
             return [];
+        }
+
+        // Demo / Preview mode: always use default placeholder product-image.png (and 4 gallery images)
+        if (!$this->is_preview_mode) {
+            $db_prods = Static_template_data::get('products');
+            if (!empty($db_prods)) {
+                foreach ($db_prods as &$dp) {
+                    $dp['main_image']             = $default_prod_img;
+                    $dp['primary_image']          = $default_prod_img;
+                    $dp['image']                  = $default_prod_img;
+                    $dp['hover_image']            = $default_prod_img;
+                    $dp['gallery_images_decoded'] = array_fill(0, 4, $default_prod_img);
+                }
+                unset($dp);
+                return $db_prods;
+            }
         }
 
         if (isset($this->db) && $this->db->table_exists('template_products')) {
@@ -383,9 +413,8 @@ class MY_Controller extends CI_Controller {
                              ->get('template_products')
                              ->result_array();
             foreach ($rows as $tp) {
-                $main_img  = $this->normalize_tpl_image($tp['image'], $tpl_key);
-                $hover_raw = !empty($tp['hover_image']) ? $tp['hover_image'] : $tp['image'];
-                $hover_img = $this->normalize_tpl_image($hover_raw, $tpl_key);
+                $main_img  = $default_prod_img;
+                $hover_img = $default_prod_img;
 
                 $raw_unit  = trim((string)($tp['unit_label'] ?? ''));
                 $clean_unit = $raw_unit;
@@ -423,7 +452,7 @@ class MY_Controller extends CI_Controller {
                     'primary_image'          => $main_img,
                     'image'                  => $main_img,
                     'hover_image'            => $hover_img,
-                    'gallery_images_decoded' => [$hover_img],
+                    'gallery_images_decoded' => array_fill(0, 4, $main_img),
                     'badge_text'             => $tp['badge_text'] ?? '',
                     'unit_value'             => $clean_unit,
                     'unit_label'             => $clean_unit,

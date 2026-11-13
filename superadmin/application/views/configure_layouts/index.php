@@ -344,12 +344,12 @@ $preview_url = tenant_site_url('home?preview_tpl=' . $current_meta['preview_key'
                 <tbody>
                     <?php if (!empty($current_data['products'])): ?>
                         <?php foreach ($current_data['products'] as $prod): 
-                            $p_img = resolve_tpl_image_url($prod->image);
+                            $p_img = resolve_tpl_image_url($prod->image, 'website/assets/images/products/product-image.png');
                         ?>
                             <tr>
                                 <td class="fw-bold font-monospace text-warning">#<?= (int)$prod->sort_order ?></td>
                                 <td>
-                                    <img src="<?= $p_img ?>" alt="Product" class="rounded border border-secondary" style="width: 56px; height: 56px; object-fit: cover;">
+                                    <img src="<?= $p_img ?>" alt="Product" class="rounded border border-secondary" style="width: 56px; height: 56px; object-fit: cover;" onerror="this.onerror=null;this.src='<?= resolve_tpl_image_url('website/assets/images/products/product-image.png') ?>';">
                                 </td>
                                 <td>
                                     <div class="fw-bold text-white"><?= htmlspecialchars($prod->name) ?></div>
@@ -575,7 +575,7 @@ $preview_url = tenant_site_url('home?preview_tpl=' . $current_meta['preview_key'
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small">Or Main Image Path / URL</label>
-                            <input type="text" name="image_url" id="prodImageUrl" class="form-control bg-dark text-white border-secondary" placeholder="assets/images/products/womens/women-1.jpg">
+                            <input type="text" name="image_url" id="prodImageUrl" class="form-control bg-dark text-white border-secondary" placeholder="assets/images/products/product-image.png">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small">Upload Hover Image (Optional)</label>
@@ -583,7 +583,7 @@ $preview_url = tenant_site_url('home?preview_tpl=' . $current_meta['preview_key'
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small">Or Hover Image Path / URL</label>
-                            <input type="text" name="hover_image_url" id="prodHoverUrl" class="form-control bg-dark text-white border-secondary" placeholder="assets/images/products/womens/women-2.jpg">
+                            <input type="text" name="hover_image_url" id="prodHoverUrl" class="form-control bg-dark text-white border-secondary" placeholder="assets/images/products/product-image.png">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small">Short Description</label>

@@ -45,7 +45,7 @@
                                                 </a>
                                                 <div class="bg-white p-2 rounded mb-2" style="height: 180px;">
                                                     <a href="<?= site_url('product/' . $p['slug']); ?>">
-                                                        <img src="<?= base_url('assets/images/' . $p['main_image']); ?>" class="w-100 h-100 object-fit-contain" alt="<?= html_escape($p['title']); ?>" onerror="this.src='<?= base_url('assets/images/products/womens/women-1.jpg'); ?>'">
+                                                        <img src="<?= base_url('assets/images/' . $p['main_image']); ?>" class="w-100 h-100 object-fit-contain" alt="<?= html_escape($p['title']); ?>" onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
                                                     </a>
                                                 </div>
                                                 <h6 class="fw-bold mb-1">

@@ -5,19 +5,29 @@ $currency_symbol = isset($currency_symbol) ? $currency_symbol : '₹';
 $elt_qs = empty($is_user_project) ? '?preview_tpl=electronics' : '';
 
 // Collect all images (main image first, followed by gallery images)
+$default_prod_rel = 'products/product-image.png';
+$is_placeholder_img = function($p) {
+    $b = strtolower(basename(trim((string)$p)));
+    return $b === '' || $b === 'product-image.png';
+};
+
 $all_images = [];
-if (!empty($product['main_image'])) {
-    $all_images[] = $product['main_image'];
-}
-if (!empty($product['gallery_images_decoded']) && is_array($product['gallery_images_decoded'])) {
-    foreach ($product['gallery_images_decoded'] as $g_img) {
-        if (!empty($g_img) && !in_array($g_img, $all_images)) {
-            $all_images[] = $g_img;
+if (empty($is_user_project)) {
+    $all_images = array_fill(0, 4, $default_prod_rel);
+} else {
+    if (!empty($product['main_image']) && !$is_placeholder_img($product['main_image'])) {
+        $all_images[] = $product['main_image'];
+    }
+    if (!empty($product['gallery_images_decoded']) && is_array($product['gallery_images_decoded'])) {
+        foreach ($product['gallery_images_decoded'] as $g_img) {
+            if (!empty($g_img) && !$is_placeholder_img($g_img) && !in_array($g_img, $all_images)) {
+                $all_images[] = $g_img;
+            }
         }
     }
-}
-if (empty($all_images)) {
-    $all_images[] = 'products/womens/women-1.jpg';
+    if (empty($all_images)) {
+        $all_images = array_fill(0, 4, $default_prod_rel);
+    }
 }
 $total_images = count($all_images);
 
@@ -165,31 +175,39 @@ if ($has_color && !empty($color_attr['values'])) {
                 }
             }
         }
-        if (empty($c_photo)) {
-            $c_photo = $product['main_image'] ?? 'products/womens/women-1.jpg';
-        }
-
-        $c_images = [];
-        if (!empty($c_photo)) {
-            $c_images[] = $c_photo;
-        }
-        if (!empty($c_gallery)) {
-            foreach ($c_gallery as $g) {
-                if (!in_array($g, $c_images)) {
-                    $c_images[] = $g;
-                }
-            }
+        if (empty($is_user_project)) {
+            $c_photo  = $default_prod_rel;
+            $c_images = array_fill(0, 4, $default_prod_rel);
         } else {
-            if (!empty($product['gallery_images_decoded']) && is_array($product['gallery_images_decoded'])) {
-                foreach ($product['gallery_images_decoded'] as $g_img) {
-                    if (!empty($g_img) && !in_array($g_img, $c_images)) {
-                        $c_images[] = $g_img;
+            if (empty($c_photo) || $is_placeholder_img($c_photo)) {
+                $c_photo = (!empty($product['main_image']) && !$is_placeholder_img($product['main_image'])) ? $product['main_image'] : '';
+            }
+
+            $c_images = [];
+            if (!empty($c_photo) && !$is_placeholder_img($c_photo)) {
+                $c_images[] = $c_photo;
+            }
+            if (!empty($c_gallery)) {
+                foreach ($c_gallery as $g) {
+                    if (!empty($g) && !$is_placeholder_img($g) && !in_array($g, $c_images)) {
+                        $c_images[] = $g;
+                    }
+                }
+            } else {
+                if (!empty($product['gallery_images_decoded']) && is_array($product['gallery_images_decoded'])) {
+                    foreach ($product['gallery_images_decoded'] as $g_img) {
+                        if (!empty($g_img) && !$is_placeholder_img($g_img) && !in_array($g_img, $c_images)) {
+                            $c_images[] = $g_img;
+                        }
                     }
                 }
             }
-        }
-        if (empty($c_images)) {
-            $c_images = $all_images;
+            if (empty($c_images)) {
+                $c_photo  = $default_prod_rel;
+                $c_images = array_fill(0, 4, $default_prod_rel);
+            } elseif (empty($c_photo)) {
+                $c_photo = $c_images[0];
+            }
         }
 
         $color_map[$c_name] = [
@@ -977,7 +995,7 @@ if (!empty($initial_variant)) {
           }
       }
       if (empty($elt_gallery_urls)) {
-          $elt_gallery_urls[] = base_url('assets/images/products/electronics/elec-p-1.jpg');
+          $elt_gallery_urls = array_fill(0, 4, base_url('assets/images/products/product-image.png'));
       }
       ?>
       <div class="aq-product-details-thumbnails-style pb-120">
@@ -1041,14 +1059,14 @@ if (!empty($initial_variant)) {
                                           <div class="color-slider-track" id="color-slider-track" onscroll="updateColorSliderArrows()">
                                              <?php foreach ($color_map as $c_name => $c_info): 
                                                 $is_active_color = ($c_name === $initial_color);
-                                                $c_img = !empty($c_info['image']) ? $c_info['image'] : ($product['main_image'] ?? 'products/womens/women-1.jpg');
+                                                $c_img = !empty($c_info['image']) ? $c_info['image'] : ($product['main_image'] ?? 'products/product-image.png');
                                              ?>
                                                 <div class="color-thumb-card <?= $is_active_color ? 'active' : ''; ?>" 
                                                      data-color="<?= html_escape($c_name); ?>"
                                                      data-image="<?= base_url('assets/images/' . $c_img); ?>"
                                                      onclick="selectColor('<?= html_escape($c_name); ?>', this)"
                                                      title="<?= html_escape($c_name); ?>">
-                                                   <img src="<?= base_url('assets/images/' . $c_img); ?>" alt="<?= html_escape($c_name); ?>" onerror="this.src='<?= base_url('assets/images/' . ($product['main_image'] ?? 'products/womens/women-1.jpg')); ?>'">
+                                                   <img src="<?= base_url('assets/images/' . $c_img); ?>" alt="<?= html_escape($c_name); ?>" onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
                                                 </div>
                                              <?php endforeach; ?>
                                           </div>
@@ -1783,7 +1801,7 @@ if (!empty($initial_variant)) {
                   $rp_name    = !empty($rp['name']) ? $rp['name'] : ($rp['title'] ?? 'Electronics Item');
                   $rp_slug    = !empty($rp['slug']) ? site_url('product/' . $rp['slug'] . $elt_qs) : site_url('product/' . $rp_id . $elt_qs);
                   $rp_raw_img = !empty($rp['primary_image']) ? $rp['primary_image'] : (!empty($rp['main_image']) ? $rp['main_image'] : ($rp['image'] ?? ''));
-                  $rp_img     = $bazaro . 'img/electronics/arrival-product/product-' . (($rp_idx % 8) + 1) . '/product-1.jpg';
+                  $rp_img     = base_url('assets/images/products/product-image.png');
                   if (!empty($rp_raw_img)) {
                       if (strpos($rp_raw_img, 'http://') === 0 || strpos($rp_raw_img, 'https://') === 0) {
                           $rp_img = $rp_raw_img;

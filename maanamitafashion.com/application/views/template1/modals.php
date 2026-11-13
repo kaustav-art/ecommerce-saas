@@ -55,7 +55,7 @@
                                 var html = '<div class="list-group list-group-flush">';
                                 data.results.forEach(function(item) {
                                     html += '<a href="' + item.url + '" class="list-group-item list-group-item-action d-flex align-items-center gap-3 py-2 px-2">';
-                                    html += '<img src="' + item.image + '" class="rounded border" style="width: 46px; height: 46px; object-fit: cover;" onerror="this.src=\'<?= base_url("assets/images/products/womens/women-1.jpg"); ?>\'">';
+                                    html += '<img src="' + item.image + '" class="rounded border" style="width: 46px; height: 46px; object-fit: cover;" onerror="this.src=\'<?= base_url("assets/images/products/product-image.png"); ?>\'">';
                                     html += '<div class="flex-grow-1 text-truncate">';
                                     html += '<div class="fw-semibold text-dark text-truncate">' + item.title + '</div>';
                                     html += '<small class="text-muted">' + (item.category_name ? item.category_name + ' • ' : '') + 'SKU: ' + (item.sku || 'N/A') + '</small>';
@@ -177,11 +177,11 @@
                                 $rec_price = !empty($rec['sale_price']) ? $rec['sale_price'] : $rec['price'];
                                 $rec_img = !empty($rec['main_image']) 
                                     ? (strpos($rec['main_image'], 'http') === 0 ? $rec['main_image'] : base_url('assets/images/' . $rec['main_image']))
-                                    : base_url('assets/images/products/womens/women-1.jpg');
+                                    : base_url('assets/images/products/product-image.png');
                             ?>
                             <div class="list-cart-item">
                                 <div class="image">
-                                    <img src="<?= $rec_img; ?>" alt="<?= html_escape($rec['title']); ?>" onerror="this.src='<?= base_url('assets/images/products/womens/women-1.jpg'); ?>'">
+                                    <img src="<?= $rec_img; ?>" alt="<?= html_escape($rec['title']); ?>" onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
                                 </div>
                                 <div class="content">
                                     <div class="name">
@@ -213,12 +213,12 @@
                                             <?php foreach ($cart_items as $item): 
                                                 $item_img = !empty($item['image']) 
                                                     ? (strpos($item['image'], 'http') === 0 ? $item['image'] : base_url('assets/images/' . $item['image']))
-                                                    : base_url('assets/images/products/womens/women-1.jpg');
+                                                    : base_url('assets/images/products/product-image.png');
                                                 $item_key = $item['cart_key'] ?? $item['id'];
                                             ?>
                                             <div class="tf-mini-cart-item file-delete" id="side-cart-item-<?= html_escape($item_key); ?>">
                                                 <div class="tf-mini-cart-image">
-                                                    <img src="<?= $item_img; ?>" alt="<?= html_escape($item['title']); ?>" onerror="this.src='<?= base_url('assets/images/products/womens/women-1.jpg'); ?>'">
+                                                    <img src="<?= $item_img; ?>" alt="<?= html_escape($item['title']); ?>" onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
                                                 </div>
                                                 <div class="tf-mini-cart-info flex-grow-1" style="min-width: 0;">
                                                     <div class="mb_12 d-flex align-items-center justify-content-between flex-nowrap gap-2">
@@ -840,7 +840,7 @@
             items.forEach(function(item) {
                 var itemImg = item.image 
                     ? (item.image.indexOf('http') === 0 ? item.image : '<?= base_url("assets/images/"); ?>' + item.image) 
-                    : '<?= base_url("assets/images/products/womens/women-1.jpg"); ?>';
+                    : '<?= base_url("assets/images/products/product-image.png"); ?>';
                 var itemKey = item.cart_key || item.id;
                 var vParts = [];
                 if (item.color) vParts.push('Color: ' + item.color);
@@ -851,7 +851,7 @@
 
                 html += '<div class="tf-mini-cart-item file-delete" id="side-cart-item-' + itemKey + '">' +
                     '<div class="tf-mini-cart-image">' +
-                        '<img src="' + itemImg + '" alt="' + (item.title || '') + '" onerror="this.src=\'<?= base_url("assets/images/products/womens/women-1.jpg"); ?>\'">' +
+                        '<img src="' + itemImg + '" alt="' + (item.title || '') + '" onerror="this.src=\'<?= base_url("assets/images/products/product-image.png"); ?>\'">' +
                     '</div>' +
                     '<div class="tf-mini-cart-info flex-grow-1" style="min-width: 0;">' +
                         '<div class="mb_12 d-flex align-items-center justify-content-between flex-nowrap gap-2">' +

@@ -114,7 +114,7 @@
                                             'id'            => 0,
                                             'product_id'    => 0,
                                             'product_title' => 'Order #' . $ord['order_number'],
-                                            'product_image' => 'products/womens/women-1.jpg',
+                                            'product_image' => 'products/product-image.png',
                                             'variant_title' => '',
                                             'price'         => $ord['total_amount'],
                                             'quantity'      => 1,
@@ -129,7 +129,7 @@
 
                                     foreach ($items as $item):
                                         $has_items = true;
-                                        $img_src = !empty($item['product_image']) ? base_url('assets/images/' . $item['product_image']) : base_url('assets/images/products/womens/women-1.jpg');
+                                        $img_src = !empty($item['product_image']) ? base_url('assets/images/' . $item['product_image']) : base_url('assets/images/products/product-image.png');
                                         $pid = (int) ($item['product_id'] ?? 0);
                                         $it_id = (int) ($item['id'] ?? 0);
 
@@ -220,7 +220,7 @@
                                                 <!-- Product Info Row (Inline CSS & Spacing as requested) -->
                                                 <div class="d-flex align-items-start gap-3">
                                                     <div class="flex-shrink-0">
-                                                        <img src="<?= $img_src; ?>" alt="<?= html_escape($item['product_title']); ?>" class="border rounded-1" style="width: 80px;height: 80px;object-fit: cover;background-color: #fafafa;" onerror="this.src='<?= base_url('assets/images/products/womens/women-1.jpg'); ?>'">
+                                                        <img src="<?= $img_src; ?>" alt="<?= html_escape($item['product_title']); ?>" class="border rounded-1" style="width: 80px;height: 80px;object-fit: cover;background-color: #fafafa;" onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
                                                     </div>
                                                     <div class="flex-grow-1" style="min-width: 0;line-height: 22px;">
                                                         <div class="fw-bold text-dark fk-item-title text-line-clamp-2" style="font-size: 13.5px; line-height: 1.35;">
@@ -261,7 +261,7 @@
                                                     <!-- Left Column: Product Thumbnail + Title + Variant + Order # & Placed on -->
                                                     <div class="col-12 col-md-6 d-flex align-items-start gap-3">
                                                         <a href="<?= $it_track_url; ?>" class="flex-shrink-0" onclick="event.stopPropagation();">
-                                                            <img src="<?= $img_src; ?>" alt="<?= html_escape($item['product_title']); ?>" class="border rounded-1" style="width: 70px; height: 70px; object-fit: contain; background-color: #fafafa;" onerror="this.src='<?= base_url('assets/images/products/womens/women-1.jpg'); ?>'">
+                                                            <img src="<?= $img_src; ?>" alt="<?= html_escape($item['product_title']); ?>" class="border rounded-1" style="width: 70px; height: 70px; object-fit: contain; background-color: #fafafa;" onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
                                                         </a>
                                                         <div class="flex-grow-1" style="min-width: 0;">
                                                             <a href="<?= $it_track_url; ?>" class="text-decoration-none text-dark fw-bold d-block mb-1 fk-item-title text-line-clamp-2" style="font-size: 14px; line-height: 1.4;" onclick="event.stopPropagation();">

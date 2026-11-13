@@ -21,8 +21,7 @@ if (!function_exists('grc_detail_resolve_img')) {
                 return base_url('assets/images/products/' . $clean);
             }
         }
-        $idx = (($fallback_idx - 1) % 16) + 1;
-        return $bazaro_url . 'img/product/grocery-p-' . $idx . '.jpg';
+        return base_url('assets/images/products/product-image.png');
     }
 }
 
@@ -123,61 +122,69 @@ $unit_info = grc_calculate_unit_pricing($prod_unit_raw, $current_price, $force_u
 $initial_unit_type = $unit_info['unit_type']; // 'kg' or 'pc'
 
 // Build gallery images dynamically from the database product & variants
-$primary_img_url = grc_detail_resolve_img($product['primary_image'] ?? ($product['image'] ?? ($product['main_image'] ?? '')), $bazaro, 3);
-$gallery_urls = [$primary_img_url];
+$default_prod_url = base_url('assets/images/products/product-image.png');
+$is_placeholder_img = function($p) {
+    $b = strtolower(basename(trim((string)$p)));
+    return $b === '' || $b === 'product-image.png';
+};
 
-$raw_gal_list = [];
-if (!empty($product['gallery_images_decoded']) && is_array($product['gallery_images_decoded'])) {
-    $raw_gal_list = $product['gallery_images_decoded'];
-} elseif (!empty($product['gallery_images']) && is_string($product['gallery_images'])) {
-    $dec = json_decode($product['gallery_images'], true);
-    if (is_array($dec)) {
-        $raw_gal_list = $dec;
-    }
-}
-foreach ($raw_gal_list as $g_item) {
-    if (!empty($g_item)) {
-        $resolved_g = grc_detail_resolve_img($g_item, $bazaro, 3);
-        if (!in_array($resolved_g, $gallery_urls, true)) {
-            $gallery_urls[] = $resolved_g;
+if (empty($is_user_project)) {
+    $primary_img_url = $default_prod_url;
+    $gallery_urls    = array_fill(0, 4, $default_prod_url);
+} else {
+    $gallery_urls = [];
+    $raw_primary = $product['primary_image'] ?? ($product['image'] ?? ($product['main_image'] ?? ''));
+    if (!$is_placeholder_img($raw_primary)) {
+        $resolved_p = grc_detail_resolve_img($raw_primary, $bazaro, 3);
+        if (!$is_placeholder_img($resolved_p)) {
+            $gallery_urls[] = $resolved_p;
         }
     }
-}
-if (!empty($product['variants']) && is_array($product['variants'])) {
-    foreach ($product['variants'] as $v_row) {
-        if (!empty($v_row['image'])) {
-            $rv_img = grc_detail_resolve_img($v_row['image'], $bazaro, 3);
-            if (!in_array($rv_img, $gallery_urls, true)) {
-                $gallery_urls[] = $rv_img;
+
+    $raw_gal_list = [];
+    if (!empty($product['gallery_images_decoded']) && is_array($product['gallery_images_decoded'])) {
+        $raw_gal_list = $product['gallery_images_decoded'];
+    } elseif (!empty($product['gallery_images']) && is_string($product['gallery_images'])) {
+        $dec = json_decode($product['gallery_images'], true);
+        if (is_array($dec)) {
+            $raw_gal_list = $dec;
+        }
+    }
+    foreach ($raw_gal_list as $g_item) {
+        if (!empty($g_item) && !$is_placeholder_img($g_item)) {
+            $resolved_g = grc_detail_resolve_img($g_item, $bazaro, 3);
+            if (!$is_placeholder_img($resolved_g) && !in_array($resolved_g, $gallery_urls, true)) {
+                $gallery_urls[] = $resolved_g;
             }
         }
-        if (!empty($v_row['gallery_images'])) {
-            $v_gal = is_array($v_row['gallery_images']) ? $v_row['gallery_images'] : (json_decode((string)$v_row['gallery_images'], true) ?: []);
-            foreach ($v_gal as $vg_item) {
-                if (!empty($vg_item)) {
-                    $rvg = grc_detail_resolve_img($vg_item, $bazaro, 3);
-                    if (!in_array($rvg, $gallery_urls, true)) {
-                        $gallery_urls[] = $rvg;
+    }
+    if (!empty($product['variants']) && is_array($product['variants'])) {
+        foreach ($product['variants'] as $v_row) {
+            if (!empty($v_row['image']) && !$is_placeholder_img($v_row['image'])) {
+                $rv_img = grc_detail_resolve_img($v_row['image'], $bazaro, 3);
+                if (!$is_placeholder_img($rv_img) && !in_array($rv_img, $gallery_urls, true)) {
+                    $gallery_urls[] = $rv_img;
+                }
+            }
+            if (!empty($v_row['gallery_images'])) {
+                $v_gal = is_array($v_row['gallery_images']) ? $v_row['gallery_images'] : (json_decode((string)$v_row['gallery_images'], true) ?: []);
+                foreach ($v_gal as $vg_item) {
+                    if (!empty($vg_item) && !$is_placeholder_img($vg_item)) {
+                        $rvg = grc_detail_resolve_img($vg_item, $bazaro, 3);
+                        if (!$is_placeholder_img($rvg) && !in_array($rvg, $gallery_urls, true)) {
+                            $gallery_urls[] = $rvg;
+                        }
                     }
                 }
             }
         }
     }
-}
 
-// Only add fallback demo gallery images in template demo mode when no gallery images were uploaded
-if (empty($is_user_project) && count($gallery_urls) < 2) {
-    $grc_extra_imgs = [
-        $bazaro . 'img/product/grocery-p-3.jpg',
-        $bazaro . 'img/product/grocery-p-7.jpg',
-        $bazaro . 'img/product/grocery-p-2.jpg',
-        $bazaro . 'img/product/grocery-p-1.jpg',
-        $bazaro . 'img/product/grocery-p-6.jpg',
-    ];
-    foreach ($grc_extra_imgs as $ex_img) {
-        if (!in_array($ex_img, $gallery_urls, true) && count($gallery_urls) < 5) {
-            $gallery_urls[] = $ex_img;
-        }
+    if (empty($gallery_urls)) {
+        $primary_img_url = $default_prod_url;
+        $gallery_urls    = array_fill(0, 4, $default_prod_url);
+    } else {
+        $primary_img_url = $gallery_urls[0];
     }
 }
 

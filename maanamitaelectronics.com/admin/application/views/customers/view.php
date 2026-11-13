@@ -304,7 +304,7 @@
                     <tbody>
                       <?php foreach ($customer['abandoned_cart'] as $item): ?>
                         <?php
-                          $img_src = base_url('assets/img/elements/1.jpg');
+                          $img_src = base_url('assets/img/product-image.png');
                           if (!empty($item['main_image'])) {
                               if (filter_var($item['main_image'], FILTER_VALIDATE_URL)) {
                                   $img_src = $item['main_image'];
@@ -322,7 +322,7 @@
                                    alt="<?= html_escape($item['product_title'] ?? 'Product'); ?>" 
                                    class="rounded me-3 border" 
                                    style="width: 50px; height: 50px; object-fit: contain; background: #fff;"
-                                   onerror="this.src='<?= base_url('assets/img/elements/1.jpg'); ?>'">
+                                   onerror="this.src='<?= base_url('assets/img/product-image.png'); ?>'">
                               <div>
                                 <h6 class="mb-0 text-truncate" style="max-width: 250px;">
                                   <?= html_escape($item['product_title'] ?? 'Product #' . $item['product_id']); ?>
@@ -426,7 +426,7 @@
                     <tbody>
                       <?php foreach ($customer['wishlist_items'] as $witem): ?>
                         <?php
-                          $w_img = base_url('assets/img/elements/1.jpg');
+                          $w_img = base_url('assets/img/product-image.png');
                           if (!empty($witem['main_image'])) {
                               if (filter_var($witem['main_image'], FILTER_VALIDATE_URL)) {
                                   $w_img = $witem['main_image'];
@@ -444,7 +444,7 @@
                                    alt="<?= html_escape($witem['product_title'] ?? 'Product'); ?>" 
                                    class="rounded me-3 border" 
                                    style="width: 48px; height: 48px; object-fit: contain; background: #fff;"
-                                   onerror="this.src='<?= base_url('assets/img/elements/1.jpg'); ?>'">
+                                   onerror="this.src='<?= base_url('assets/img/product-image.png'); ?>'">
                               <div>
                                 <h6 class="mb-0 text-truncate" style="max-width: 260px;">
                                   <?= html_escape($witem['product_title'] ?? 'Product #' . $witem['product_id']); ?>
@@ -615,7 +615,7 @@
                   <div class="d-flex flex-column gap-3">
                     <?php foreach ($customer['reviews'] as $rev): ?>
                       <?php
-                        $r_img = base_url('assets/img/elements/1.jpg');
+                        $r_img = base_url('assets/img/product-image.png');
                         if (!empty($rev['main_image'])) {
                             if (filter_var($rev['main_image'], FILTER_VALIDATE_URL)) {
                                 $r_img = $rev['main_image'];
@@ -635,7 +635,7 @@
                                    alt="<?= html_escape($rev['product_title'] ?? 'Product'); ?>" 
                                    class="rounded border" 
                                    style="width: 55px; height: 55px; object-fit: contain; background: #fff;"
-                                   onerror="this.src='<?= base_url('assets/img/elements/1.jpg'); ?>'">
+                                   onerror="this.src='<?= base_url('assets/img/product-image.png'); ?>'">
                               <div>
                                 <h6 class="mb-1 text-truncate" style="max-width: 140px;">
                                   <?= html_escape($rev['product_title'] ?? 'Product #' . $rev['product_id']); ?>

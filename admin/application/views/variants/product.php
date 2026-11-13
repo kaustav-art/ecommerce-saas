@@ -75,10 +75,10 @@
                   <div class="d-flex align-items-center">
                     <div class="position-relative me-3" style="width: 48px; height: 48px; flex-shrink: 0;">
                       <img
-                        src="<?= base_url('../website/assets/images/' . ($grp['image'] ?: $product['main_image'])); ?>"
+                        src="<?= base_url('../website/assets/images/' . ($grp['image'] ?: ($product['main_image'] ?: 'products/product-image.png'))); ?>"
                         class="rounded w-100 h-100 object-fit-cover border shadow-xs"
                         alt="Variant"
-                        onerror="this.src='<?= base_url('../website/assets/images/products/womens/women-1.jpg'); ?>'"
+                        onerror="this.src='<?= base_url('../website/assets/images/products/product-image.png'); ?>'"
                       />
                       <?php 
                         $grp_gal = !empty($grp['gallery_images']) ? (is_array($grp['gallery_images']) ? $grp['gallery_images'] : (json_decode($grp['gallery_images'], true) ?: [])) : []; 

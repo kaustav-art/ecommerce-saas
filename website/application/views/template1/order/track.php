@@ -171,7 +171,7 @@
                                                 <h6 class="fw-bold mb-3"><i class="fa-solid fa-boxes-packing me-1 text-primary"></i> Items in this Order:</h6>
                                                 <div class="d-flex flex-column gap-2">
                                                     <?php foreach ($order['items'] as $it): 
-                                                        $img = !empty($it['product_image']) ? base_url('assets/images/' . $it['product_image']) : base_url('assets/images/products/womens/women-1.jpg');
+                                                        $img = !empty($it['product_image']) ? base_url('assets/images/' . $it['product_image']) : base_url('assets/images/products/product-image.png');
                                                         $it_st = !empty($it['item_status']) ? strtolower($it['item_status']) : $order['order_status'];
                                                         $it_c = !empty($it['courier_name']) ? $it['courier_name'] : $courier_name;
                                                         $it_trk = !empty($it['tracking_number']) ? $it['tracking_number'] : $tracking_number;
@@ -182,7 +182,7 @@
                                                         elseif ($it_st === 'cancelled') $badge_class = 'bg-danger text-white';
                                                     ?>
                                                         <div class="d-flex align-items-center gap-3 p-2 border rounded bg-white flex-wrap flex-sm-nowrap">
-                                                            <img src="<?= $img; ?>" alt="<?= html_escape($it['product_title']); ?>" style="width: 50px; height: 50px; object-fit: contain;" class="border rounded bg-light" onerror="this.src='<?= base_url('assets/images/products/womens/women-1.jpg'); ?>'">
+                                                            <img src="<?= $img; ?>" alt="<?= html_escape($it['product_title']); ?>" style="width: 50px; height: 50px; object-fit: contain;" class="border rounded bg-light" onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
                                                             <div class="flex-grow-1">
                                                                 <div class="fw-bold text-dark small"><?= html_escape($it['product_title']); ?></div>
                                                                 <?php if (!empty($it['variant_title'])): ?>

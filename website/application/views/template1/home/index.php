@@ -163,7 +163,7 @@ $deals_list    = (!empty($flash_sale) && (!empty($flash_sale_products) || !empty
                             $d_id    = (int)($dp['id'] ?? 0);
                             $d_title = $dp['title'] ?? ($dp['name'] ?? 'Fashion Piece');
                             $d_slug  = !empty($dp['slug']) ? site_url('product/' . $dp['slug']) : site_url('product/' . $d_id);
-                            $d_img   = !empty($dp['main_image']) ? base_url('assets/images/' . $dp['main_image']) : base_url('assets/images/products/womens/women-1.jpg');
+                            $d_img   = !empty($dp['main_image']) ? base_url('assets/images/' . $dp['main_image']) : base_url('assets/images/products/product-image.png');
                             $d_hover = !empty($dp['gallery_images_decoded'][0])
                                 ? base_url('assets/images/' . $dp['gallery_images_decoded'][0])
                                 : (!empty($dp['hover_image']) ? base_url('assets/images/' . $dp['hover_image']) : $d_img);
@@ -183,8 +183,8 @@ $deals_list    = (!empty($flash_sale) && (!empty($flash_sale_products) || !empty
                         <div class="fsh-deal-card">
                             <div class="fsh-deal-media">
                                 <a href="<?= $d_slug; ?>" class="fsh-deal-img-link">
-                                    <img src="<?= $d_img; ?>" alt="<?= html_escape($d_title); ?>" class="fsh-deal-img-main" onerror="this.src='<?= base_url('assets/images/products/womens/women-1.jpg'); ?>'">
-                                    <img src="<?= $d_hover; ?>" alt="<?= html_escape($d_title); ?>" class="fsh-deal-img-hover" onerror="this.src='<?= base_url('assets/images/products/womens/women-2.jpg'); ?>'">
+                                    <img src="<?= $d_img; ?>" alt="<?= html_escape($d_title); ?>" class="fsh-deal-img-main" onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
+                                    <img src="<?= $d_hover; ?>" alt="<?= html_escape($d_title); ?>" class="fsh-deal-img-hover" onerror="this.src='<?= base_url('assets/images/products/product-image.png'); ?>'">
                                 </a>
 
                                 <div class="fsh-deal-badges">
